@@ -1,0 +1,36 @@
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# next.js / build output
+/.next/
+/out/
+/build
+*.tsbuildinfo
+next-env.d.ts
+
+# secrets & local env — NEVER commit
+.env
+.env.*
+!.env.example
+
+# vercel
+.vercel
+
+# local data / uploads / scratch
+/data
+/tmp
+*.log
+
+# os / editor
+.DS_Store
+*.pem
+.idea
+.vscode
+
+# large media / bundles (keep the repo lean)
+*.mp4
+*.mov
+*.zip
+*.tmp

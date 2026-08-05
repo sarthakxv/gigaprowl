@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  body { width: 300px; font-family: system-ui, sans-serif; background: #0A0E0D; color: #E8FFF4; margin: 0; padding: 16px; }
+  h1 { font-size: 15px; margin: 0 0 10px; }
+  h1 span { color: #3DFFA2; }
+  label { font-size: 11px; color: #9fb3a8; display: block; margin: 10px 0 4px; }
+  input { width: 100%; box-sizing: border-box; background: #10161300; border: 1px solid #23302a; border-radius: 8px; padding: 8px; color: #E8FFF4; font-size: 12px; }
+  button { width: 100%; margin-top: 12px; background: #3DFFA2; color: #0A0E0D; font-weight: 700; border: 0; border-radius: 999px; padding: 9px; cursor: pointer; }
+  button.ghost { background: transparent; color: #9fb3a8; border: 1px solid #23302a; margin-top: 8px; }
+  .status { font-size: 11px; color: #9fb3a8; margin-top: 12px; line-height: 1.5; }
+  .ok { color: #3DFFA2; }
+</style>
+</head>
+<body>
+  <h1>prowl<span>.</span> linkedin engine</h1>
+  <label>Prowl URL</label>
+  <input id="base" placeholder="https://prowl-livid.vercel.app" />
+  <label>Pairing token (from Prowl → Settings)</label>
+  <input id="token" placeholder="paste token" />
+  <button id="save">Save & pair</button>
+  <button id="poll" class="ghost">Run now</button>
+  <div class="status" id="status"></div>
+  <script src="popup.js"></script>
+</body>
+</html>

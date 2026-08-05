@@ -1,0 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body { background: #0A0E0D; }
+::selection { background: #3DFFA2; color: #0A0E0D; }

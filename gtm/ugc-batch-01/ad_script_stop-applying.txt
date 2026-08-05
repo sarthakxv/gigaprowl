@@ -1,0 +1,31 @@
+PROWL — 30s AD: "stop applying, start getting hunted"
+Format: 9:16 vertical. Voiceover: prowl_ad_voiceover.mp3 (ElevenLabs "Liam", energetic).
+
+ASSEMBLY (CapCut): audio track = voiceover; video track = 5 scenes in order below; add each caption as on-screen text.
+
+0:00–0:06 | scene1_void.mp4
+  VO: "Everyone keeps telling you to apply harder. 500 applications. Tailor every resume. Wait in the void."
+  CAPTION: everyone says "apply harder" 💀
+
+0:06–0:11 | scene2_rejected.mp4
+  VO: "But the job market is cooked — and grinding harder isn't the flex."
+  CAPTION: the market is cooked. grinding isn't the flex.
+
+0:11–0:18 | scene3_upload.mp4
+  VO: "So flip it: upload your resume once, and let Prowl hunt for you."
+  CAPTION: so flip it → upload once, let it hunt
+
+0:18–0:24 | scene4_replies.mp4
+  VO: "It finds the companies actually hiring, reaches the real decision-maker, and pitches you with your own page and video."
+  CAPTION: real hiring managers. your own pitch page + video.
+
+0:24–0:30 | scene5_hunted.mp4
+  VO: "Stop applying. Start getting hunted. Prowl — five free hunts."
+  CAPTION: stop applying. start getting hunted. → prowl · 5 free hunts
+
+END CARD: prowl. the smartest job hunter in the world. prowl-livid.vercel.app
+
+Notes:
+- Clips are ~5s each; trim/loop to fit each beat's window.
+- Add a trending audio bed under the VO at low volume for TikTok/Reels.
+- Post: TikTok (native upload), then re-upload to Reels; caption hook = "the job market is cooked so I let an AI hunt for me".
