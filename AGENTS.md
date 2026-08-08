@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 
-Gigaprowl is a Next.js 14 App Router application. Page routes and UI live in `app/`; server endpoints follow the `app/api/<feature>/route.js` convention. Shared business logic and integrations belong in `lib/` (for example, `lib/match.js` for scoring and `lib/db.js` for Redis/local JSON persistence). The browser companion is isolated in `extension/`. Product and architecture notes live in `docs/`, while go-to-market material is under `gtm/`. Local state is written to `data/` and ignored by Git.
+Gigaprowl is a Next.js 14 App Router application. Page routes and UI live in `app/`; server endpoints follow the `app/api/<feature>/route.js` convention. Shared business logic and integrations belong in `lib/` (for example, `lib/match.js` for scoring and `lib/db.js` for Redis/local JSON persistence). The browser companion is isolated in `extension/`. Product, architecture, launch, and go-to-market material live in `docs/` (including `docs/gtm/`). Local state is written to `data/` and ignored by Git.
 
 ## Build, Test, and Development Commands
 

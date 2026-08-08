@@ -3,7 +3,7 @@
 **Engine:** HuggingFace Inference Providers → fal-ai → `Wan-AI/Wan2.2-TI2V-5B` (text-to-video)
 **Cost:** ~$0.02–0.05 per clip · **Format:** vertical 9:16 · **Length:** ~5s each · **Delivered:** downloaded to your Downloads folder as `gigaprowl_ugc_0X_*.mp4`
 
-These are **B-roll / visual clips** (no dialogue) — drop them under a captioned hook + voiceover in CapCut. Pair each with the matching hook from `gtm/04-ugc-concepts.md`.
+These are **B-roll / visual clips** (no dialogue) — drop them under a captioned hook + voiceover in CapCut. Pair each with the matching hook from `docs/gtm/04-ugc-concepts.md`.
 
 | File | Angle | Pair with this hook (on-screen text + VO) | Platform |
 |---|---|---|---|
