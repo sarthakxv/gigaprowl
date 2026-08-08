@@ -29,7 +29,7 @@ export default function Pricing() {
   return (
     <div className="min-h-screen bg-ink">
       <nav className="max-w-6xl mx-auto flex items-center justify-between px-6 py-6">
-        <Link href="/" className="font-display text-2xl font-bold">prowl<span className="text-mint">.</span></Link>
+        <Link href="/" className="font-display text-2xl font-bold">gigaprowl<span className="text-mint">.</span></Link>
         <Link href="/login" className="bg-mint text-ink font-semibold px-5 py-2.5 rounded-full hover:bg-mintdim transition text-sm">Start hunting</Link>
       </nav>
       <header className="text-center px-6 pt-16 pb-12">
@@ -63,7 +63,7 @@ export default function Pricing() {
             <h2 className="font-display text-2xl font-bold mb-2">Enterprise & partners</h2>
             <p className="text-fog text-sm">Universities, bootcamps, outplacement firms and recruiters: bulk seats, white-label pitch pages, placement analytics, and a referral program that pays you per successful hire.</p>
           </div>
-          <a href="mailto:partnerships@prowl.jobs?subject=Prowl%20Enterprise" className="border border-mint text-mint font-bold px-8 py-3 rounded-full hover:bg-mint hover:text-ink transition">Talk to us</a>
+          <a href="mailto:partnerships@gigaprowl.jobs?subject=Gigaprowl%20Enterprise" className="border border-mint text-mint font-bold px-8 py-3 rounded-full hover:bg-mint hover:text-ink transition">Talk to us</a>
         </div>
         <p className="text-center text-fog/60 text-xs mt-8">Cancel anytime. Unused monthly hunts roll over while subscribed. Videos use your own consented face & voice capture — delete anytime.</p>
       </div>

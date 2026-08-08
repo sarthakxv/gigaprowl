@@ -1,4 +1,4 @@
-# Prowl — Influencer GTM Plan (Micro/Nano Creator Seeding)
+# Gigaprowl — Influencer GTM Plan (Micro/Nano Creator Seeding)
 
 **Goal:** 10,000 users via micro/nano influencer seeding.
 **ICP:** Job seekers 20–35, tech/white-collar, US + India + global English.
@@ -12,36 +12,36 @@
 
 ### A. TikTok — recruiter / career-coach core (the "CareerTok" engine)
 
-| # | Creator / Handle | Platform | ~Followers | Content style | Why they fit Prowl | Suggested collab angle |
+| # | Creator / Handle | Platform | ~Followers | Content style | Why they fit Gigaprowl | Suggested collab angle |
 |---|---|---|---|---|---|---|
-| 1 | Farah Sharghi — @farahsharghi | TikTok (+YT) | ~165K | Ex-Google/Lyft/TikTok recruiter; straight-talk job search coaching | Recruiter credibility + exactly our ICP (tech job seekers) | "A recruiter reacts: I let AI pitch me a candidate" — she reviews a Prowl pitch page as a recruiter |
+| 1 | Farah Sharghi — @farahsharghi | TikTok (+YT) | ~165K | Ex-Google/Lyft/TikTok recruiter; straight-talk job search coaching | Recruiter credibility + exactly our ICP (tech job seekers) | "A recruiter reacts: I let AI pitch me a candidate" — she reviews a Gigaprowl pitch page as a recruiter |
 | 2 | Mike Peditto — @realisticrecruiting | TikTok + LinkedIn | ~176K | Blunt "real talk" from a hiring director; anti-hype | Trusted skeptic. If he says a tool is useful, it converts | Honest review / stress-test video: "I tried to break this AI job tool" |
 | 3 | Kirstie — @careersbykirstie | TikTok | ~152K | Ex-NASA recruiting specialist; careers, DEI, tech | Tech-career audience, recruiter POV | "Ex-NASA recruiter tries AI outreach to hiring managers" |
 | 4 | Caitlin — @yourstoryunwritten | TikTok | ~199K | Interview tips + career advice, free guides | Job-search-active audience | Demo: resume upload → matched jobs in 60 seconds |
-| 5 | Em Rezkalla — @emrezkalla | TikTok | ~222K | "Corporate big sis" daily career advice (Vancouver) | Gen Z/millennial corporate audience | "Things I wish existed when I was job hunting" listicle incl. Prowl |
+| 5 | Em Rezkalla — @emrezkalla | TikTok | ~222K | "Corporate big sis" daily career advice (Vancouver) | Gen Z/millennial corporate audience | "Things I wish existed when I was job hunting" listicle incl. Gigaprowl |
 | 6 | Katie — @thebigapplered | TikTok + newsletter | ~117K | Word-for-word scripts for interviews/negotiation | Script-lover audience = loves the auto-generated pitch page | "The pitch email you never have to write again" |
-| 7 | Colin Rocker — @careercolin | TikTok + IG | ~126K | Career advice for "the firsts" (first-gen professionals) | First-gen job seekers lack networks — Prowl finds hiring managers for them | "No connections? Here's how AI builds them for you" |
+| 7 | Colin Rocker — @careercolin | TikTok + IG | ~126K | Career advice for "the firsts" (first-gen professionals) | First-gen job seekers lack networks — Gigaprowl finds hiring managers for them | "No connections? Here's how AI builds them for you" |
 | 8 | Kendall — @thatcareercoach | TikTok + podcast | ~113K | "Learn to play the career game" — tactical | Tactical audience, buys tools/courses | Affiliate + podcast mention combo |
 | 9 | Gurvir — @your.careerbestie | TikTok | ~112K | "Career bestie" relatable advice for young women | ICP 20–28, high engagement | POV skit: bestie shows you her secret job-hunt weapon |
-| 10 | Erica Rivera — @careerdivacoaching | TikTok | ~111K | Transferable skills, global opportunities | Global-English audience (fits India + intl) | "Land a global role" demo with Prowl matching |
-| 11 | Alex Schudy — @alexschudy | TikTok + IG | ~126K | Career coach, resource-driven | Resource roundups perform well | Include Prowl in "5 free tools" video (free Pro code) |
+| 10 | Erica Rivera — @careerdivacoaching | TikTok | ~111K | Transferable skills, global opportunities | Global-English audience (fits India + intl) | "Land a global role" demo with Gigaprowl matching |
+| 11 | Alex Schudy — @alexschudy | TikTok + IG | ~126K | Career coach, resource-driven | Resource roundups perform well | Include Gigaprowl in "5 free tools" video (free Pro code) |
 | 12 | Marissa — @themarissamoyer | TikTok | ~134K | Imposter syndrome / work anxiety | Emotional angle: "let AI do the scary outreach part" | "For everyone too anxious to cold-DM a hiring manager" |
 | 13 | Kevin White — @kevin.preston.white | TikTok | ~126K | IT manager, life & career talk, humor | Tech/IT audience + comedic delivery | Reaction video to his own AI avatar pitch video |
 | 14 | Anna Belyaeva — @thecareerdiet | TikTok | ~98K | Career clarity → 6-figure roles | Ambitious upskillers | "Dream role" targeting demo |
 | 15 | Amirah — @amirahgivesadvice | TikTok + IG (@girlletstalkcareer) | ~93K | Career advice for young women | Dual-platform reach for one deal | Cross-post TikTok + IG Reel bundle |
 | 16 | Tiffany Uman — @tiffany.uman | TikTok + LinkedIn | ~93K | Ex-L'Oréal exec; career growth frameworks | Polished audience, white-collar | Strategic angle: "outbound job search > applying online" |
-| 17 | Cassie — @myprofessionalagenda | TikTok | ~83K | Sells resume/cover-letter kits | Already monetizes job-search tools — natural affiliate | Rev-share affiliate; bundle Prowl with her kits |
+| 17 | Cassie — @myprofessionalagenda | TikTok | ~83K | Sells resume/cover-letter kits | Already monetizes job-search tools — natural affiliate | Rev-share affiliate; bundle Gigaprowl with her kits |
 | 18 | Caty Toro — @thatcareercoachcaty | TikTok | ~77K | Ex-recruiter → career coach; mindset + tactics | Recruiter POV, mid-size engaged audience | "Recruiter reacts to AI-generated candidate pitch" |
-| 19 | Bryan Creely — @alifeafterlayoff | TikTok + YouTube (much larger on YT) | ~73K TT | Corporate recruiter turned layoff-recovery educator | THE layoff audience — highest urgency segment | "Laid off? Do this on day 1" featuring Prowl |
-| 20 | Tim Whitehead — @thecareergodfather | TikTok | ~71K | "Career godfather" — warm, playbook-driven | Job-search playbook audience | Add Prowl as step 1 of his playbook |
-| 21 | Eliana Goldstein — @eliana_goldstein | TikTok + IG | ~67K | Job search strategies, millennial career coach | Strategy-first audience | Before/after: manual search vs. Prowl week |
+| 19 | Bryan Creely — @alifeafterlayoff | TikTok + YouTube (much larger on YT) | ~73K TT | Corporate recruiter turned layoff-recovery educator | THE layoff audience — highest urgency segment | "Laid off? Do this on day 1" featuring Gigaprowl |
+| 20 | Tim Whitehead — @thecareergodfather | TikTok | ~71K | "Career godfather" — warm, playbook-driven | Job-search playbook audience | Add Gigaprowl as step 1 of his playbook |
+| 21 | Eliana Goldstein — @eliana_goldstein | TikTok + IG | ~67K | Job search strategies, millennial career coach | Strategy-first audience | Before/after: manual search vs. Gigaprowl week |
 | 22 | Yvonne — @yourcareerguide | TikTok | ~62K | Actionable practical career tips | Pure job-search utility content | 3-part series: match → pitch page → avatar video |
 | 23 | Steph Brown — @kiwilondongirl | TikTok | ~60K | Marketing & tech career coach, ex-Nike/Apple | Tech + marketing careers, global English | "How to get noticed by tech hiring managers in 2026" |
 | 24 | Chris — @careersbychris | TikTok | ~59K | PHR-certified, careers + money, working mom | HR credibility | HR-pro endorsement angle |
 | 25 | Caroline — @whathappensnow.co | TikTok | ~51K | Relatable career coaching | Mid-career switchers | Career-change demo (resume → adjacent roles) |
 | 26 | Peace Imman — @peaceimman | TikTok | ~31K | "Ungatekeeping the future of work" + personal finance | AI-forward framing is her brand | "The future of job hunting is already here" |
 | 27 | Jess — @itsjessfromhr | TikTok | ~29K | HR insider job-searching tips | Nano-tier, HR trust, cheap to seed | Free Pro + affiliate; honest review |
-| 28 | Mira Amber — @miraamber | TikTok | ~33K | NYC private-equity girly "figuring it out" | Finance/white-collar Gen Z | Day-in-the-life with Prowl in the routine |
+| 28 | Mira Amber — @miraamber | TikTok | ~33K | NYC private-equity girly "figuring it out" | Finance/white-collar Gen Z | Day-in-the-life with Gigaprowl in the routine |
 | 29 | Sonia — @levelupwithsonia | TikTok | ~23K | Career coach + recruiter + director | Recruiter POV nano | Seed free Pro, ask for honest reaction |
 | 30 | Chloe Spillane — @careercoachchloe | TikTok | ~23K | Career coach who already covers AI job-search tools | Warmest possible fit — she reviews AI career tools | Early-access "first look" exclusive |
 | 31 | Sameer Jauhar — @sameer_jauhar | TikTok | ~16K | Career glow-up + breaking into tech sales | Tech-sales pivot audience (heavy outbound mindset) | "Outbound your job search like an SDR" |
@@ -53,8 +53,8 @@
 |---|---|---|---|---|---|---|
 | 33 | Jackie Cuevas — @jackiecaves | IG + TikTok | ~150K TT | HR admin/recruiter; resumes, networking, rejection | HR insider voice, ICP-perfect | Resume-upload demo + "what recruiters actually see" |
 | 34 | Sam DeMase — @apowermood | IG + TikTok | ~294K TT | "Career bestie" — negotiation, power moves for women | High-production Reels, huge engagement | Power-move framing: "pitch the hiring manager directly" (upper tier — stretch budget) |
-| 35 | Her Career Doctor — @hercareerdoctor | IG | ~100K+ (verify) | Helps women escape "soul-sucking jobs," 5-figure raises | Career-switch + raise audience | "Escape plan" series featuring Prowl |
-| 36 | Edi — @hercareercafe | IG | ~50–100K (verify) | Career empowerment for Black/LatinX job seekers | Underserved networks → Prowl levels the field | "Your network, built by AI" |
+| 35 | Her Career Doctor — @hercareerdoctor | IG | ~100K+ (verify) | Helps women escape "soul-sucking jobs," 5-figure raises | Career-switch + raise audience | "Escape plan" series featuring Gigaprowl |
+| 36 | Edi — @hercareercafe | IG | ~50–100K (verify) | Career empowerment for Black/LatinX job seekers | Underserved networks → Gigaprowl levels the field | "Your network, built by AI" |
 | 37 | Kyyah Abdul — @kyyahabdul | TikTok + IG | ~316K | Biotech/regulatory career + lifestyle; author | STEM careers, college-grad audience (upper tier) | College-grad survival-guide integration |
 
 ### C. YouTube (incl. Shorts)
@@ -96,13 +96,13 @@
 | Priority | Creator | Why first |
 |---|---|---|
 | 1 | Chloe Spillane (@careercoachchloe) | Already reviews AI career tools — near-zero convincing needed; nano price; fast yes |
-| 2 | Farah Sharghi | Recruiter-credibility anchor. Her endorsement de-risks Prowl for every other creator you pitch ("as seen with...") |
+| 2 | Farah Sharghi | Recruiter-credibility anchor. Her endorsement de-risks Gigaprowl for every other creator you pitch ("as seen with...") |
 | 3 | Mike Peditto | The skeptic. If the honest-review guy approves, comment sections convert. Also LinkedIn crossover |
 | 4 | Bryan Creely (@alifeafterlayoff) | Layoff audience = highest-intent users; his YouTube long-form gives evergreen SEO traffic |
 | 5 | Jess (@itsjessfromhr) | Nano, HR insider, cheap ($100–200/video), tests the "HR approves" message |
-| 6 | Sameer Jauhar | Tech-sales audience already thinks in outbound funnels — Prowl is "outbound for your job search." Cheap, perfect message-market fit |
+| 6 | Sameer Jauhar | Tech-sales audience already thinks in outbound funnels — Gigaprowl is "outbound for your job search." Cheap, perfect message-market fit |
 | 7 | Mingke (@mingkecareer) | Tests global-English/non-native segment (proxy for India expansion) at nano cost |
-| 8 | Colin Rocker (@careercolin) | First-gen professionals have no networks — Prowl's hiring-manager discovery is a genuine story, not an ad |
+| 8 | Colin Rocker (@careercolin) | First-gen professionals have no networks — Gigaprowl's hiring-manager discovery is a genuine story, not an ad |
 | 9 | Jackie Cuevas | IG Reels test + HR voice; dual-platform posting in one deal |
 | 10 | Steph Brown (@kiwilondongirl) | Tech/marketing careers, ex-Nike/Apple brand names, global (UK/NZ) English audience test |
 
@@ -117,15 +117,15 @@
 
 ### DM template (TikTok/IG — first touch, keep under 60 words)
 
-> Hey [Name] — love your [specific video, e.g. "recruiter red flags" clip]. I'm building Prowl: upload your resume, AI finds matching jobs *and the actual hiring managers*, then builds you a pitch page + AI avatar video. Wild to watch. Want a free Pro account to break it on camera? Paid collab if it's a fit.
+> Hey [Name] — love your [specific video, e.g. "recruiter red flags" clip]. I'm building Gigaprowl: upload your resume, AI finds matching jobs *and the actual hiring managers*, then builds you a pitch page + AI avatar video. Wild to watch. Want a free Pro account to break it on camera? Paid collab if it's a fit.
 
 ### Email template (creators with manager/email in bio)
 
-> **Subject: Prowl x [Name] — your audience's job hunt, automated**
+> **Subject: Gigaprowl x [Name] — your audience's job hunt, automated**
 >
 > Hi [Name],
 >
-> I'm [You], founder of Prowl. Job seekers upload a resume; our AI finds matching roles, identifies the hiring managers, and generates a personalized pitch page + AI avatar video pitching them for the job.
+> I'm [You], founder of Gigaprowl. Job seekers upload a resume; our AI finds matching roles, identifies the hiring managers, and generates a personalized pitch page + AI avatar video pitching them for the job.
 >
 > Your [audience descriptor — e.g., "laid-off tech folks"] are exactly who this is for. We'd love to do a paid collab:
 >
@@ -150,7 +150,7 @@
 | Whitelisting / Spark Ads rights | +50–100% of base rate | Run ads from *their* handle; best CPA on TikTok |
 | Performance bonus | $50–200 bonus per 100 installs, or tiered CPM bonus at view milestones | Aligns incentives; caps your downside |
 
-### Suggested Prowl offer ladder
+### Suggested Gigaprowl offer ladder
 
 | Rung | Who | Offer |
 |---|---|---|
@@ -158,7 +158,7 @@
 | L1 — Starter | Nano/small micro (10–50K) | $150–$300 flat per video + 15% rev-share affiliate + free Pro |
 | L2 — Core | Micro (50–150K) | $300–$600 flat per video + $1.50/install (uncapped) + free Pro + 30-day organic usage rights included |
 | L3 — Amplify | Best performers from L1/L2 | +40% of base for 90-day paid usage rights, +75% for Spark Ads/whitelisting; 3-video monthly retainer at 15% discount |
-| L4 — Anchor | 1–2 reach-tier (300K+) per quarter | $1–3K dedicated video + affiliate + ambassador title ("Prowl Career Council") |
+| L4 — Anchor | 1–2 reach-tier (300K+) per quarter | $1–3K dedicated video + affiliate + ambassador title ("Gigaprowl Career Council") |
 
 **Budget sketch to 10K users:** if blended cost is ~$400/creator and median creator drives 150–400 installs (career niche converts hot — high intent), 30–40 activated creators + whitelisted top clips plausibly reaches 10K users for **$15–25K total**, with affiliate making half of it success-based.
 
@@ -181,7 +181,7 @@
 
 ### Usage-rights ask (standard language for every contract)
 
-> "Brand receives a 30-day license to reshare the content organically on Prowl's owned channels with credit. Brand may purchase: (a) 90-day paid usage rights at +40% of base fee, and/or (b) allowlisting/Spark Ads rights at +75% of base fee for 60 days, exercisable within 14 days of posting based on performance."
+> "Brand receives a 30-day license to reshare the content organically on Gigaprowl's owned channels with credit. Brand may purchase: (a) 90-day paid usage rights at +40% of base fee, and/or (b) allowlisting/Spark Ads rights at +75% of base fee for 60 days, exercisable within 14 days of posting based on performance."
 
 This makes rights an *option you buy on winners only* — you never pre-pay usage on content that flops. Also require: FTC/ASCI disclosure (#ad), no copyrighted music on any clip you may boost (Spark Ads + trending audio = licensing liability), and revocable consent IDs logged in the tracking sheet.
 

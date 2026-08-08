@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Prowl LinkedIn Engine",
+  "name": "Gigaprowl LinkedIn Engine",
   "version": "0.1.0",
-  "description": "Runs your Prowl LinkedIn outreach (connection requests + DMs) from your own browser session. Your cookie never leaves your machine.",
+  "description": "Runs your Gigaprowl LinkedIn outreach (connection requests + DMs) from your own browser session. Your cookie never leaves your machine.",
   "permissions": ["storage", "alarms", "tabs", "scripting"],
   "host_permissions": [
     "https://www.linkedin.com/*",
@@ -10,7 +10,7 @@
     "https://*.vercel.app/*"
   ],
   "background": { "service_worker": "background.js" },
-  "action": { "default_popup": "popup.html", "default_title": "Prowl LinkedIn Engine" },
+  "action": { "default_popup": "popup.html", "default_title": "Gigaprowl LinkedIn Engine" },
   "content_scripts": [
     {
       "matches": ["https://www.linkedin.com/*"],

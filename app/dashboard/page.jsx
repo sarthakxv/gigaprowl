@@ -123,7 +123,7 @@ export default function Dashboard() {
       gmail_ok: "Gmail connected — outreach will send from your address ✓",
       gmail_denied: "Gmail connection was cancelled.",
       gmail_unconfigured: "Gmail isn't configured yet (add GOOGLE_CLIENT_ID/SECRET).",
-      gmail_no_refresh: "Google didn't return a refresh token — remove Prowl's access in your Google account, then reconnect.",
+      gmail_no_refresh: "Google didn't return a refresh token — remove Gigaprowl's access in your Google account, then reconnect.",
       gmail_error: "Gmail connection failed — try again.",
       linkedin_ok: "LinkedIn connected ✓",
       linkedin_failed: "LinkedIn connection didn't complete.",
@@ -174,7 +174,7 @@ export default function Dashboard() {
 
   async function setMode(outreachMode) {
     const r = await fetch("/api/settings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ outreachMode }) });
-    if (r.ok) { setToast(outreachMode === "manual" ? "Manual: emails saved as Gmail drafts to review" : "Automated: Prowl sends emails for you"); refresh(); }
+    if (r.ok) { setToast(outreachMode === "manual" ? "Manual: emails saved as Gmail drafts to review" : "Automated: Gigaprowl sends emails for you"); refresh(); }
   }
 
   async function setEmailStyle(emailStyle) {
@@ -209,7 +209,7 @@ export default function Dashboard() {
     <div className="min-h-screen bg-ink pb-20">
       <nav className="border-b border-edge">
         <div className="max-w-6xl mx-auto flex items-center justify-between px-6 py-4">
-          <Link href="/" className="font-display text-xl font-bold">prowl<span className="text-mint">.</span></Link>
+          <Link href="/" className="font-display text-xl font-bold">gigaprowl<span className="text-mint">.</span></Link>
           <div className="flex items-center gap-4 text-sm">
             <span className="text-fog">{credits.balance} credits</span>
             <button onClick={runSync} disabled={syncing} title="Jobs auto-refresh daily; this scans on demand" className="bg-mint text-ink font-semibold px-4 py-2 rounded-full hover:bg-mintdim transition disabled:opacity-50">
@@ -270,7 +270,7 @@ export default function Dashboard() {
           <p className="text-fog/50 text-xs w-full">
             {(state.settings?.outreachMode || "manual") === "manual"
               ? "Manual: emails are saved as drafts in your Gmail for you to review and send. LinkedIn actions queue for the extension."
-              : "Automated: Prowl sends emails from your address directly. LinkedIn runs through the extension, paced to stay safe (ToS risk — keep volumes low)."}
+              : "Automated: Gigaprowl sends emails from your address directly. LinkedIn runs through the extension, paced to stay safe (ToS risk — keep volumes low)."}
           </p>
         </div>
 
@@ -288,8 +288,8 @@ export default function Dashboard() {
               <button onClick={() => setLiPair(null)} className="text-fog hover:text-white text-sm">Close</button>
             </div>
             <ol className="text-sm text-fog space-y-2 mb-4 list-decimal list-inside">
-              <li>Install the Prowl extension (Chrome → Extensions → Load unpacked → the <code className="text-mint">extension/</code> folder).</li>
-              <li>Click the Prowl icon, paste the token below, hit <span className="text-mint">Save &amp; pair</span>.</li>
+              <li>Install the Gigaprowl extension (Chrome → Extensions → Load unpacked → the <code className="text-mint">extension/</code> folder).</li>
+              <li>Click the Gigaprowl icon, paste the token below, hit <span className="text-mint">Save &amp; pair</span>.</li>
               <li>Stay logged into LinkedIn in that browser. Queued invites/DMs run automatically from your own session.</li>
             </ol>
             <div className="flex items-center gap-2 bg-ink border border-edge rounded-xl p-3">
@@ -561,7 +561,7 @@ export default function Dashboard() {
               : <p className="text-fog">no social posts yet — every full hunt drafts a LinkedIn post + X thread that put your work in the target company's feed.</p>)}
             {socialPosts.length > 0 && (
               <>
-                <p className="text-fog/70 text-xs">review before posting — post it yourself: your voice, your profile. prowl never publishes on your behalf.</p>
+                <p className="text-fog/70 text-xs">review before posting — post it yourself: your voice, your profile. gigaprowl never publishes on your behalf.</p>
                 <p className="text-fog/70 text-xs">✓ fact-checked against your résumé — still give it your own read before posting</p>
               </>
             )}

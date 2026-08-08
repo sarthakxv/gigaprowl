@@ -1,8 +1,8 @@
-# Prowl — UGC Creative Batch (Production-Ready)
+# Gigaprowl — UGC Creative Batch (Production-Ready)
 
 **Doc:** 04-ugc-concepts.md · **Feeds from:** 01-content-playbook.md (formats/hooks) + 03-ads-email-growth.md (pipeline/testing rules)
-**Product line for every script:** Upload your resume → Prowl finds your matches, finds the actual hiring manager, builds your pitch page + AI video of you, and runs the outreach.
-**Universal CTA bank (rotate):** "First 5 hunts are free — link in bio." / "Upload your resume, see your matches in 60 seconds." / "Stop applying. Start hunting. Prowl."
+**Product line for every script:** Upload your resume → Gigaprowl finds your matches, finds the actual hiring manager, builds your pitch page + AI video of you, and runs the outreach.
+**Universal CTA bank (rotate):** "First 5 hunts are free — link in bio." / "Upload your resume, see your matches in 60 seconds." / "Stop applying. Start hunting. Gigaprowl."
 **Stat ammo (approved for overlays):** 250+ applicants/job · 400–1,000 for entry-level/remote · ATS rejects in 0.3s · 3 in 4 suspect ghost jobs · tailored apps convert 7–9% vs 2–3% generic · auto-apply bots = 3% reply rate.
 
 ---
@@ -20,10 +20,10 @@ Naming convention per 03 doc: `[ANGLE]_[FORMAT]_[HOOKCODE]_[actor]_[ratio]_[v]_[
 - **Script (30s):**
   - HOOK (0–3s): "A robot rejected my resume in 0.3 seconds. It didn't even open the file."
   - (3–10s): "250 people applied to that job. 4 got interviews. The other 246 of us got a form email at 2am."
-  - (10–20s): "So I stopped feeding the robot. I found the human." Cut to screen-record: Prowl reveals hiring manager name + generates pitch page.
+  - (10–20s): "So I stopped feeding the robot. I found the human." Cut to screen-record: Gigaprowl reveals hiring manager name + generates pitch page.
   - (20–28s): "Now my resume doesn't go into a black hole. It goes into the VP's inbox, with a video of my face on it."
   - CTA (28–30s): "First 5 hunts are free. Link in bio."
-- **Text overlays:** "0.3 SECONDS" (big, red, 0–3s) · "250 applicants → 4 interviews" · "found the ACTUAL hiring manager" · "prowl."
+- **Text overlays:** "0.3 SECONDS" (big, red, 0–3s) · "250 applicants → 4 interviews" · "found the ACTUAL hiring manager" · "gigaprowl."
 - **Sound:** tense trending sound → cuts to silence at reveal, VO only.
 
 ---
@@ -33,10 +33,10 @@ Naming convention per 03 doc: `[ANGLE]_[FORMAT]_[HOOKCODE]_[actor]_[ratio]_[v]_[
 - **Script (35s):**
   - HOOK: "This job has been 'urgently hiring' since January. It is now July. Let's perform the autopsy."
   - (3–12s): Point at posting details. "Reposted 9 times. 'Actively reviewing applicants.' 3 in 4 job seekers think postings like this are fake. They're right — you're networking with a ghost."
-  - (12–22s): "Ghosts don't reply. Humans do. This tool checks if the role is real, then finds the human who owns it." Flash 5s of Prowl's hiring-manager reveal.
+  - (12–22s): "Ghosts don't reply. Humans do. This tool checks if the role is real, then finds the human who owns it." Flash 5s of Gigaprowl's hiring-manager reveal.
   - (22–32s): "I stopped haunting job boards and started DMing the living."
   - CTA: "Drop the oldest 'urgently hiring' post you've seen below. Link in bio if you're done with ghosts."
-- **Overlays:** "GHOST JOB AUTOPSY 🔬" · "posted: JANUARY" · "reposted 9x" · "prowl finds the HUMAN"
+- **Overlays:** "GHOST JOB AUTOPSY 🔬" · "posted: JANUARY" · "reposted 9x" · "gigaprowl finds the HUMAN"
 - **Sound:** dramatic true-crime style narration beat.
 
 ---
@@ -46,7 +46,7 @@ Naming convention per 03 doc: `[ANGLE]_[FORMAT]_[HOOKCODE]_[actor]_[ratio]_[v]_[
 - **Script (30s):**
   - HOOK: "Entry level. Five years of experience. $16 an hour. On-site. In San Francisco. Let's discuss."
   - (3–14s): Deadpan reading of the real posting's requirements, escalating disbelief. "Must be a self-starter — because they will not be training you. Must thrive in ambiguity — because the job description was written by a raccoon."
-  - (14–24s): "This posting got 700 applications anyway. You cannot out-apply this market. You can only go around it." 4s Prowl flash: one role → one named manager → one pitch.
+  - (14–24s): "This posting got 700 applications anyway. You cannot out-apply this market. You can only go around it." 4s Gigaprowl flash: one role → one named manager → one pitch.
   - CTA: "Send me the worst posting you've seen. It might make Episode 2."
 - **Overlays:** "THE AUDACITY FILES — EP 1" · requirement lines popping on beat · "700 applied. or… go around."
 - **Sound:** classical/opera under deadpan reading (contrast comedy).
@@ -59,9 +59,9 @@ Naming convention per 03 doc: `[ANGLE]_[FORMAT]_[HOOKCODE]_[actor]_[ratio]_[v]_[
   - HOOK: "Job boards make money when you STAY unemployed. Sit with that."
   - (3–12s): "Every reposted ghost job, every 'Easy Apply' — that's engagement. You are not the customer. You're the inventory."
   - (12–22s): "So use a tool whose only job is getting you OUT of the search." Screen-record: resume in → matches → hiring manager found → AI video pitch generated.
-  - (22–28s): "Prowl wins when you get hired. That's the whole business model."
+  - (22–28s): "Gigaprowl wins when you get hired. That's the whole business model."
   - CTA: "5 free hunts. Get out of the inventory."
-- **Overlays:** "you are the INVENTORY" · "engagement ≠ employment" · "prowl wins when you're HIRED"
+- **Overlays:** "you are the INVENTORY" · "engagement ≠ employment" · "gigaprowl wins when you're HIRED"
 - **Sound:** low bass "conspiracy reveal" trend audio.
 
 ---
@@ -71,7 +71,7 @@ Naming convention per 03 doc: `[ANGLE]_[FORMAT]_[HOOKCODE]_[actor]_[ratio]_[v]_[
 - **Script (32s):**
   - HOOK: "Recruiters keep saying 'tailor every application.' Okay. Let's do the math."
   - (3–13s): Calculator overlay: "400 applications × 30 minutes of tailoring = 200 hours. That's five unpaid work weeks. To apply."
-  - (13–24s): "Tailored apps DO convert 3x better — they're right about that. They're just wrong that a human should do it." Screen-record: Prowl builds a tailored pitch page + video for one real role in ~30 seconds.
+  - (13–24s): "Tailored apps DO convert 3x better — they're right about that. They're just wrong that a human should do it." Screen-record: Gigaprowl builds a tailored pitch page + video for one real role in ~30 seconds.
   - (24–30s): "Tailoring, industrialized. 30 seconds a role."
   - CTA: "Link in bio. First 5 are free."
 - **Overlays:** "400 × 30min = 200 HOURS" · "tailored = 3x interviews (true)" · "30 seconds (also true)"
@@ -91,7 +91,7 @@ Naming convention per 03 doc: `[ANGLE]_[FORMAT]_[HOOKCODE]_[actor]_[ratio]_[v]_[
   - (12–28s): "Here's the same play in 60 seconds." Screen-record: resume upload → matches → hiring manager identified → pitch page renders → AI video of the creator generates.
   - (28–35s): "Personal pitch site. Video of you. Sent to the actual hiring manager. That's not a hack anymore — it's a button."
   - CTA: "Be the candidate they remember. Link in bio."
-- **Overlays:** "she got 100s of interviews" · "her way: 1 week" · "this way: 60 seconds" · "prowl = that, as a service"
+- **Overlays:** "she got 100s of interviews" · "her way: 1 week" · "this way: 60 seconds" · "gigaprowl = that, as a service"
 - **Sound:** inspiring-but-ironic hopecore audio.
 
 ---
@@ -101,9 +101,9 @@ Naming convention per 03 doc: `[ANGLE]_[FORMAT]_[HOOKCODE]_[actor]_[ratio]_[v]_[
 - **Script (32s):**
   - HOOK (0–4s): Split screen, both faces talking in sync-ish. "One of these is not me."
   - (4–12s): Left face stays silent while right keeps pitching. "The right one is my AI clone. It is currently pitching me to 12 hiring managers while I eat cereal."
-  - (12–26s): Screen-record: Prowl generating the avatar pitch video from a plain resume. "It found the jobs. It found the humans. It made… me."
+  - (12–26s): Screen-record: Gigaprowl generating the avatar pitch video from a plain resume. "It found the jobs. It found the humans. It made… me."
   - (26–30s): "Your face. Your voice. Your dream job."
-  - CTA: "prowl. link in bio."
+  - CTA: "gigaprowl. link in bio."
 - **Overlays:** "one of these is NOT me" · "my clone works. I don't." · arrows at the reveal
 - **Sound:** glitchy/uncanny trend sound → clean beat drop at reveal.
 
@@ -129,7 +129,7 @@ Naming convention per 03 doc: `[ANGLE]_[FORMAT]_[HOOKCODE]_[actor]_[ratio]_[v]_[
   - (10–24s): Screen-record: the full hunt — match, manager, pitch page, avatar video.
   - (24–31s): Back to phone, scroll the (blurred-name) reply: "…impressive, do you have time Thursday?"
   - CTA: "Stop applying. Start hunting."
-- **Overlays:** "1 application. 1 reply. 4 hours." · "200 apps vs 1 hunt" · "prowl."
+- **Overlays:** "1 application. 1 reply. 4 hours." · "200 apps vs 1 hunt" · "gigaprowl."
 - **Sound:** smug/victory trend audio. **Guardrail:** use real beta-user replies only, names blurred — never fabricate a reply screenshot.
 
 ---
@@ -139,9 +139,9 @@ Naming convention per 03 doc: `[ANGLE]_[FORMAT]_[HOOKCODE]_[actor]_[ratio]_[v]_[
 - **Script (38s):**
   - HOOK: "POV: you're a hiring manager. Resume 401 of 600. They all say 'detail-oriented team player.'"
   - (3–12s): Dead-eyed scrolling montage, coffee, sighing.
-  - (12–26s): Opens a Prowl pitch link: candidate's face, 30s personal video, "why I fit THIS role" page. Sits up. Visible shock. "…who IS this."
+  - (12–26s): Opens a Gigaprowl pitch link: candidate's face, 30s personal video, "why I fit THIS role" page. Sits up. Visible shock. "…who IS this."
   - (26–33s): Types to Slack: "cancel the other interviews. found someone."
-  - (33–38s): Flip to candidate (hoodie) getting the interview email. CTA: "Be the one they remember. prowl, link in bio."
+  - (33–38s): Flip to candidate (hoodie) getting the interview email. CTA: "Be the one they remember. gigaprowl, link in bio."
 - **Overlays:** "resume #401" · "then THIS opened" · "be the one they remember"
 - **Sound:** mundane office ambience → heavenly choir at the pitch-page open.
 
@@ -153,29 +153,29 @@ Naming convention per 03 doc: `[ANGLE]_[FORMAT]_[HOOKCODE]_[actor]_[ratio]_[v]_[
 
 **C1. "POV: Month 4 of the Search"**
 - **Platform:** TikTok + Reels · **Format:** slideshow (photo-swipe) with trending audio
-- **Slides/Script:** 1) "POV: it's month 4 and Indeed just recommended you the job that rejected you in month 1" (crying-cat image) 2) "'easy apply' (it was not easy and no one applied you)" 3) "the rejection email that starts with 'We were impressed…'" 4) "your mom: 'have you tried walking in with a firm handshake'" 5) "so I made an AI do the handshake" — Prowl hiring-manager-reveal screenshot 6) end card: "prowl. stop applying, start hunting. 5 free hunts."
-- **Overlays:** built into slides; watermark "prowl." bottom-corner every slide.
+- **Slides/Script:** 1) "POV: it's month 4 and Indeed just recommended you the job that rejected you in month 1" (crying-cat image) 2) "'easy apply' (it was not easy and no one applied you)" 3) "the rejection email that starts with 'We were impressed…'" 4) "your mom: 'have you tried walking in with a firm handshake'" 5) "so I made an AI do the handshake" — Gigaprowl hiring-manager-reveal screenshot 6) end card: "gigaprowl. stop applying, start hunting. 5 free hunts."
+- **Overlays:** built into slides; watermark "gigaprowl." bottom-corner every slide.
 - **Sound:** whatever melancholy-ironic slideshow audio is charting that week.
 
 ---
 
 **C2. "POV: The Hiring Manager Actually Watches a Video of You"**
 - **Platform:** TikTok · **Format:** slideshow, aspirational flip of C1
-- **Slides:** 1) "POV: a hiring manager just watched a video of you… that you never recorded" (shocked-face meme) 2) "you were at the gym" 3) "your AI clone was in a VP's inbox being charming" 4) "the calendar invite arrives" 5) screenshot: Prowl avatar video thumbnail + "interview requested" 6) "prowl. your clone hunts. you live."
+- **Slides:** 1) "POV: a hiring manager just watched a video of you… that you never recorded" (shocked-face meme) 2) "you were at the gym" 3) "your AI clone was in a VP's inbox being charming" 4) "the calendar invite arrives" 5) screenshot: Gigaprowl avatar video thumbnail + "interview requested" 6) "gigaprowl. your clone hunts. you live."
 - **Sound:** dreamy hopecore audio.
 
 ---
 
 **C3. "Applying in 2026: A Horror Story in 6 Frames"**
 - **Platform:** TikTok + IG carousel · **Format:** slideshow
-- **Slides:** 1) "how applying to jobs in 2026 feels" 2) "250 applicants per posting" 3) "rejected by a robot in 0.3s" 4) "the job was a ghost anyway" 5) "the referral guy got it (he applied 4 minutes after posting)" 6) "so I made the AI fight for me" + Prowl reveal screenshot 7) "prowl. stop applying, start hunting."
+- **Slides:** 1) "how applying to jobs in 2026 feels" 2) "250 applicants per posting" 3) "rejected by a robot in 0.3s" 4) "the job was a ghost anyway" 5) "the referral guy got it (he applied 4 minutes after posting)" 6) "so I made the AI fight for me" + Gigaprowl reveal screenshot 7) "gigaprowl. stop applying, start hunting."
 - **Sound:** horror-movie sting audio used ironically. **Cadence note:** this is the Cal AI engine — remix 4–5/week with new frames.
 
 ---
 
 **C4. "POV: Your Rejection Email vs My Reply Email"**
 - **Platform:** TikTok + Shorts · **Format:** split-screen static-motion meme (two phone screens)
-- **Script (20s):** Left phone: templated rejection ("We regret to inform you…"), stacking 5 deep. Right phone: single reply, "Thanks for the video — Thursday work?" VO: "Same week. Same resume. Different door." Beat. "One went through the portal. One went to a person." CTA overlay: "prowl. the other door."
+- **Script (20s):** Left phone: templated rejection ("We regret to inform you…"), stacking 5 deep. Right phone: single reply, "Thanks for the video — Thursday work?" VO: "Same week. Same resume. Different door." Beat. "One went through the portal. One went to a person." CTA overlay: "gigaprowl. the other door."
 - **Overlays:** "PORTAL" vs "PERSON" labels · "same resume, different door"
 - **Sound:** sad piano left / upbeat right, hard-panned (sound-design gag).
 
@@ -186,7 +186,7 @@ Naming convention per 03 doc: `[ANGLE]_[FORMAT]_[HOOKCODE]_[actor]_[ratio]_[v]_[
 - **Script (35s):**
   - HOOK: "Day 47 of unemployment: my AI went to work so I didn't have to."
   - (3–14s): Cozy chaos montage — cereal at 11am, gym, staring at a wall. VO: "Today's agenda was packed."
-  - (14–24s): "Meanwhile, Prowl found 6 roles, found the humans who own them, and sent them a video of me being extremely employable."
+  - (14–24s): "Meanwhile, Gigaprowl found 6 roles, found the humans who own them, and sent them a video of me being extremely employable."
   - (24–32s): Phone buzz on camera: "Interview request — Thursday 2pm." Deadpan look at lens.
   - CTA: "Day 48 tomorrow. Maybe. (link in bio)"
 - **Overlays:** "DAY 47" · "my AI: employed. me: at the gym" · notification close-up
@@ -199,9 +199,9 @@ Naming convention per 03 doc: `[ANGLE]_[FORMAT]_[HOOKCODE]_[actor]_[ratio]_[v]_[
 ---
 
 **D1. "150 Applications vs 10 Pitches — The Experiment"**
-- **Platform:** TikTok + Reels; full thread on X/LinkedIn · **Format:** screen-recording of spreadsheet + Prowl dashboard
+- **Platform:** TikTok + Reels; full thread on X/LinkedIn · **Format:** screen-recording of spreadsheet + Gigaprowl dashboard
 - **Script (40s):**
-  - HOOK: "Week 1: 150 ATS applications, 2 replies. Week 2: 10 Prowl pitches, 6 replies. Same resume. Receipts:"
+  - HOOK: "Week 1: 150 ATS applications, 2 replies. Week 2: 10 Gigaprowl pitches, 6 replies. Same resume. Receipts:"
   - (4–16s): Scroll the tracking spreadsheet — columns of "no response," two sad yellows.
   - (16–28s): Week 2 tab: 10 rows, named hiring managers, status column flipping "Opened → Replied." Show one pitch page + avatar video.
   - (28–36s): "The resume was never the problem. The black hole was."
@@ -213,7 +213,7 @@ Naming convention per 03 doc: `[ANGLE]_[FORMAT]_[HOOKCODE]_[actor]_[ratio]_[v]_[
 
 **D2. "The Numbers Nobody Shows You"** (pure stat slideshow)
 - **Platform:** TikTok + IG carousel · **Format:** slideshow, bold-text stat cards
-- **Slides:** 1) "job search math they don't tell you:" 2) "250+ applicants per posting" 3) "entry-level remote? 400–1,000" 4) "4–6 interviews per posting. total." 5) "generic apps: 2–3% interview rate. tailored: 7–9%" 6) "so the game is: be tailored, be direct, be first" 7) Prowl 3-beat screenshot strip: match → manager → video pitch 8) "prowl does all three. 5 free hunts."
+- **Slides:** 1) "job search math they don't tell you:" 2) "250+ applicants per posting" 3) "entry-level remote? 400–1,000" 4) "4–6 interviews per posting. total." 5) "generic apps: 2–3% interview rate. tailored: 7–9%" 6) "so the game is: be tailored, be direct, be first" 7) Gigaprowl 3-beat screenshot strip: match → manager → video pitch 8) "gigaprowl does all three. 5 free hunts."
 - **Sound:** counting/cash-register trend audio.
 
 ---
@@ -223,11 +223,11 @@ Naming convention per 03 doc: `[ANGLE]_[FORMAT]_[HOOKCODE]_[actor]_[ratio]_[v]_[
 - **Script (38s):**
   - HOOK: "This bot applied to 1,000 jobs overnight for people. Here's what the reviews say."
   - (3–14s): Greenscreen over real review screenshots: wrong countries, wrong industries, 2-star ratings. "A 3% response rate. That's spray-and-pray."
-  - (14–26s): "The opposite of spray-and-pray isn't applying harder. It's aiming." Prowl demo: 1 role → 1 named manager → 1 personalized video pitch.
+  - (14–26s): "The opposite of spray-and-pray isn't applying harder. It's aiming." Gigaprowl demo: 1 role → 1 named manager → 1 personalized video pitch.
   - (26–34s): "One perfect shot beats a thousand blanks."
   - CTA: "Precision hunting. 5 free hunts."
 - **Overlays:** "1,000 apps → 3% replies" · "spray-and-pray is DEAD" · "1 shot. aimed."
-- **Sound:** chaotic alarm audio → calm at the Prowl cut.
+- **Sound:** chaotic alarm audio → calm at the Gigaprowl cut.
 
 ---
 
@@ -237,14 +237,14 @@ Naming convention per 03 doc: `[ANGLE]_[FORMAT]_[HOOKCODE]_[actor]_[ratio]_[v]_[
   - HOOK: "A recruiter spends 6 seconds on your resume. A hiring manager watched 30 full seconds of my pitch video. Do the math."
   - (3–12s): Timer graphic: 6 seconds counting down over a blurred resume — gone. "That's your shot through the front door."
   - (12–22s): 30-second timer over the avatar pitch video playing in an inbox mockup. "Faces hold attention. Resumes don't."
-  - CTA: "Get 5x the attention span. Prowl, link in bio."
+  - CTA: "Get 5x the attention span. Gigaprowl, link in bio."
 - **Overlays:** "6s ⏱ resume" vs "30s ▶ your video" · "5x the attention"
 - **Sound:** stopwatch ticks as the percussion track.
 
 ---
 
 **D5. "I Tracked Every Reply for 30 Days"** (dashboard receipts, serialized monthly)
-- **Platform:** TikTok + LinkedIn native video · **Format:** screen-recording of Prowl outreach dashboard
+- **Platform:** TikTok + LinkedIn native video · **Format:** screen-recording of Gigaprowl outreach dashboard
 - **Script (30s):**
   - HOOK: "30 days of job hunting. Every reply, tracked. Watch the status column."
   - (3–18s): Scroll dashboard: "Sent → Opened → Replied" flipping row by row. VO calls out: "Opened same day… opened… replied… replied…"
@@ -265,7 +265,7 @@ Naming convention per 03 doc: `[ANGLE]_[FORMAT]_[HOOKCODE]_[actor]_[ratio]_[v]_[
   - (0–5s): Stitched clip: coach says "you have to tailor every single application."
   - HOOK CUT (5–7s): Deadpan face. "Sure. All 400 of them?"
   - (7–14s): Math overlay: 400 × 30min = 200 hours.
-  - (14–26s): "Or —" Prowl generates a tailored pitch page + video for one real posting, timestamped 30 seconds.
+  - (14–26s): "Or —" Gigaprowl generates a tailored pitch page + video for one real posting, timestamped 30 seconds.
   - CTA: "Tailoring, industrialized. Link in bio."
 - **Overlays:** "'just tailor it' — 200 HOURS" · "or: 30 seconds"
 - **Sound:** record-scratch at the cut.
@@ -277,8 +277,8 @@ Naming convention per 03 doc: `[ANGLE]_[FORMAT]_[HOOKCODE]_[actor]_[ratio]_[v]_[
 - **Script (25s):**
   - HOOK: "Duet this with your rejection-email wall. I'll go first." Scrolls own inbox: rejection, rejection, rejection.
   - (8–18s): "Every one of these came from a portal. Zero came from a human who'd actually met me. That's the bug."
-  - (18–23s): "I fixed the bug." 4s Prowl flash — manager found, video sent.
-  - CTA: "Duet me. Worst wall gets a free month of Prowl."
+  - (18–23s): "I fixed the bug." 4s Gigaprowl flash — manager found, video sent.
+  - CTA: "Duet me. Worst wall gets a free month of Gigaprowl."
 - **Overlays:** "DUET WITH YOUR REJECTION WALL" · "worst wall wins a free month"
 - **Sound:** open-verse duet-trend audio. **Note:** the giveaway makes this a UGC engine — repost the best duets.
 
@@ -302,7 +302,7 @@ Naming convention per 03 doc: `[ANGLE]_[FORMAT]_[HOOKCODE]_[actor]_[ratio]_[v]_[
   - (0–5s): Stitched clip: "80% of jobs come from networking!"
   - HOOK CUT: "Cool. I'm an introvert with 43 LinkedIn connections and 41 are my cousins."
   - (7–15s): "Networking means 'talk to the human before the portal.' It does not require charisma. It requires a name."
-  - (15–26s): Prowl demo: "It gets the name. It writes the pitch. It even does the face part." Avatar video renders.
+  - (15–26s): Gigaprowl demo: "It gets the name. It writes the pitch. It even does the face part." Avatar video renders.
   - CTA: "Recruiters say network. Fine. My AI networks now."
 - **Overlays:** "networking = getting a NAME" · "my AI networks now"
 - **Sound:** awkward-silence comedy beat → confident track.
@@ -314,7 +314,7 @@ Naming convention per 03 doc: `[ANGLE]_[FORMAT]_[HOOKCODE]_[actor]_[ratio]_[v]_[
 - **Script (30s):**
   - HOOK: "Job posting green flags and red flags. No mercy."
   - (3–20s): Rapid cuts: "Salary listed? Green. 'Competitive salary'? Red. Posted this week? Green. 'Urgently hiring' since March? That's a GHOST, run." (buzzer/ding sounds)
-  - (20–27s): "Or skip the flag-reading entirely — pitch the manager, not the posting." 4s Prowl flash.
+  - (20–27s): "Or skip the flag-reading entirely — pitch the manager, not the posting." 4s Gigaprowl flash.
   - CTA: "Duet this with the reddest flag you've seen."
 - **Overlays:** 🟢/🔴 stamps slamming onto screenshots
 - **Sound:** game-show buzzer/ding pack. **Note:** format is remixable weekly with fresh postings.
@@ -368,7 +368,7 @@ Naming convention per 03 doc: `[ANGLE]_[FORMAT]_[HOOKCODE]_[actor]_[ratio]_[v]_[
 - **Script (35s):**
   - HOOK: "I spent 6 years in retail. Every tech job auto-rejected me in seconds. The ATS can't read potential — so I stopped talking to the ATS."
   - (3–14s): "Career changers get filtered first. Keyword mismatch, gap, 'unconventional background' — the robot doesn't care about your story."
-  - (14–26s): "A hiring manager does. Prowl matched me to ops roles that fit skills I didn't know were transferable, and pitched ME — face, voice, story — not my keywords."
+  - (14–26s): "A hiring manager does. Gigaprowl matched me to ops roles that fit skills I didn't know were transferable, and pitched ME — face, voice, story — not my keywords."
   - (26–31s): "First real conversation of my career change happened that week."
   - CTA: "Your story beats your keywords. Tell it. Link in bio."
 - **Overlays:** "the ATS can't read POTENTIAL" · "pitch your story, not your keywords"
@@ -376,10 +376,10 @@ Naming convention per 03 doc: `[ANGLE]_[FORMAT]_[HOOKCODE]_[actor]_[ratio]_[v]_[
 
 ---
 
-**F5. "Week 1 vs Week 4 of Using Prowl"** (serialized before/after diary)
+**F5. "Week 1 vs Week 4 of Using Gigaprowl"** (serialized before/after diary)
 - **Platform:** TikTok + Reels · **Format:** split diary — phone-cam clips + dashboard screenshots
 - **Script (33s):**
-  - HOOK: "Week 1 of Prowl vs Week 4. I documented everything."
+  - HOOK: "Week 1 of Gigaprowl vs Week 4. I documented everything."
   - (3–12s): Week 1 clips: skeptical face, first hunt, "okay it found a real human, weird."
   - (12–24s): Week 4: dashboard with replies, calendar with two interviews, "I've talked to more hiring managers this month than in the last year."
   - (24–29s): "Same me. Different door."
@@ -393,16 +393,16 @@ Naming convention per 03 doc: `[ANGLE]_[FORMAT]_[HOOKCODE]_[actor]_[ratio]_[v]_[
 
 | # | Type | Headline | Primary Text | Visual |
 |---|---|---|---|---|
-| S1 | Static (tweet-style) | Stop applying. Start hunting. | You're competing with 250 people per job. Or with zero — if you pitch the hiring manager directly. Prowl finds your matches, finds the actual human, and sends them a pitch page + AI video of you. First 5 hunts free. | Fake-tweet screenshot: "prowl found my hiring manager's name in 40 seconds. i've been screaming into an ATS for 6 months." 4.2K likes. |
-| S2 | Static (comparison) | 200 applications vs 1 hunt | Cold applying: 200 apps, 2 replies, 4 months. Prowl: resume in, hiring managers found, video pitch out. Which timeline do you want? | Split image: left = grey wall of "Application submitted ✓" cards; right = single email reply "Do you have time Thursday?" |
-| S3 | Carousel (5 cards) | The job search math they hide from you | Swipe. Then stop playing a rigged game. Prowl pitches the human, not the portal. Free to start. | Card 1: "250+ applicants per job" · 2: "rejected in 0.3s by a robot" · 3: "3 in 4 postings suspected ghosts" · 4: "tailored pitches convert 3x" · 5: product shot — "prowl does the tailoring, the finding, and the pitching." |
-| S4 | Static (product shot) | An AI made a video of you pitching your dream job | Upload your resume. Prowl builds a personal pitch page with an AI video of YOU — and delivers it to the actual hiring manager. This is what the future of "applying" looks like. | Clean phone mockup: avatar pitch video paused mid-frame inside an email, subject "Worth 30 seconds — [Name] for the PM role". |
-| S5 | Static (Notes-app) | read this if you're on month 4 of the search | (keep primary text to one line: "the notes app said it best. link below.") | Notes-app screenshot: "things i learned job hunting in 2026: 1. the portal is a shredder 2. ghosts don't reply 3. humans do 4. get the human's name 5. prowl gets the name" |
-| S6 | Carousel (before/after) | Same resume. Different door. | One resume, two strategies, 30 days. The portal gave it 2 form rejections. Prowl gave it 6 conversations with hiring managers. The resume was never the problem. | Card 1: rejection-email wall · Card 2: Prowl dashboard "Replied ×6" · Card 3: CTA card "5 free hunts". |
-| S7 | Static (meme) | the job market is a group project and everyone else is dead weight | So we built you a teammate that actually does the work: finds roles, finds managers, makes your pitch video, sends it. Prowl. Free to start. | Group-project meme format; "prowl" labeled as the one member doing everything. |
-| S8 | Static (rage/receipt) | "Urgently hiring" since January. It's July. | Ghost jobs waste months of your life. Prowl targets real roles and pitches the named hiring manager — no portal, no void, no ghosts. | Screenshot of a job posting stamped "REPOSTED 9×" with a ghost emoji, red circle annotation. |
-| S9 | Carousel (how-it-works) | Your job hunt, on autopilot | Resume in → matches out → hiring manager found → pitch page + AI video of you → outreach sent. You do the interviews. Prowl does everything before them. | 4 UI cards, one step each, big numerals 1–4, final card: "First 5 hunts free." |
-| S10 | Static (retargeting) | Your first 5 hunts are still free | You looked. The 250 other applicants didn't. Upload your resume — first matches and hiring managers in 60 seconds. | Minimal dark card, prowl wordmark, single line: "5 free hunts. 60 seconds to first match." (Run to site visitors 30d, per 03 §1.2.) |
+| S1 | Static (tweet-style) | Stop applying. Start hunting. | You're competing with 250 people per job. Or with zero — if you pitch the hiring manager directly. Gigaprowl finds your matches, finds the actual human, and sends them a pitch page + AI video of you. First 5 hunts free. | Fake-tweet screenshot: "gigaprowl found my hiring manager's name in 40 seconds. i've been screaming into an ATS for 6 months." 4.2K likes. |
+| S2 | Static (comparison) | 200 applications vs 1 hunt | Cold applying: 200 apps, 2 replies, 4 months. Gigaprowl: resume in, hiring managers found, video pitch out. Which timeline do you want? | Split image: left = grey wall of "Application submitted ✓" cards; right = single email reply "Do you have time Thursday?" |
+| S3 | Carousel (5 cards) | The job search math they hide from you | Swipe. Then stop playing a rigged game. Gigaprowl pitches the human, not the portal. Free to start. | Card 1: "250+ applicants per job" · 2: "rejected in 0.3s by a robot" · 3: "3 in 4 postings suspected ghosts" · 4: "tailored pitches convert 3x" · 5: product shot — "gigaprowl does the tailoring, the finding, and the pitching." |
+| S4 | Static (product shot) | An AI made a video of you pitching your dream job | Upload your resume. Gigaprowl builds a personal pitch page with an AI video of YOU — and delivers it to the actual hiring manager. This is what the future of "applying" looks like. | Clean phone mockup: avatar pitch video paused mid-frame inside an email, subject "Worth 30 seconds — [Name] for the PM role". |
+| S5 | Static (Notes-app) | read this if you're on month 4 of the search | (keep primary text to one line: "the notes app said it best. link below.") | Notes-app screenshot: "things i learned job hunting in 2026: 1. the portal is a shredder 2. ghosts don't reply 3. humans do 4. get the human's name 5. gigaprowl gets the name" |
+| S6 | Carousel (before/after) | Same resume. Different door. | One resume, two strategies, 30 days. The portal gave it 2 form rejections. Gigaprowl gave it 6 conversations with hiring managers. The resume was never the problem. | Card 1: rejection-email wall · Card 2: Gigaprowl dashboard "Replied ×6" · Card 3: CTA card "5 free hunts". |
+| S7 | Static (meme) | the job market is a group project and everyone else is dead weight | So we built you a teammate that actually does the work: finds roles, finds managers, makes your pitch video, sends it. Gigaprowl. Free to start. | Group-project meme format; "gigaprowl" labeled as the one member doing everything. |
+| S8 | Static (rage/receipt) | "Urgently hiring" since January. It's July. | Ghost jobs waste months of your life. Gigaprowl targets real roles and pitches the named hiring manager — no portal, no void, no ghosts. | Screenshot of a job posting stamped "REPOSTED 9×" with a ghost emoji, red circle annotation. |
+| S9 | Carousel (how-it-works) | Your job hunt, on autopilot | Resume in → matches out → hiring manager found → pitch page + AI video of you → outreach sent. You do the interviews. Gigaprowl does everything before them. | 4 UI cards, one step each, big numerals 1–4, final card: "First 5 hunts free." |
+| S10 | Static (retargeting) | Your first 5 hunts are still free | You looked. The 250 other applicants didn't. Upload your resume — first matches and hiring managers in 60 seconds. | Minimal dark card, gigaprowl wordmark, single line: "5 free hunts. 60 seconds to first match." (Run to site visitors 30d, per 03 §1.2.) |
 
 ---
 
@@ -412,12 +412,12 @@ Naming convention per 03 doc: `[ANGLE]_[FORMAT]_[HOOKCODE]_[actor]_[ratio]_[v]_[
 
 1. "The average job posting gets 250 applicants. 4 get interviews. The other 246 did nothing wrong except use the front door. Thread on going in sideways: 🧵"
 2. "unpopular opinion: 'easy apply' is the most expensive button on the internet. it costs you nothing and pays you nothing"
-3. "We're building Prowl in public. Week 1 numbers: [X] signups, [X] resumes uploaded, [X] hiring managers found for users, first reply in [X] hours. The last number is the whole company. 🧵"
+3. "We're building Gigaprowl in public. Week 1 numbers: [X] signups, [X] resumes uploaded, [X] hiring managers found for users, first reply in [X] hours. The last number is the whole company. 🧵"
 4. "In 2024 Marta Puerto made a pitch video + personal site instead of applying and got hundreds of interview requests. Everyone said 'iconic.' Nobody said 'repeatable.' We made it a button."
 5. "auto-apply bots: 1,000 applications overnight, 3% reply rate, wrong countries, 2-star reviews. the problem was never your volume. it was your aim."
 6. "Job boards monetize your attention, not your employment. Think about whose KPI you are."
 7. "resumes are dead. not 'dying.' dead. a hiring manager will watch 30 seconds of a human face before they read 6 seconds of Calibri."
-8. "A user uploaded a resume at 9:14am. Prowl found the hiring manager by 9:15. She replied by 1pm. The entire ATS industrial complex takes 3 weeks to say no. 🧵 how it works:"
+8. "A user uploaded a resume at 9:14am. Gigaprowl found the hiring manager by 9:15. She replied by 1pm. The entire ATS industrial complex takes 3 weeks to say no. 🧵 how it works:"
 9. "hot take: 'just network' is correct advice delivered uselessly. networking = a name + a reason + a message. all three are automatable. only the coffee isn't."
 10. "3 in 4 job seekers think they've applied to ghost jobs. Imagine any other market where 75% of customers suspect the inventory is fake and we all just… keep shopping."
 11. "Things that got people hired this year: a cold email, a pitch video, a DM to the right VP. Things that didn't: application #401. The data has been screaming this for years. 🧵"
@@ -426,7 +426,7 @@ Naming convention per 03 doc: `[ANGLE]_[FORMAT]_[HOOKCODE]_[actor]_[ratio]_[v]_[
 ### 6 LinkedIn Post Drafts
 
 **L1 — Build-in-public (founder):**
-"We launched Prowl 30 days ago. Here's everything, no gloss:
+"We launched Gigaprowl 30 days ago. Here's everything, no gloss:
 → [X] signups · [X]% uploaded a resume in 24h · [X] hiring managers surfaced · first user reply: 4 hours after send.
 The thing I didn't expect? The metric that predicts retention isn't matches found. It's whether the user watches their own AI pitch video to the end. When they see themselves pitching a real hiring manager — by name — something clicks that 400 'Easy Apply' clicks never did.
 Building the anti-black-hole. Comments open — roast us."
@@ -440,12 +440,12 @@ Disagree? Tell me why in the comments. Genuinely asking."
 **L3 — Marta narrative:**
 "Two years ago, Marta Puerto skipped the application portal. She built a personal site, filmed a 100-second pitch, and ended it with 'your free trial of Marta has ended — book an interview.' 7,000+ comments. Hundreds of interview requests.
 Everyone shared it. Almost nobody copied it. Why? Because it took her a week of production work most job seekers can't spare while surviving a job search.
-That gap — between the strategy everyone applauds and the effort nobody has — is exactly what we built Prowl to close. Upload a resume; get the Marta play (pitch page, video of you, direct line to the hiring manager) in about a minute.
+That gap — between the strategy everyone applauds and the effort nobody has — is exactly what we built Gigaprowl to close. Upload a resume; get the Marta play (pitch page, video of you, direct line to the hiring manager) in about a minute.
 The playbook was never the secret. The execution cost was."
 
 **L4 — User story unit-of-virality (template — swap in real user w/ permission):**
 "[Name] was laid off in [month]. 90 applications, 2 automated rejections, 88 silences.
-Then she sent 8 Prowl pitches — personal page, 30-second video, straight to named hiring managers.
+Then she sent 8 Gigaprowl pitches — personal page, 30-second video, straight to named hiring managers.
 3 replies. 2 interviews. 1 offer, signed last week.
 Her resume never changed. Her doorway did.
 (Shared with permission. If you're in the 88-silences phase right now: the front door isn't the only door.)"
@@ -456,7 +456,7 @@ Her resume never changed. Her doorway did.
 Tailoring works (7–9% conversion — triple). Humans just can't afford to do it at market volume. That's a job for software. Ours, ideally, but honestly — anyone's. Just stop doing it by hand at 2am."
 
 **L6 — Build-in-public, honest-miss edition:**
-"A launch lesson from Prowl that stung: our activation metric (resume upload within 24h) was stuck at [X]% until we cut onboarding from 4 screens to 1.
+"A launch lesson from Gigaprowl that stung: our activation metric (resume upload within 24h) was stuck at [X]% until we cut onboarding from 4 screens to 1.
 Every 10 minutes of delay to first value costs roughly 8% of conversions. We knew the stat. We shipped the 4 screens anyway, because each one felt 'important.'
 Users don't want to configure a job hunt. They want to see a hiring manager's name appear next to a job they'd actually take. Everything before that moment is friction wearing a product-decision costume.
 What's the 'important' screen you should delete this week?"
@@ -468,14 +468,14 @@ What's the 'important' screen you should delete this week?"
 ### 5 playful taglines
 1. **"Stop applying. Start hunting."** (primary — already the wedge line)
 2. **"Your free trial of you is available now."** (Marta homage — for pitch-page footers and end cards)
-3. **"Prowl gets the name."** (shorthand for the hiring-manager reveal)
+3. **"Gigaprowl gets the name."** (shorthand for the hiring-manager reveal)
 4. **"The other door."** (portal vs person motif — pairs with C4/S6 creative)
 5. **"Your clone hunts. You live."** (avatar-angle creative and merch-ready)
 
 ### 3 recurring character/series ideas
-1. **"Prowl Reacts to Your Worst Rejection Emails"** — weekly series; followers submit real rejection emails, host (or branded AI avatar "the Prowl cat") reads and roasts the template language ("'We were impressed by your background' — they were not"), ends each ep finding a real alternative role + manager for the submitter. Comment-fueled, infinitely renewable, converts pain into demo.
+1. **"Gigaprowl Reacts to Your Worst Rejection Emails"** — weekly series; followers submit real rejection emails, host (or branded AI avatar "the Gigaprowl cat") reads and roasts the template language ("'We were impressed by your background' — they were not"), ends each ep finding a real alternative role + manager for the submitter. Comment-fueled, infinitely renewable, converts pain into demo.
 2. **"The Hunt of the Day"** — daily 60s episode: one anonymized real user profile → live hunt → the reveal ("today's hunt: senior data analyst, Austin — found the manager in 47 seconds"). This is the brand account's repeatable bit (playbook §4: one bit per account), and E3's comment engine feeds it.
-3. **"Deb from HR vs The Prowl"** — sketch series: recurring fictional overwhelmed ATS-gatekeeper character ("Deb") who keeps being lovingly bypassed. Deb auto-rejects a great candidate in 0.3s; the same candidate's video pitch lands in her boss's inbox by lunch. Deb is never the villain — the portal is. Gives the brand a face, a running joke, and hiring-manager-side shareability.
+3. **"Deb from HR vs The Gigaprowl"** — sketch series: recurring fictional overwhelmed ATS-gatekeeper character ("Deb") who keeps being lovingly bypassed. Deb auto-rejects a great candidate in 0.3s; the same candidate's video pitch lands in her boss's inbox by lunch. Deb is never the villain — the portal is. Gives the brand a face, a running joke, and hiring-manager-side shareability.
 
 ---
 
@@ -489,7 +489,7 @@ What's the 'important' screen you should delete this week?"
 
 **HeyGen (already in product — near-zero marginal cost; use for anything avatar/clone-themed):**
 - B2 (the clone bit — the avatar IS the concept), B4 hook lines, C2 asset, plus 12 hook variants/week for the assembly line
-- Also render the "Prowl cat / Deb" recurring characters here for series 1 and 3
+- Also render the "Gigaprowl cat / Deb" recurring characters here for series 1 and 3
 
 **Creatify ($49 Pro — volume workhorse, URL→ad variants):**
 - D2, D4 variants, F2, F4 alternates, all Part 2 static copy → video adaptations, and the weekly 60-hook batch
@@ -516,7 +516,7 @@ Testing rules (from 03 §3.3): one variable per test · Meta kill at $15 spend/0
 
 ### 5.3 Two-week posting calendar — 3 TikTok accounts
 
-**Accounts:** ① `@prowl` main brand (demo bit + product) · ② `@corporateprowl` meme/persona (rage + POV, faceless-heavy) · ③ `@huntwithprowl` creator/story persona (diary + transformation). Cadence: main 2/day, meme 1–2/day, persona 1/day (playbook §6). Repost everything watermark-free to Reels/Shorts same day.
+**Accounts:** ① `@gigaprowl` main brand (demo bit + product) · ② `@corporategigaprowl` meme/persona (rage + POV, faceless-heavy) · ③ `@huntwithgigaprowl` creator/story persona (diary + transformation). Cadence: main 2/day, meme 1–2/day, persona 1/day (playbook §6). Repost everything watermark-free to Reels/Shorts same day.
 
 | Day | ① Main (2/day) | ② Meme (1–2/day) | ③ Persona (1/day) |
 |---|---|---|---|
@@ -526,14 +526,14 @@ Testing rules (from 03 §3.3): one variable per test · Meta kill at $15 spend/0
 | **W1 Thu** | B1 Marta-as-a-service · Hunt of the Day #3 | E5 Green/Red Flags | F2 New Grad |
 | **W1 Fri** | A1 0.3 Seconds · Hunt of the Day #4 | C2 slideshow · A2 Ghost Autopsy | E2 Duet-bait launch |
 | **W1 Sat** | B3 remix (new resume) | C3 remix w/ weekend audio | C5 Day 50 |
-| **W1 Sun** | Prowl Reacts Ep.1 (rejection emails) | D2 stat slideshow | rest / repost best duet |
+| **W1 Sun** | Gigaprowl Reacts Ep.1 (rejection emails) | D2 stat slideshow | rest / repost best duet |
 | **W2 Mon** | E3 comment-reply Ep.1 · Hunt of the Day #5 | A4 Job Boards Profit | F5 Week-2 diary |
 | **W2 Tue** | B2 hook-variant 2 · Hunt of the Day #6 | C1 remix · E1 Tailor stitch | F3 Speedrun |
 | **W2 Wed** | D5 30-day tracker · E3 Ep.2 | A3 Audacity Ep.2 (from comments) | C5 Day 53 |
 | **W2 Thu** | B4 hook-variant 2 · Hunt of the Day #7 | D3 Auto-apply horror · C3 remix | F1 Laid Off→Hired |
-| **W2 Fri** | Prowl Reacts Ep.2 · Hunt of the Day #8 | E4 Networking stitch | F4 Career Change |
+| **W2 Fri** | Gigaprowl Reacts Ep.2 · Hunt of the Day #8 | E4 Networking stitch | F4 Career Change |
 | **W2 Sat** | winner-remix (whatever's leading) | C2 remix | E2 duet winners repost |
-| **W2 Sun** | week-2 recap ("what Prowl found this week") | best-of slideshow | rest |
+| **W2 Sun** | week-2 recap ("what Gigaprowl found this week") | best-of slideshow | rest |
 
 **End of week 2:** read hook-rate + completion per account, kill any format 0-for-5, triple down on the best (per playbook §6 — expect the algorithm to need the full 2–3 weeks; do not stop). Feed the top 2 organic performers into Spark Ads and Meta test lane (03 §§1.7, 2.2).
 

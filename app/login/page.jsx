@@ -48,7 +48,7 @@ function LoginForm() {
   if (forgot) {
     return (
       <div className="min-h-screen bg-ink flex flex-col items-center justify-center px-6">
-        <Link href="/" className="font-display text-3xl font-bold mb-10">prowl<span className="text-mint">.</span></Link>
+        <Link href="/" className="font-display text-3xl font-bold mb-10">gigaprowl<span className="text-mint">.</span></Link>
         <form onSubmit={sendForgot} className="w-full max-w-sm bg-panel border border-edge rounded-2xl p-8">
           <h1 className="font-display text-2xl font-bold mb-2">Reset password</h1>
           <p className="text-fog text-sm mb-5">Enter your email and we'll send you a reset link.</p>
@@ -68,7 +68,7 @@ function LoginForm() {
 
   return (
     <div className="min-h-screen bg-ink flex flex-col items-center justify-center px-6">
-      <Link href="/" className="font-display text-3xl font-bold mb-10">prowl<span className="text-mint">.</span></Link>
+      <Link href="/" className="font-display text-3xl font-bold mb-10">gigaprowl<span className="text-mint">.</span></Link>
       <form onSubmit={submit} className="w-full max-w-sm bg-panel border border-edge rounded-2xl p-8">
         <h1 className="font-display text-2xl font-bold mb-6">{mode === "signup" ? "let's get you hired 🫡" : "welcome back"}</h1>
         {mode === "signup" && (

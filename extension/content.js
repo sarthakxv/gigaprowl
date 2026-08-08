@@ -1,4 +1,4 @@
-// Runs inside the user's own linkedin.com tabs. Executes Prowl's queued actions
+// Runs inside the user's own linkedin.com tabs. Executes Gigaprowl's queued actions
 // via LinkedIn's internal "Voyager" API using the page's own session + CSRF
 // token. Requests originate from the user's real browser + IP.
 //

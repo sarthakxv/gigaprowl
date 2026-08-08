@@ -1,5 +1,5 @@
-PROWL — 30s AD: "stop applying, start getting hunted"
-Format: 9:16 vertical. Voiceover: prowl_ad_voiceover.mp3 (ElevenLabs "Liam", energetic).
+GIGAPROWL — 30s AD: "stop applying, start getting hunted"
+Format: 9:16 vertical. Voiceover: gigaprowl_ad_voiceover.mp3 (ElevenLabs "Liam", energetic).
 
 ASSEMBLY (CapCut): audio track = voiceover; video track = 5 scenes in order below; add each caption as on-screen text.
 
@@ -12,7 +12,7 @@ ASSEMBLY (CapCut): audio track = voiceover; video track = 5 scenes in order belo
   CAPTION: the market is cooked. grinding isn't the flex.
 
 0:11–0:18 | scene3_upload.mp4
-  VO: "So flip it: upload your resume once, and let Prowl hunt for you."
+  VO: "So flip it: upload your resume once, and let Gigaprowl hunt for you."
   CAPTION: so flip it → upload once, let it hunt
 
 0:18–0:24 | scene4_replies.mp4
@@ -20,10 +20,10 @@ ASSEMBLY (CapCut): audio track = voiceover; video track = 5 scenes in order belo
   CAPTION: real hiring managers. your own pitch page + video.
 
 0:24–0:30 | scene5_hunted.mp4
-  VO: "Stop applying. Start getting hunted. Prowl — five free hunts."
-  CAPTION: stop applying. start getting hunted. → prowl · 5 free hunts
+  VO: "Stop applying. Start getting hunted. Gigaprowl — five free hunts."
+  CAPTION: stop applying. start getting hunted. → gigaprowl · 5 free hunts
 
-END CARD: prowl. the smartest job hunter in the world. prowl-livid.vercel.app
+END CARD: gigaprowl. the smartest job hunter in the world. prowl-livid.vercel.app
 
 Notes:
 - Clips are ~5s each; trim/loop to fit each beat's window.

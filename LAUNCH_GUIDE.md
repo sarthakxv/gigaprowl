@@ -1,9 +1,9 @@
-# Prowl — Email Authentication & Launch Guide (1,000 users)
+# Gigaprowl — Email Authentication & Launch Guide (1,000 users)
 
 This covers both meanings of "email authentication" you need before launch:
 
 1. **User email authentication** — verifying your users' email addresses at signup + password reset (built, live once env is set).
-2. **Sending-domain authentication** — SPF / DKIM / DMARC so Prowl's emails land in the inbox instead of spam (needs a domain).
+2. **Sending-domain authentication** — SPF / DKIM / DMARC so Gigaprowl's emails land in the inbox instead of spam (needs a domain).
 
 Plus a scaling plan for 1,000 users.
 
@@ -50,16 +50,16 @@ This is what makes your outbound land in the inbox. It requires a domain you own
 
 ### Step 2.1 — Buy a domain
 
-Recommended: a short `.com`. Register at **Cloudflare Registrar** (at-cost pricing, free DNS, fast propagation) or Namecheap. Ideas: `getprowl.com`, `prowl.jobs`, `tryprowl.com`, `prowlhq.com`.
+Recommended: a short `.com`. Register at **Cloudflare Registrar** (at-cost pricing, free DNS, fast propagation) or Namecheap. Ideas: `getgigaprowl.com`, `gigaprowl.jobs`, `trygigaprowl.com`, `gigaprowlhq.com`.
 
 Keep your **app** and your **sending** on the same root domain but use a **subdomain for sending** so a deliverability problem never taints your main domain:
 
-- App: `prowl.com` (or `app.prowl.com`)
-- Sending: `send.prowl.com` (what you'll verify in Resend)
+- App: `gigaprowl.com` (or `app.gigaprowl.com`)
+- Sending: `send.gigaprowl.com` (what you'll verify in Resend)
 
 ### Step 2.2 — Verify the domain in Resend
 
-1. Resend dashboard → **Domains → Add Domain** → enter `send.prowl.com`.
+1. Resend dashboard → **Domains → Add Domain** → enter `send.gigaprowl.com`.
 2. Resend shows you **DNS records to add**. They look like this (your exact values will differ — copy from Resend, not from here):
 
 ```
@@ -74,7 +74,7 @@ Type: TXT    Name: send                       Value: v=spf1 include:amazonses.co
 3. Add a **DMARC** record on the root (tells receivers what to do with unauthenticated mail):
 
 ```
-Type: TXT    Name: _dmarc                      Value: v=DMARC1; p=none; rua=mailto:dmarc@prowl.com; fo=1
+Type: TXT    Name: _dmarc                      Value: v=DMARC1; p=none; rua=mailto:dmarc@gigaprowl.com; fo=1
 ```
 
 Start with `p=none` (monitor only). After 1–2 weeks of clean reports, tighten to `p=quarantine`, then `p=reject`.
@@ -86,9 +86,9 @@ Start with `p=none` (monitor only). After 1–2 weeks of clean reports, tighten 
 Once verified, set these in Vercel (Section 3) and redeploy:
 
 ```
-RESEND_FROM=Prowl <hello@send.prowl.com>          # outreach + default
-RESEND_SYSTEM_FROM=Prowl <accounts@send.prowl.com> # verify/reset emails
-APP_URL=https://prowl.com                           # used to build verify/reset links
+RESEND_FROM=Gigaprowl <hello@send.gigaprowl.com>          # outreach + default
+RESEND_SYSTEM_FROM=Gigaprowl <accounts@send.gigaprowl.com> # verify/reset emails
+APP_URL=https://gigaprowl.com                           # used to build verify/reset links
 ```
 
 ---
@@ -103,7 +103,7 @@ Add these:
 |---|---|---|
 | `APP_URL` | `https://prowl-livid.vercel.app` (then your domain) | Builds correct verify/reset links |
 | `RESEND_WEBHOOK_SECRET` | `whsec_…` from Resend → Webhooks | Verifies webhook signatures |
-| `RESEND_SYSTEM_FROM` | `Prowl <accounts@send.prowl.com>` | Sender for account emails (after domain) |
+| `RESEND_SYSTEM_FROM` | `Gigaprowl <accounts@send.gigaprowl.com>` | Sender for account emails (after domain) |
 | `CAP_EMAIL_PER_DAY` | `50` (default) | Per-user daily email cap |
 | `CAP_LINKEDIN_PER_DAY` | `20` (default) | Per-user daily LinkedIn cap |
 
@@ -113,7 +113,7 @@ Add these:
 
 Resend dashboard → **Webhooks → Add Endpoint**:
 
-- URL: `https://prowl.com/api/webhooks/resend` (or the vercel.app URL for now)
+- URL: `https://gigaprowl.com/api/webhooks/resend` (or the vercel.app URL for now)
 - Events: `email.bounced`, `email.complained`, `email.delivered`, `email.opened`
 - Copy the signing secret (`whsec_…`) into `RESEND_WEBHOOK_SECRET`.
 

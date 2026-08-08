@@ -21,6 +21,7 @@ next-env.d.ts
 # local data / uploads / scratch
 /data
 /tmp
+.firecrawl/
 *.log
 
 # os / editor

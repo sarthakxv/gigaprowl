@@ -53,7 +53,7 @@ export async function POST(req) {
     if (existingVoice && !replaceVoice)
       return NextResponse.json({ ok: true, kind, voice: true, reused: true });
     const voiceMime = file.type || "audio/mpeg";
-    const heygenVoiceId = await cloneVoiceHeyGen(buffer, voiceMime, `prowl-${userId.slice(-6)}`);
+    const heygenVoiceId = await cloneVoiceHeyGen(buffer, voiceMime, `gigaprowl-${userId.slice(-6)}`);
     await updateUserState(userId, (s) => {
       s.media.voiceSample = true;
       s.media.heygenVoiceId = heygenVoiceId;

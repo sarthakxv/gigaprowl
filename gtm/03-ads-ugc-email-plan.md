@@ -1,4 +1,4 @@
-# Prowl — Paid + Outbound GTM Plan
+# Gigaprowl — Paid + Outbound GTM Plan
 ## AI UGC Mass-Production, Paid Ads (Meta + TikTok), and Cold Email at Scale
 
 **Goal:** 10,000 users ASAP → 100,000. Pricing: $0 trial / ~$49 / ~$129 monthly.
@@ -11,7 +11,7 @@
 
 ## A1. Tool Landscape (2025–2026)
 
-| Tool | Pricing | Per-video cost | Quality | API | Verdict for Prowl |
+| Tool | Pricing | Per-video cost | Quality | API | Verdict for Gigaprowl |
 |---|---|---|---|---|---|
 | **HeyGen** (you own it) | Creator $29/mo (600 credits); API pay-as-you-go from $5; Avatar IV ≈ $4/min via API (~$2 per 30s ad) | ~$1–2 per 30s ad via API | Very good; Avatar IV lip-sync is among the best; UGC-style avatar library added 2025 | **Yes — best API in class, pay-as-you-go** | **Primary engine. You already pay for it and have the render pipeline built (task #14).** |
 | **Arcads.ai** | Starter $110/mo (10 videos), Creator $220/mo (20), Pro custom w/ API. ~$11/video | ~$11+ per usable ad (re-gens for edits cost full credit) | Best-in-class realism, 300+ UGC actors; 2.8/5 Trustpilot mostly on price-to-value | Pro tier only | Use as a **quality benchmark / winner-polishing tool**, not the volume engine. Too expensive at 50–100 variants/week (~$550–1,100/wk). |
@@ -27,7 +27,7 @@
 
 ## A2. The Pipeline: 50–100 Ad Variants/Week
 
-You already have Anthropic API + HeyGen + ElevenLabs wired into Prowl's render pipeline. Repurpose it as an internal "ad factory":
+You already have Anthropic API + HeyGen + ElevenLabs wired into Gigaprowl's render pipeline. Repurpose it as an internal "ad factory":
 
 ```
 STEP 1 — SCRIPT MATRIX (Claude API, batch)
@@ -45,12 +45,12 @@ STEP 3 — TALKING HEAD (HeyGen API, ~$2/video Avatar IV)
 
 STEP 4 — B-ROLL LIBRARY (Veo 3.1 Fast, one-time + weekly top-ups)
   Build a reusable library of 30–50 clips: phone buzzing with "Interview
-  request", laptop with Prowl dashboard, stressed person at desk, offer
+  request", laptop with Gigaprowl dashboard, stressed person at desk, offer
   letter, coffee-shop job hunt. ~$2.25 per 15s clip.
 
 STEP 5 — ASSEMBLY (ffmpeg script or JSON2Video/Creatomate API)
   Template: [Hook: 0-3s talking head or B-roll] → [Problem: 3-10s] →
-  [Demo screen-recording of Prowl: 10-20s] → [Proof/result: 20-27s] →
+  [Demo screen-recording of Gigaprowl: 10-20s] → [Proof/result: 20-27s] →
   [CTA: 27-33s]. Auto-burn captions (big, high-contrast, TikTok-style),
   add trending-safe music bed, export 9:16 1080×1920 + 1:1 + 4:5 crops.
 
@@ -74,7 +74,7 @@ STEP 6 — QC + UPLOAD
 - `A1-BLACKHOLE` — "500 applications, zero replies" (ATS black hole)
 - `A2-GHOSTED` — recruiter ghosting
 - `A3-TIME` — job hunting is a full-time job you don't have time for
-- `A4-UNFAIR` — referrals/insiders get the jobs; Prowl gets you to the hiring manager directly
+- `A4-UNFAIR` — referrals/insiders get the jobs; Gigaprowl gets you to the hiring manager directly
 - `A5-AI-EDGE` — everyone else uses AI to apply; you're behind
 - `A6-VIDEO-WOW` — the product magic: "it made a personalized video pitch page for every hiring manager"
 
@@ -110,10 +110,10 @@ Test **one variable per batch** (same script, vary hook; same hook, vary avatar)
 ### Benchmarks to plan against (2025–2026 data)
 - Cross-industry: CPM ~$13–14 (up ~20% YoY), CPC ~$0.78, median CPA ~$38.
 - **Employment & job training is a strong Meta vertical: ~11.7% lead CVR** (top 5 of all industries). Education CPA as low as ~$8 — career intent audiences convert.
-- Realistic Prowl expectations: **CPM $8–15** (broad, US), **cost per free-trial start $8–25** in testing, settling toward **$10–18** with winning creative. Cost per *paid* subscriber = trial cost ÷ trial→paid rate (industry free-trial conversion runs 15–25%; assume 15%) → **$60–150 CAC** initially. At $49–129/mo that's a 1–3 month payback — workable, and it improves as creative wins compound.
+- Realistic Gigaprowl expectations: **CPM $8–15** (broad, US), **cost per free-trial start $8–25** in testing, settling toward **$10–18** with winning creative. Cost per *paid* subscriber = trial cost ÷ trial→paid rate (industry free-trial conversion runs 15–25%; assume 15%) → **$60–150 CAC** initially. At $49–129/mo that's a 1–3 month payback — workable, and it improves as creative wins compound.
 
 ### Funnel decision: web-first, not app-install
-Prowl is a Next.js web app on Vercel — run **website conversion campaigns**, not app campaigns. This sidesteps the worst iOS ATT/SKAN pain (75%+ of iOS users opt out of tracking; app campaigns require SKAN/AAK workflows). Notes:
+Gigaprowl is a Next.js web app on Vercel — run **website conversion campaigns**, not app campaigns. This sidesteps the worst iOS ATT/SKAN pain (75%+ of iOS users opt out of tracking; app campaigns require SKAN/AAK workflows). Notes:
 - Implement **Meta Pixel + Conversions API (CAPI)** server-side from day one (you control the backend; target 70%+ event match quality by passing email, name, and click IDs on signup).
 - Conversion events: `StartTrial` (primary optimization event), `CompleteRegistration`, `Subscribe` (value passed). Optimize on `StartTrial` until you have volume, then move to `Subscribe`/Purchase optimization once you see ~50 subscribes/week per ad set.
 - Send `Subscribe` with value via CAPI at Stripe webhook time — this is what lets Meta find *payers*, not trial tourists (young traffic starts trials and cancels; watch trial→paid by age breakdown).
@@ -137,7 +137,7 @@ CAMPAIGN 3 — PRWL_META_RMKT (manual, ~10%)
 
 **Targeting:** Go broad and let creative do the targeting — your UGC hooks self-select job seekers. Do NOT over-narrow; Meta's employment ads policies (Special Ad Category applies to job *listings*, not job-search *tools*, but expect occasional review friction — appeal quickly and avoid "get hired" guarantees in copy). Useful interest tests for the manual lab only: "job hunting," "LinkedIn," "resume," recently-moved, graduation-age stacks. Lookalikes of subscribers once you have 500+.
 
-**Creative formats:** 80% 9:16 video (UGC factory output), 15% static (meme-style, "text-message" screenshots, before/after dashboards), 5% carousel (step-by-step "how Prowl found me a job"). Always upload 9:16 + 4:5 + 1:1.
+**Creative formats:** 80% 9:16 video (UGC factory output), 15% static (meme-style, "text-message" screenshots, before/after dashboards), 5% carousel (step-by-step "how Gigaprowl found me a job"). Always upload 9:16 + 4:5 + 1:1.
 
 ### Budget + scaling rules
 - **Start $70/day Meta** ($30 test / $30 ASC / $10 remarketing; ASC waits until week 2).
@@ -157,11 +157,11 @@ Graduate to ASC: ≥5 trials at <$25 each AND hook rate >25%. Kill in ASC: 7-day
 
 ## B2. TikTok Ads
 
-### Why TikTok is arguably better for Prowl
+### Why TikTok is arguably better for Gigaprowl
 CareerTok/LayoffTok is a massive organic category; job-hunt content is native to the platform. Benchmarks: **global median CPI $1.72** (app campaigns); **Spark Ads deliver ~$1.41 median CPI vs $1.93 for standard in-feed (-27%) and a 33% higher click-to-install rate**; DTC median CPA $15.80 (top quartile <$9.40). For a web-trial funnel, expect **cost per trial $6–20** — often cheaper than Meta, with faster creative burn-out.
 
 ### Spark Ads plan (primary format)
-1. Create a **Prowl TikTok account** and post the UGC-factory videos organically (2–3/day). Also seed 3–5 micro-creators ($100–200/post or via Icon.com human ads, ~$66/ad) with usage rights.
+1. Create a **Gigaprowl TikTok account** and post the UGC-factory videos organically (2–3/day). Also seed 3–5 micro-creators ($100–200/post or via Icon.com human ads, ~$66/ad) with usage rights.
 2. Boost the best organic posts as **Spark Ads** (creator/brand grants a video code in-app; ad runs from the real account — 30% higher completion, 142% higher engagement vs standard in-feed). Caption is locked to the organic post, max 4 display lines — write captions ad-ready.
 3. Standard in-feed ads as overflow for factory variants that don't get posted organically.
 
@@ -198,7 +198,7 @@ Target: **~9,000 sends/month in month 1, ~30,000/month by month 3.**
 
 | Component | Spec | Notes |
 |---|---|---|
-| **Domains** | Start **10** look-alike domains (e.g. getprowl.co, tryprowl.com, prowlapp.io, prowlhq.com, joinprowl.com, prowl-jobs.com …). Never send cold from prowl.com | ~$120/yr total. Buy 10 more at month 2. |
+| **Domains** | Start **10** look-alike domains (e.g. getgigaprowl.co, trygigaprowl.com, gigaprowlapp.io, gigaprowlhq.com, joingigaprowl.com, gigaprowl-jobs.com …). Never send cold from gigaprowl.com | ~$120/yr total. Buy 10 more at month 2. |
 | **Mailboxes/domain** | **2–3 max** (Google Workspace, $6–7/seat) | 10 domains × 3 = **30 inboxes**, ~$200/mo. Alternatively Smartlead pre-warmed inboxes to start faster. |
 | **Auth** | SPF, DKIM, DMARC (start p=none → p=quarantine at day 30), custom tracking domain per sending domain, List-Unsubscribe header ON | Non-negotiable per Gmail/Microsoft 2025 rules. |
 | **Warmup** | **30 days minimum** before campaign sends (or buy pre-warmed). Smartlead warmup stays ON forever — teams that stop see deliverability erode in 6–8 weeks | Ramp: wk1 5–10/day, wk2 15–20, wk3 25–30, wk4 35–40 warm+cold blended. |
@@ -215,26 +215,26 @@ Month-1 realistic volume while warming: ~300/day by week 4. **Start domain purch
 | **Apollo directly** | People search with **personal email** as primary email type; filters: US, titles you serve, "open to new opportunities" signals, recently-departed (job change gap) | Thousands; 1 credit/contact | Cleanest ToS path. Cross-reference with OpenToWork list for intent. |
 | **layoffs.fyi layoff lists** | Crowdsourced spreadsheets of laid-off employees *who opted in to be visible to recruiters* — free with attribution. Pull names/companies → Apollo enrich for personal emails | Bursty; thousands per big layoff event | **Best list quality**: explicit "please contact me about jobs" intent. Also mirror: WARN act filings, Airtable layoff lists per company. |
 | **New-grad lists** | University career-fair public lists, GitHub "new grad 2026" repos (SimplifyJobs etc.) contributors, Discord/communities — collect via opt-in lead magnet instead of scraping where possible | Moderate | Younger = Gmail-heavy, lower $ conversion; deprioritize for cold email, target via TikTok instead. |
-| **Prowl's own free tier** | Anyone who uploads a resume but doesn't convert = warm email list (this is consented marketing email, not cold) | Compounds | Your best "cold" channel is actually this lifecycle list — build it aggressively. |
+| **Gigaprowl's own free tier** | Anyone who uploads a resume but doesn't convert = warm email list (this is consented marketing email, not cold) | Compounds | Your best "cold" channel is actually this lifecycle list — build it aggressively. |
 
-Dedupe across sources, enrich each lead with: `first_name, current/last title, last company, layoff_event (if any), top job match Prowl found, hiring_manager_name at that company`. That last field powers the killer personalization.
+Dedupe across sources, enrich each lead with: `first_name, current/last title, last company, layoff_event (if any), top job match Gigaprowl found, hiring_manager_name at that company`. That last field powers the killer personalization.
 
 ## C3. The Sequence — "we already made your pitch video"
 
-The trick: **run each lead through Prowl's own pipeline before emailing** (resume-less mode: title + company + LinkedIn → find 3 matching live roles + a hiring manager). The email demonstrates the product instead of describing it. Personalized video/page links lift replies 2–4×; keep videos <60s.
+The trick: **run each lead through Gigaprowl's own pipeline before emailing** (resume-less mode: title + company + LinkedIn → find 3 matching live roles + a hiring manager). The email demonstrates the product instead of describing it. Personalized video/page links lift replies 2–4×; keep videos <60s.
 
 **Email 1 — Day 0 (plain text, no links, no images):**
 > **Subject:** `{{first_name}} — 3 roles at {{company_1}}, {{company_2}} + the hiring managers`
 >
 > Hi {{first_name}} — saw you're open to new roles after {{last_company}}.
 >
-> I ran your background through Prowl (I'm the founder) and it found 3 live openings that match your {{specialty}} experience — including a {{job_title_1}} at {{company_1}}, where the hiring manager is {{hm_first_name}}.
+> I ran your background through Gigaprowl (I'm the founder) and it found 3 live openings that match your {{specialty}} experience — including a {{job_title_1}} at {{company_1}}, where the hiring manager is {{hm_first_name}}.
 >
 > It also drafted a 40-second personalized video pitch from you to {{hm_first_name}} — the kind of thing that skips the ATS pile entirely.
 >
 > Want me to send the link so you can see it? (Free — no card.)
 >
-> — {{sender_name}}, Prowl
+> — {{sender_name}}, Gigaprowl
 > {{postal_address}} · reply "no" and I won't email again
 
 **Email 2 — Day 3 (the payoff, 1 link):**
@@ -247,9 +247,9 @@ The trick: **run each lead through Prowl's own pipeline before emailing** (resum
 > One thing worth knowing: {{company_1}} posted that role {{days_ago}} days ago and roles like it close in ~3 weeks. Worth a look this week.
 
 **Email 3 — Day 7 (breakup + proof):**
-> **Subject:** `closing your Prowl matches`
+> **Subject:** `closing your Gigaprowl matches`
 >
-> I'll stop here — but before I archive your matches: last month Prowl users landed interviews at {{proof_companies}} by pitching hiring managers directly instead of applying cold. Average: first interview request in 11 days.
+> I'll stop here — but before I archive your matches: last month Gigaprowl users landed interviews at {{proof_companies}} by pitching hiring managers directly instead of applying cold. Average: first interview request in 11 days.
 >
 > Your 3 matches (and the video) stay live for 7 more days: {{pitch_page_url}}
 >

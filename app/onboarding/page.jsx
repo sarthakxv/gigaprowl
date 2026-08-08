@@ -48,7 +48,7 @@ export default function Onboarding() {
     <div className="min-h-screen bg-ink px-6 py-10">
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center justify-between">
-          <Link href="/" className="font-display text-2xl font-bold">prowl<span className="text-mint">.</span></Link>
+          <Link href="/" className="font-display text-2xl font-bold">gigaprowl<span className="text-mint">.</span></Link>
           <button
             onClick={async () => { await fetch("/api/auth/logout", { method: "POST" }); router.replace("/login?mode=login"); }}
             className="text-fog hover:text-white text-sm"
@@ -68,7 +68,7 @@ export default function Onboarding() {
         {step === 0 && (
           <div>
             <h1 className="font-display text-3xl font-bold mb-2">drop your resume ✨</h1>
-            <p className="text-fog mb-8">this is the only required step — prowl builds your entire hunt from it.</p>
+            <p className="text-fog mb-8">this is the only required step — gigaprowl builds your entire hunt from it.</p>
             {!profile ? (
               <div>
                 <div className="bg-panel border-2 border-mint rounded-2xl p-6">
@@ -139,7 +139,7 @@ export default function Onboarding() {
         {step === 1 && (
           <div>
             <h1 className="font-display text-3xl font-bold mb-2">You stay in control</h1>
-            <p className="text-fog mb-8">Prowl finds the opportunities and prepares the work. Nothing is sent just because you finished onboarding.</p>
+            <p className="text-fog mb-8">Gigaprowl finds the opportunities and prepares the work. Nothing is sent just because you finished onboarding.</p>
             <div className="space-y-3 mb-8">
               {[
                 ["1", "Review your matches", "See why each role fits before generating anything."],

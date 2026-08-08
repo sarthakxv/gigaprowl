@@ -1,4 +1,4 @@
-# Prowl — the smartest job hunter in the world
+# Gigaprowl — the smartest job hunter in the world
 
 Agentic job-hunting SaaS MVP. Upload a resume → AI profiles you (product vs. services fit, skills, seniority) → daily scanner pulls live jobs from top-company boards → matches are scored → one click ("Hunt this") finds the hiring manager, generates a personalized pitch landing page + 60-second video script, and drafts a 4-step email/LinkedIn cadence. Credit-based pricing baked in.
 

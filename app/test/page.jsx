@@ -7,10 +7,10 @@ export default function TestBench() {
   const [toast, setToast] = useState(null);
   const [busy, setBusy] = useState(null);
   const [liUrl, setLiUrl] = useState("");
-  const [liMsg, setLiMsg] = useState("Hi — testing Prowl's LinkedIn outreach. Ignore this!");
+  const [liMsg, setLiMsg] = useState("Hi — testing Gigaprowl's LinkedIn outreach. Ignore this!");
   const [emTo, setEmTo] = useState("");
-  const [emSub, setEmSub] = useState("Test from Prowl (Resend)");
-  const [emBody, setEmBody] = useState("This is a test email sent from Prowl via Resend. If you got this, email sending works.");
+  const [emSub, setEmSub] = useState("Test from Gigaprowl (Resend)");
+  const [emBody, setEmBody] = useState("This is a test email sent from Gigaprowl via Resend. If you got this, email sending works.");
 
   const refresh = useCallback(async () => {
     const r = await fetch("/api/state");
@@ -68,7 +68,7 @@ export default function TestBench() {
     <div className="min-h-screen bg-ink text-white pb-24">
       <nav className="border-b border-edge">
         <div className="max-w-3xl mx-auto flex items-center justify-between px-6 py-4">
-          <Link href="/" className="font-display text-xl font-bold">prowl<span className="text-mint">.</span></Link>
+          <Link href="/" className="font-display text-xl font-bold">gigaprowl<span className="text-mint">.</span></Link>
           <div className="flex items-center gap-3 text-sm">
             <Link href="/dashboard" className="text-fog hover:text-white">Dashboard</Link>
             <span className="text-fog/60">outreach test bench</span>
@@ -92,7 +92,7 @@ export default function TestBench() {
         {/* 1. Connect LinkedIn */}
         <div className="bg-panel border border-edge rounded-2xl p-6">
           <p className="font-semibold mb-1">1 · Connect your LinkedIn</p>
-          <p className="text-fog text-sm mb-4">Opens a secure connection window where you sign in to LinkedIn. Prowl never displays or stores your LinkedIn password.</p>
+          <p className="text-fog text-sm mb-4">Opens a secure connection window where you sign in to LinkedIn. Gigaprowl never displays or stores your LinkedIn password.</p>
           <button onClick={connectLinkedIn} disabled={busy === "connect" || !ig.linkedinManaged} className="bg-mint text-ink font-bold px-6 py-2.5 rounded-full hover:bg-mintdim transition disabled:opacity-40">
             {li?.accountId ? "Reconnect LinkedIn" : busy === "connect" ? "Opening…" : "Connect LinkedIn"}
           </button>

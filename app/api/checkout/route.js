@@ -6,8 +6,8 @@ export const dynamic = "force-dynamic";
 
 // Consumer plans. Prices in cents; credits granted monthly via webhook.
 export const PLANS = {
-  plus: { name: "Prowl Plus", amount: 1900, credits: 50 },
-  max: { name: "Prowl Max", amount: 4900, credits: 200 },
+  plus: { name: "Gigaprowl Plus", amount: 1900, credits: 50 },
+  max: { name: "Gigaprowl Max", amount: 4900, credits: 200 },
 };
 
 // POST { plan } → Stripe Checkout Session URL (subscription, inline price).

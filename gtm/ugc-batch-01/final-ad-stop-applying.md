@@ -1,4 +1,4 @@
-# Prowl — Final Ad: "stop applying, start getting hunted"
+# Gigaprowl — Final Ad: "stop applying, start getting hunted"
 
 **Format:** 9:16 vertical (704×1280), 24fps, ~33.5s video / 30s voiceover, with audio.
 **Pipeline:** fal.ai — Wan 2.2-5B (5 clips, `aspect_ratio:9:16`, `num_frames:161`) → ElevenLabs VO ("Liam") → `fal-ai/ffmpeg-api/compose` (single auto-stitch, no CapCut).
@@ -14,9 +14,9 @@
 |---|-------|----|---------|
 | 1 | scene1_void | 0.0s | "apply harder… 500 applications… wait in the void" |
 | 2 | scene2_rejected | 6.7s | "the market is cooked, grinding isn't the flex" |
-| 3 | scene3_upload | 13.4s | "flip it — upload once, let Prowl hunt for you" |
+| 3 | scene3_upload | 13.4s | "flip it — upload once, let Gigaprowl hunt for you" |
 | 4 | scene4_replies | 20.1s | "finds who's hiring, reaches the decision-maker, pitches you" |
-| 5 | scene5_hunted | 26.8s | "stop applying, start getting hunted. Prowl — five free hunts" |
+| 5 | scene5_hunted | 26.8s | "stop applying, start getting hunted. Gigaprowl — five free hunts" |
 
 ## Source clip URLs (vertical, 6.7s each)
 - scene1_void: https://v3b.fal.media/files/b/0aa25794/nNrI5b72cJIz_XOvzzviB_txcaD3vX.mp4

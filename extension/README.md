@@ -1,15 +1,15 @@
-# Prowl LinkedIn Engine (Chrome extension)
+# Gigaprowl LinkedIn Engine (Chrome extension)
 
-Runs your Prowl LinkedIn outreach — connection requests + DMs — from **your own
+Runs your Gigaprowl LinkedIn outreach — connection requests + DMs — from **your own
 browser session**. Your LinkedIn cookie never leaves your machine; requests go
 out from your real IP/fingerprint, paced to stay under the radar.
 
 ## Install (unpacked, for now)
 1. Chrome → `chrome://extensions` → toggle **Developer mode** (top-right).
 2. **Load unpacked** → select this `extension/` folder.
-3. Click the Prowl icon in the toolbar.
-4. In Prowl → dashboard → **Connect LinkedIn**, copy the pairing token.
-5. Paste it into the extension popup, set the Prowl URL, hit **Save & pair**.
+3. Click the Gigaprowl icon in the toolbar.
+4. In Gigaprowl → dashboard → **Connect LinkedIn**, copy the pairing token.
+5. Paste it into the extension popup, set the Gigaprowl URL, hit **Save & pair**.
 6. Keep a LinkedIn tab open and stay logged in.
 
 ## How it works
