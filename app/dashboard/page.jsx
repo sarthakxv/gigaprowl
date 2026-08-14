@@ -227,11 +227,11 @@ export default function Dashboard() {
             <p className="text-fog text-sm">{profile.title} · {profile.seniority} · <span className="text-mint capitalize">{profile.orientation}</span>-oriented</p>
           </div>
           <div className="flex flex-wrap gap-2">
-            {profile.topSkills.map((s) => <span key={s} className="text-xs bg-edge rounded-full px-3 py-1 text-mint">{s}</span>)}
+            {profile.topSkills.map((s) => <span key={s} className="text-xs bg-edge rounded-full px-3 py-1 text-mint capitalize">{s}</span>)}
           </div>
           <label className="text-xs border border-edge hover:border-mint rounded-full px-3 py-1.5 text-fog hover:text-white cursor-pointer transition">
             <input type="file" accept=".pdf,.docx,.txt,.md" className="hidden" onChange={(e) => e.target.files[0] && updateResume(e.target.files[0])} />
-            {uploadingMedia === "resume" ? "Updating résumé…" : "Update résumé"}
+            {uploadingMedia === "resume" ? "Updating resume…" : "Update resume"}
           </label>
           <p className="text-fog/60 text-xs ml-auto">
             {state.jobCount} jobs indexed · last scan {state.lastSync ? new Date(state.lastSync).toLocaleString() : "never"}
