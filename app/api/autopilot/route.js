@@ -4,6 +4,7 @@ import { getUserId } from "@/lib/auth";
 import { rankJobs, videoEligibility } from "@/lib/match";
 import { generateApplyKit } from "@/lib/ai";
 import { runFullHunt, requestBase } from "@/lib/hunt";
+import { creditsAreUnlimited } from "@/lib/credits";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -33,12 +34,13 @@ export async function POST(req) {
     const liteTargets = ranked.filter((m) => m.score >= LITE_BAND && m.score < FULL_BAND).slice(0, MAX_LITE);
 
     const base = requestBase(req);
+    const unlimitedCredits = creditsAreUnlimited();
     const results = { full: [], lite: [], creditsLeft: state.credits.balance };
 
     // Full hunts run sequentially (each is heavy + mutates state), gated on credits.
     let credits = state.credits.balance;
     for (const m of fullTargets) {
-      if (credits <= 0) break;
+      if (!unlimitedCredits && credits <= 0) break;
       try {
         // Re-read state each hunt so pushes accumulate correctly.
         const fresh = await getUserState(userId);

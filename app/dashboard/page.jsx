@@ -84,7 +84,7 @@ export default function Dashboard() {
     const r = await fetch("/api/outreach", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ matchId }) });
     const d = await r.json();
     setHunting(null);
-    setToast(r.ok ? `Outreach ready — pitch page + ${d.cadenceSteps}-step cadence drafted (${d.creditsLeft} credits left)` : d.error);
+    setToast(r.ok ? `Outreach ready — pitch page + ${d.cadenceSteps}-step cadence drafted (${d.unlimitedCredits ? "unlimited credits" : `${d.creditsLeft} credits left`})` : d.error);
     refresh();
   }
 
@@ -211,7 +211,7 @@ export default function Dashboard() {
         <div className="max-w-6xl mx-auto flex items-center justify-between px-6 py-4">
           <Link href="/" className="font-display text-xl font-bold">gigaprowl<span className="text-mint">.</span></Link>
           <div className="flex items-center gap-4 text-sm">
-            <span className="text-fog">{credits.balance} credits</span>
+            <span className="text-fog">{credits.unlimited ? "Unlimited credits · Dev" : `${credits.balance} credits`}</span>
             <button onClick={runSync} disabled={syncing} title="Jobs auto-refresh daily; this scans on demand" className="bg-mint text-ink font-semibold px-4 py-2 rounded-full hover:bg-mintdim transition disabled:opacity-50">
               {syncing ? "Scanning…" : "Refresh jobs"}
             </button>

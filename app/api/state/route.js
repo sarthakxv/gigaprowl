@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getUserState, getJobPool, getUserById } from "@/lib/db";
 import { getUserId } from "@/lib/auth";
 import { rankJobs } from "@/lib/match";
+import { creditsAreUnlimited } from "@/lib/credits";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -32,7 +33,7 @@ export async function GET(req) {
     pitches: state.pitchRefs,
     applyKits: state.applyKits || [],
     socialPosts: state.socialPosts || [],
-    credits: state.credits,
+    credits: { ...state.credits, unlimited: creditsAreUnlimited() },
     sends: state.sends || [],
     settings: { outreachMode: state.settings?.outreachMode || "manual", emailStyle: state.settings?.emailStyle || "standard" },
     liQueue: { pending: (state.linkedinQueue || []).filter((a) => a.status === "pending").length },
