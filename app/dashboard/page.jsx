@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import VoiceRecorder from "../onboarding/VoiceRecorder";
 
@@ -58,15 +58,55 @@ export default function Dashboard() {
     })();
   }, [state, socialRunning, refresh]);
 
+  // Apply kits are decoupled from the hunt the same way social posts are: a
+  // hunt's 60s budget is already full, so we fill ATS copy afterwards (and
+  // backfill anything already hunted that never got a kit).
+  const [kitRunning, setKitRunning] = useState(false);
+  const kitAttemptedRef = useRef(new Set());
+  useEffect(() => {
+    if (!state || kitRunning) return;
+    const kits = state.applyKits || [];
+    const pending = (state.pitches || []).filter(
+      (p) => p.matchId && !kits.some((x) => x.matchId === p.matchId) && !kitAttemptedRef.current.has(p.matchId)
+    );
+    if (!pending.length) return;
+    const batch = pending.slice(0, 5);
+    batch.forEach((p) => kitAttemptedRef.current.add(p.matchId));
+    setKitRunning(true);
+    (async () => {
+      for (const p of batch) {
+        try {
+          await fetch("/api/apply-kit", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ matchId: p.matchId }) });
+        } catch {}
+      }
+      setKitRunning(false);
+      refresh();
+    })();
+  }, [state, kitRunning, refresh]);
+
   // Outreach generation is always explicit. "Automated" controls delivery of
   // already-generated cadence steps; it never starts creating outreach.
-  async function runAutopilot() {
+  async function runAutopilot(opts = {}) {
     if (!state || autopilot === "running") return;
     setAutopilot("running");
     try {
-      await fetch("/api/autopilot", { method: "POST" });
+      await fetch("/api/autopilot", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ liteOnly: !!opts.liteOnly }),
+      });
     } catch {}
     setAutopilot("done");
+    refresh();
+  }
+
+  async function makeApplyKit(matchId) {
+    setHunting(matchId);
+    const r = await fetch("/api/apply-kit", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ matchId }) });
+    const d = await r.json().catch(() => ({}));
+    setHunting(null);
+    setToast(r.ok ? "Apply kit ready — copy bullets + note from the Apply kits tab" : (d.error || "Apply kit failed"));
+    if (r.ok) { kitAttemptedRef.current.add(matchId); setTab("Apply kits"); }
     refresh();
   }
 
@@ -204,6 +244,8 @@ export default function Dashboard() {
   const { profile, matches, contacts, cadences, pitches, credits, integrations, media } = state;
   const applyKits = state.applyKits || [];
   const socialPosts = state.socialPosts || [];
+  const kitIds = new Set(applyKits.map((k) => k.matchId));
+  const liteWithoutKit = (matches || []).filter((m) => m.score >= 50 && m.score < 75 && !kitIds.has(m.id));
 
   return (
     <div className="min-h-screen bg-ink pb-20">
@@ -334,7 +376,16 @@ export default function Dashboard() {
               <p className="font-semibold">Ready to generate outreach?</p>
               <p className="text-fog text-sm">Review your matches first. This creates pitch pages and cadence drafts; it does not send them.</p>
             </div>
-            <button onClick={runAutopilot} className="bg-mint text-ink font-bold px-5 py-2.5 rounded-full hover:bg-mintdim transition">Generate for top matches</button>
+            <button onClick={() => runAutopilot()} className="bg-mint text-ink font-bold px-5 py-2.5 rounded-full hover:bg-mintdim transition">Generate for top matches</button>
+          </div>
+        )}
+        {!!pitches.length && !!liteWithoutKit.length && autopilot !== "running" && (
+          <div className="bg-panel border border-edge rounded-2xl p-5 mb-6 flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <p className="font-semibold">Free apply kits for mid-tier matches</p>
+              <p className="text-fog text-sm">{liteWithoutKit.length} solid match{liteWithoutKit.length === 1 ? "" : "es"} (score 50–74) can get tailored bullets + an apply note — 0 credits.</p>
+            </div>
+            <button onClick={() => runAutopilot({ liteOnly: true })} className="bg-mint text-ink font-bold px-5 py-2.5 rounded-full hover:bg-mintdim transition">Generate apply kits</button>
           </div>
         )}
         {autopilot === "running" && (
@@ -389,12 +440,30 @@ export default function Dashboard() {
                   )}
                 </div>
                 {m.status === "outreach_ready" ? (
-                  <span className="text-mint text-sm font-semibold">✓ Outreach ready</span>
-                ) : m.status === "apply_kit_ready" ? (
+                  <div className="flex items-center gap-3">
+                    <span className="text-mint text-sm font-semibold">✓ Outreach ready</span>
+                    {kitIds.has(m.id) ? (
+                      <button onClick={() => setTab("Apply kits")} className="text-mint text-sm font-semibold hover:underline">⚡ Apply kit</button>
+                    ) : (
+                      <button onClick={() => makeApplyKit(m.id)} disabled={!!hunting} className="text-fog hover:text-white text-xs border border-edge rounded-full px-3 py-1.5 transition disabled:opacity-50">
+                        {hunting === m.id ? "Writing kit…" : kitRunning ? "Kit incoming…" : "Get apply kit (free)"}
+                      </button>
+                    )}
+                  </div>
+                ) : m.status === "apply_kit_ready" || kitIds.has(m.id) ? (
                   <div className="flex items-center gap-3">
                     <button onClick={() => setTab("Apply kits")} className="text-mint text-sm font-semibold hover:underline">⚡ Apply kit ready</button>
                     <button onClick={() => hunt(m.id)} disabled={!!hunting} className="text-fog hover:text-white text-xs border border-edge rounded-full px-3 py-1.5 transition disabled:opacity-50">
                       {hunting === m.id ? "Hunting…" : "Promote to full hunt (1 credit)"}
+                    </button>
+                  </div>
+                ) : m.score < 75 ? (
+                  <div className="flex items-center gap-3">
+                    <button onClick={() => makeApplyKit(m.id)} disabled={!!hunting} className="bg-mint text-ink text-sm font-bold px-5 py-2.5 rounded-full hover:bg-mintdim transition disabled:opacity-50">
+                      {hunting === m.id ? "Writing kit…" : "Get apply kit (free)"}
+                    </button>
+                    <button onClick={() => hunt(m.id)} disabled={!!hunting} className="text-fog hover:text-white text-xs border border-edge rounded-full px-3 py-1.5 transition disabled:opacity-50">
+                      {hunting === m.id ? "Hunting…" : "Hunt this (1 credit)"}
                     </button>
                   </div>
                 ) : (
@@ -409,13 +478,28 @@ export default function Dashboard() {
 
         {tab === "Apply kits" && (
           <div className="space-y-4">
-            {applyKits.length === 0 && <p className="text-fog">no apply kits yet — autopilot drops free ones here for your mid-tier matches (score 50–74).</p>}
+            {applyKits.length === 0 && (
+              <div className="bg-panel border border-edge rounded-2xl p-5">
+                {kitRunning || autopilot === "running" ? (
+                  <p className="text-mint font-semibold animate-pulse">Writing apply kits…</p>
+                ) : (
+                  <>
+                    <p className="text-fog">No apply kits yet. Hunt a job (kits fill in after outreach is ready) or generate free ones for mid-tier matches (score 50–74).</p>
+                    {!!liteWithoutKit.length && (
+                      <button onClick={() => runAutopilot({ liteOnly: true })} className="mt-4 bg-mint text-ink font-bold px-5 py-2.5 rounded-full hover:bg-mintdim transition">
+                        Generate apply kits ({liteWithoutKit.length})
+                      </button>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
             {applyKits.map((k) => (
               <div key={k.id} className="bg-panel border border-edge rounded-2xl p-6">
                 <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                   <div>
                     <a href={k.job.url} target="_blank" className="font-semibold hover:text-mint transition">{k.job.title} @ {k.job.company}</a>
-                    <p className="text-fog text-xs mt-0.5">match score {k.score} · lite hunt · 0 credits</p>
+                    <p className="text-fog text-xs mt-0.5">match score {k.score ?? "—"} · 0 credits</p>
                   </div>
                   <span className="text-xs border border-edge rounded-full px-3 py-1 text-fog">apply kit ⚡</span>
                 </div>
