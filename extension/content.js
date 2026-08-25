@@ -3,7 +3,7 @@
 // token. Requests originate from the user's real browser + IP.
 //
 // Relationship-aware: it checks the target's degree live and picks the valid
-// path — DM a 1st-degree/Open-Profile person, otherwise send a connection
+// path. DM a 1st-degree/Open-Profile person, otherwise send a connection
 // request (with the note). On a security checkpoint it stops and reports back.
 //
 // NOTE: Voyager endpoints are undocumented and change. If actions start failing,

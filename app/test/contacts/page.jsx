@@ -57,7 +57,7 @@ export default function ContactProbe() {
       <div className="max-w-3xl mx-auto px-6 pt-8 space-y-6">
         <div>
           <h1 className="font-display text-2xl font-bold">Contact probe</h1>
-          <p className="text-fog text-sm mt-1">Same Apollo path as hunt. Empty means Apollo found nobody — no Alex/Jordan.</p>
+          <p className="text-fog text-sm mt-1">Same Apollo path as hunt. Empty means Apollo found nobody, not a demo Alex/Jordan.</p>
         </div>
 
         <div className="space-y-2">

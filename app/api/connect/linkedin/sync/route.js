@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 // Called right after the hosted-auth wizard redirects back. Reconciles the
 // connection by asking Unipile which LinkedIn account is now linked and binding
-// it to THIS user — but never an account already owned by another user (one
+// it to THIS user, but never an account already owned by another user (one
 // shared Unipile key hosts everyone, so cross-assignment is the risk). Idempotent.
 export async function POST(req) {
   const userId = getUserId(req);
@@ -32,7 +32,7 @@ export async function POST(req) {
     if (!pick) pick = withOwner.find((a) => !a.owner);
 
     if (!pick) {
-      // Every connected account already belongs to other users — refuse rather
+      // Every connected account already belongs to other users. Refuse rather
       // than hijack someone else's LinkedIn.
       return NextResponse.json({ ok: false, connected: false, reason: "no_unclaimed_account" });
     }

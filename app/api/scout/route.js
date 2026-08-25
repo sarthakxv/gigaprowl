@@ -24,7 +24,7 @@ export async function POST(req) {
     const profile = await inferProfile(linkedinUrl, { refresh: !!body.refresh });
     const result = await buildReport(linkedinUrl, profile, { windowHours: 48, limit: 3 });
 
-    // No gate: always return the full report. Email is optional — if provided,
+    // No gate: always return the full report. Email is optional. If provided,
     // we capture it as a lead, but it never blocks the results.
     if (email && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
       try {

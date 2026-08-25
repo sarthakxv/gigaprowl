@@ -124,7 +124,7 @@ export default function Dashboard() {
     const r = await fetch("/api/outreach", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ matchId }) });
     const d = await r.json();
     setHunting(null);
-    setToast(r.ok ? `Outreach ready — pitch page + ${d.cadenceSteps}-step cadence drafted (${d.unlimitedCredits ? "unlimited credits" : `${d.creditsLeft} credits left`})` : d.error);
+    setToast(r.ok ? `Outreach ready. Pitch page + ${d.cadenceSteps}-step cadence drafted (${d.unlimitedCredits ? "unlimited credits" : `${d.creditsLeft} credits left`})` : d.error);
     refresh();
   }
 
@@ -135,10 +135,10 @@ export default function Dashboard() {
     fd.append("kind", kind); fd.append("file", file);
     let r;
     try { r = await fetch("/api/media", { method: "POST", body: fd }); }
-    catch { setUploadingMedia(null); return setMediaError("Upload failed — check your connection and retry."); }
+    catch { setUploadingMedia(null); return setMediaError("Upload failed. Check your connection and retry."); }
     const data = await r.json().catch(() => ({}));
     setUploadingMedia(null);
-    if (r.ok) { setToast(kind === "voice" ? "Voice added — your videos will use your cloned voice" : "Photo added — avatar videos enabled"); refresh(); }
+    if (r.ok) { setToast(kind === "voice" ? "Voice added. Your videos will use your cloned voice" : "Photo added. Avatar videos enabled"); refresh(); }
     else setMediaError(data.error || `${kind === "voice" ? "Voice" : "Photo"} upload failed.`);
   }
 
@@ -149,7 +149,7 @@ export default function Dashboard() {
     const r = await fetch("/api/resume", { method: "POST", body: fd });
     const data = await r.json().catch(() => ({}));
     setUploadingMedia(null);
-    setToast(r.ok ? "Résumé updated — your profile and matches will refresh" : (data.error || "Résumé update failed"));
+    setToast(r.ok ? "Résumé updated. Your profile and matches will refresh" : (data.error || "Résumé update failed"));
     if (r.ok) refresh();
   }
 
@@ -160,11 +160,11 @@ export default function Dashboard() {
     const p = new URLSearchParams(window.location.search).get("connect");
     if (!p) return;
     const msg = {
-      gmail_ok: "Gmail connected — outreach will send from your address ✓",
+      gmail_ok: "Gmail connected. Outreach will send from your address ✓",
       gmail_denied: "Gmail connection was cancelled.",
       gmail_unconfigured: "Gmail isn't configured yet (add GOOGLE_CLIENT_ID/SECRET).",
-      gmail_no_refresh: "Google didn't return a refresh token — remove Gigaprowl's access in your Google account, then reconnect.",
-      gmail_error: "Gmail connection failed — try again.",
+      gmail_no_refresh: "Google didn't return a refresh token. Remove Gigaprowl's access in your Google account, then reconnect.",
+      gmail_error: "Gmail connection failed. Try again.",
       linkedin_ok: "LinkedIn connected ✓",
       linkedin_failed: "LinkedIn connection didn't complete.",
     }[p];
@@ -246,6 +246,13 @@ export default function Dashboard() {
   const socialPosts = state.socialPosts || [];
   const kitIds = new Set(applyKits.map((k) => k.matchId));
   const liteWithoutKit = (matches || []).filter((m) => m.score >= 50 && m.score < 75 && !kitIds.has(m.id));
+  const scoreByMatchId = new Map((matches || []).map((m) => [m.id, m.score]));
+  function kitScore(k) {
+    const live = scoreByMatchId.get(k.matchId);
+    if (typeof live === "number") return live;
+    if (typeof k.score === "number") return k.score;
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-ink pb-20">
@@ -312,7 +319,7 @@ export default function Dashboard() {
           <p className="text-fog/50 text-xs w-full">
             {(state.settings?.outreachMode || "manual") === "manual"
               ? "Manual: emails are saved as drafts in your Gmail for you to review and send. LinkedIn actions queue for the extension."
-              : "Automated: Gigaprowl sends emails from your address directly. LinkedIn runs through the extension, paced to stay safe (ToS risk — keep volumes low)."}
+              : "Automated: Gigaprowl sends emails from your address directly. LinkedIn runs through the extension, paced to stay safe (ToS risk, keep volumes low)."}
           </p>
         </div>
 
@@ -346,7 +353,7 @@ export default function Dashboard() {
             <div className="flex items-start justify-between gap-4 mb-4">
               <div>
                 <p className="font-display text-lg font-bold">Enable personalized video</p>
-                <p className="text-fog text-sm">Add your photo and a ~30s voice sample to put a 15-second avatar video of you — in your own voice — on every pitch page. Optional, and you can do it anytime.</p>
+                <p className="text-fog text-sm">Add your photo and a ~30s voice sample to put a 15-second avatar video of you, in your own voice, on every pitch page. Optional, and you can do it anytime.</p>
               </div>
               <button onClick={() => setMediaHidden(true)} className="text-fog hover:text-white text-sm shrink-0">Add later</button>
             </div>
@@ -410,7 +417,7 @@ export default function Dashboard() {
 
         {tab === "Matches" && (
           <div className="space-y-3">
-            {matches.length === 0 && <p className="text-fog">No matches yet — hit “Run daily scan”.</p>}
+            {matches.length === 0 && <p className="text-fog">No matches yet. Hit Refresh jobs.</p>}
             {matches.map((m) => (
               <div key={m.id} className="bg-panel border border-edge rounded-2xl p-5 flex flex-wrap items-center gap-4">
                 <div className={`font-display font-bold text-lg w-14 h-14 rounded-xl flex items-center justify-center shrink-0 ${m.score >= 70 ? "bg-mint text-ink" : "bg-edge text-mint"}`}>{m.score}</div>
@@ -443,7 +450,7 @@ export default function Dashboard() {
                   <div className="flex items-center gap-3">
                     <span className="text-mint text-sm font-semibold">✓ Outreach ready</span>
                     {kitIds.has(m.id) ? (
-                      <button onClick={() => setTab("Apply kits")} className="text-mint text-sm font-semibold hover:underline">⚡ Apply kit</button>
+                      <button onClick={() => setTab("Apply kits")} className="text-mint text-sm font-semibold hover:underline">Apply kit</button>
                     ) : (
                       <button onClick={() => makeApplyKit(m.id)} disabled={!!hunting} className="text-fog hover:text-white text-xs border border-edge rounded-full px-3 py-1.5 transition disabled:opacity-50">
                         {hunting === m.id ? "Writing kit…" : kitRunning ? "Kit incoming…" : "Get apply kit (free)"}
@@ -452,7 +459,7 @@ export default function Dashboard() {
                   </div>
                 ) : m.status === "apply_kit_ready" || kitIds.has(m.id) ? (
                   <div className="flex items-center gap-3">
-                    <button onClick={() => setTab("Apply kits")} className="text-mint text-sm font-semibold hover:underline">⚡ Apply kit ready</button>
+                    <button onClick={() => setTab("Apply kits")} className="text-mint text-sm font-semibold hover:underline">Apply kit ready</button>
                     <button onClick={() => hunt(m.id)} disabled={!!hunting} className="text-fog hover:text-white text-xs border border-edge rounded-full px-3 py-1.5 transition disabled:opacity-50">
                       {hunting === m.id ? "Hunting…" : "Promote to full hunt (1 credit)"}
                     </button>
@@ -494,19 +501,23 @@ export default function Dashboard() {
                 )}
               </div>
             )}
-            {applyKits.map((k) => (
+            {applyKits.map((k) => {
+              const score = kitScore(k);
+              return (
               <div key={k.id} className="bg-panel border border-edge rounded-2xl p-6">
                 <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                   <div>
                     <a href={k.job.url} target="_blank" className="font-semibold hover:text-mint transition">{k.job.title} @ {k.job.company}</a>
-                    <p className="text-fog text-xs mt-0.5">match score {k.score ?? "—"} · 0 credits</p>
+                    {typeof score === "number" && (
+                      <p className="text-fog text-xs mt-0.5">match score {score}</p>
+                    )}
                   </div>
-                  <span className="text-xs border border-edge rounded-full px-3 py-1 text-fog">apply kit ⚡</span>
+                  <span className="text-xs border border-edge rounded-full px-3 py-1 text-fog">apply kit</span>
                 </div>
                 {k.fitNote && <p className="text-fog text-sm mb-4">{k.fitNote}</p>}
                 <div className="border border-edge rounded-xl p-4 mb-3">
                   <div className="flex items-center justify-between mb-2">
-                    <p className="text-mint text-xs font-semibold uppercase tracking-wider">tailored resume bullets</p>
+                    <p className="text-mint text-xs font-semibold uppercase tracking-wider">resume bullets</p>
                     <button onClick={() => { navigator.clipboard.writeText((k.bullets || []).map((b) => `• ${b}`).join("\n")); setToast("bullets copied ✓"); }} className="text-xs text-fog hover:text-mint transition">copy all</button>
                   </div>
                   <ul className="space-y-1.5">
@@ -521,7 +532,8 @@ export default function Dashboard() {
                   <p className="text-sm text-fog whitespace-pre-wrap leading-relaxed">{k.applyNote}</p>
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
@@ -602,7 +614,7 @@ export default function Dashboard() {
               {state.connections?.linkedin?.lastSeen && <span>extension seen {new Date(state.connections.linkedin.lastSeen).toLocaleString()}</span>}
             </div>
             {(state.sends || []).length === 0 ? (
-              <p className="text-fog">nothing sent yet — sent emails, drafts, and LinkedIn actions will show up here with timestamps.</p>
+              <p className="text-fog">nothing sent yet. sent emails, drafts, and LinkedIn actions will show up here with timestamps.</p>
             ) : (
               <div className="space-y-2">
                 {[...(state.sends || [])].reverse().map((sd) => {
@@ -641,12 +653,12 @@ export default function Dashboard() {
         {tab === "Social posts" && (
           <div className="space-y-4">
             {socialPosts.length === 0 && (socialRunning
-              ? <p className="text-mint animate-pulse">✍️ writing your posts — fact-checked against your résumé, ~30s…</p>
-              : <p className="text-fog">no social posts yet — every full hunt drafts a LinkedIn post + X thread that put your work in the target company's feed.</p>)}
+              ? <p className="text-mint animate-pulse">✍️ writing your posts, fact-checked against your résumé, ~30s…</p>
+              : <p className="text-fog">no social posts yet. every full hunt drafts a LinkedIn post + X thread that put your work in the target company's feed.</p>)}
             {socialPosts.length > 0 && (
               <>
-                <p className="text-fog/70 text-xs">review before posting — post it yourself: your voice, your profile. gigaprowl never publishes on your behalf.</p>
-                <p className="text-fog/70 text-xs">✓ fact-checked against your résumé — still give it your own read before posting</p>
+                <p className="text-fog/70 text-xs">review before posting. post it yourself: your voice, your profile. gigaprowl never publishes on your behalf.</p>
+                <p className="text-fog/70 text-xs">✓ fact-checked against your résumé. still give it your own read before posting</p>
               </>
             )}
             {socialPosts.map((p) => (
@@ -679,7 +691,7 @@ export default function Dashboard() {
                     ))}
                   </ol>
                 </div>
-                <p className="text-fog/50 text-xs mt-3">review, tweak to taste, then post from your own account — that's the whole point.</p>
+                <p className="text-fog/50 text-xs mt-3">review, tweak to taste, then post from your own account. that's the whole point.</p>
               </div>
             ))}
           </div>

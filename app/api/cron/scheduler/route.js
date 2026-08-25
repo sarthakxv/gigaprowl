@@ -7,8 +7,8 @@ export const maxDuration = 60;
 export const dynamic = "force-dynamic";
 
 // Vercel Cron hits GET daily. Releases any cadence step whose scheduled day has
-// arrived and hasn't been actioned yet — email → draft/send per the user's
-// mode, LinkedIn → queued for their extension. CRON_SECRET-gated.
+// arrived and hasn't been actioned yet. Email goes to draft/send per the user's
+// mode, LinkedIn queues for their extension. CRON_SECRET-gated.
 const DAY = 86400000;
 const PER_USER_CAP = 30;   // max steps released per user per run (safety)
 const EMAIL_CAP = 40;      // max emails per user per run
@@ -50,7 +50,7 @@ async function run() {
           released++; perUser++;
           if (r.queued) linkedin++; else { emails++; perUserEmail++; }
         } catch (e) {
-          errors++; // e.g. Gmail not connected — skip this step, keep going
+          errors++; // e.g. Gmail not connected. Skip this step, keep going
         }
         if (perUser >= PER_USER_CAP) break;
       }

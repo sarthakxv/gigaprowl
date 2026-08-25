@@ -21,7 +21,7 @@ export default function VerifyPage() {
           <>
             <div className="text-5xl mb-4">✓</div>
             <h1 className="font-display text-2xl font-bold mb-2">Email confirmed</h1>
-            <p className="text-fog text-sm mb-6">Your account is active. You're ready to start landing interviews.</p>
+            <p className="text-fog text-sm mb-6">Your account is active. Open the dashboard and start hunting.</p>
             <Link href="/dashboard" className="inline-block bg-mint text-ink font-bold px-6 py-2.5 rounded-full hover:bg-mintdim transition">Go to dashboard →</Link>
           </>
         )}

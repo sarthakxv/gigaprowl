@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 export default async function PitchPage({ params }) {
   const pitch = await getPitch(params.slug);
-  // Not found yet? The hunt may still be generating this page — show a loader
+  // Not found yet? The hunt may still be generating this page. Show a loader
   // that polls and loads it in automatically, instead of erroring out.
   if (!pitch) return <PitchLoader slug={params.slug} />;
   const { content, job, profileSnapshot: prof } = pitch;
@@ -45,7 +45,7 @@ export default async function PitchPage({ params }) {
             {content.cta}
           </a>
         </div>
-        <p className="text-center text-xs text-fog/50 mt-10">Built with Gigaprowl — the smartest job hunter in the world</p>
+        <p className="text-center text-xs text-fog/50 mt-10">Built with Gigaprowl, the smartest job hunter in the world</p>
       </div>
     </div>
   );

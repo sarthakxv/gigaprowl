@@ -29,7 +29,7 @@ export default function PitchLoader({ slug }) {
           <>
             <div className="w-10 h-10 border-2 border-edge border-t-mint rounded-full animate-spin mx-auto mb-6" />
             <h1 className="font-display text-2xl font-bold mb-2">Building your pitch page…</h1>
-            <p className="text-fog">Personalizing the page and video for this role. This can take a minute — it’ll load automatically when it’s ready.</p>
+            <p className="text-fog">Personalizing the page and video for this role. This can take a minute. It will load when it's ready.</p>
           </>
         ) : (
           <>

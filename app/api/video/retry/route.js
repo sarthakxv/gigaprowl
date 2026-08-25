@@ -8,7 +8,7 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 export const dynamic = "force-dynamic";
 
-// POST { slug } — re-kick a failed/missing render. Owner only. Free (no credit charge).
+// POST { slug }. Re-kick a failed/missing render. Owner only. Free (no credit charge).
 export async function POST(req) {
   try {
     const userId = getUserId(req);

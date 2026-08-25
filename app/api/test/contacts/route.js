@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 export const dynamic = "force-dynamic";
 
-// POST { company, title, domain? } — Apollo contact probe. No demo fallback.
+// POST { company, title, domain? }. Apollo contact probe. No demo fallback.
 export async function POST(req) {
   try {
     const userId = getUserId(req);

@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 export const dynamic = "force-dynamic";
 
-// POST { to, subject, body } — send a test email via Resend.
+// POST { to, subject, body }. Send a test email via Resend.
 export async function POST(req) {
   try {
     const userId = getUserId(req);

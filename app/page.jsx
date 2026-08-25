@@ -4,7 +4,7 @@ const COMPANIES = ["Stripe", "Figma", "Notion", "Databricks", "Cloudflare", "Ver
 
 const STEPS = [
   { e: "📄", t: "drop your resume", d: "that's it. that's the whole onboarding. we read it and figure out exactly what you're good at." },
-  { e: "🎯", t: "we find your people", d: "every day we scan 400+ top companies. not job boards — the actual hiring managers who'd be your boss." },
+  { e: "🎯", t: "we find your people", d: "every day we scan 400+ top companies. not job boards. the actual hiring managers who'd be your boss." },
   { e: "🎬", t: "you, but everywhere", d: "we make a personal pitch page + an AI video of you (your face, your voice) for every single company. with your consent, obviously." },
   { e: "📬", t: "outreach on autopilot", d: "emails + linkedin messages, written and sequenced. you review, hit send, and go touch grass." },
 ];
@@ -89,7 +89,7 @@ export default function Landing() {
       </section>
 
       <footer className="relative border-t border-edge py-8 text-center text-fog/50 text-sm">
-        gigaprowl. — the smartest job hunter in the world · <Link href="/pricing" className="hover:text-fog">pricing</Link>
+        gigaprowl. · the smartest job hunter in the world · <Link href="/pricing" className="hover:text-fog">pricing</Link>
       </footer>
     </div>
   );

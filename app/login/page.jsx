@@ -70,7 +70,7 @@ function LoginForm() {
     <div className="min-h-screen bg-ink flex flex-col items-center justify-center px-6">
       <Link href="/" className="font-display text-3xl font-bold mb-10">gigaprowl<span className="text-mint">.</span></Link>
       <form onSubmit={submit} className="w-full max-w-sm bg-panel border border-edge rounded-2xl p-8">
-        <h1 className="font-display text-2xl font-bold mb-6">{mode === "signup" ? "let's get you hired 🫡" : "welcome back"}</h1>
+        <h1 className="font-display text-2xl font-bold mb-6">{mode === "signup" ? "let's get you hired" : "welcome back"}</h1>
         {mode === "signup" && (
           <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name"
             className="w-full bg-ink border border-edge rounded-xl px-4 py-3 mb-3 text-sm focus:border-mint outline-none" />

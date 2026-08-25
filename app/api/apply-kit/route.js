@@ -9,8 +9,8 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 export const dynamic = "force-dynamic";
 
-// POST { matchId } → free apply kit (bullets + apply note). Idempotent.
-// Used after a hunt (dashboard backfill) and from the Matches row for mid-tier jobs.
+// POST { matchId }. One free kit. Safe to call twice.
+// Runs after a hunt, and from Matches for jobs scored 50-74.
 export async function POST(req) {
   try {
     const userId = getUserId(req);
@@ -24,7 +24,7 @@ export async function POST(req) {
     if (hasApplyKit(state, matchId)) return NextResponse.json({ ok: true, already: true });
 
     const resolved = await resolveJob(matchId, pool, state);
-    if (!resolved) return NextResponse.json({ error: "Job not found — run a scan and retry" }, { status: 404 });
+    if (!resolved) return NextResponse.json({ error: "Job not found. Run a scan and retry." }, { status: 404 });
 
     const kit = await generateApplyKit(state.profile, resolved.job);
     const record = buildApplyKitRecord({ kit, job: resolved.job, score: resolved.score });
@@ -44,15 +44,13 @@ async function resolveJob(matchId, pool, state) {
   const ref = (state.pitchRefs || []).find((p) => p.matchId === matchId);
   if (!ref) return null;
   const pitch = await getPitch(ref.slug);
-  return {
-    job: {
-      sourceId: matchId,
-      title: ref.job?.title,
-      company: ref.job?.company,
-      url: pitch?.job?.url || "",
-      location: null,
-      description: pitch?.job?.description || "",
-    },
-    score: null,
+  const job = {
+    sourceId: matchId,
+    title: ref.job?.title,
+    company: ref.job?.company,
+    url: pitch?.job?.url || "",
+    location: null,
+    description: pitch?.job?.description || "",
   };
+  return { job, score: scoreJob(state.profile, job).score };
 }

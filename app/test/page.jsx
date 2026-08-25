@@ -7,7 +7,7 @@ export default function TestBench() {
   const [toast, setToast] = useState(null);
   const [busy, setBusy] = useState(null);
   const [liUrl, setLiUrl] = useState("");
-  const [liMsg, setLiMsg] = useState("Hi — testing Gigaprowl's LinkedIn outreach. Ignore this!");
+  const [liMsg, setLiMsg] = useState("Hi. Testing Gigaprowl's LinkedIn outreach. Ignore this!");
   const [emTo, setEmTo] = useState("");
   const [emSub, setEmSub] = useState("Test from Gigaprowl (Resend)");
   const [emBody, setEmBody] = useState("This is a test email sent from Gigaprowl via Resend. If you got this, email sending works.");
@@ -28,8 +28,8 @@ export default function TestBench() {
         try {
           const r = await fetch("/api/connect/linkedin/sync", { method: "POST" });
           const d = await r.json().catch(() => ({}));
-          setToast(d.connected ? "LinkedIn connected ✓" : "Connected, but couldn't confirm the account — try again.");
-        } catch { setToast("Connected, but sync failed — refresh and retry."); }
+          setToast(d.connected ? "LinkedIn connected ✓" : "Connected, but couldn't confirm the account. Try again.");
+        } catch { setToast("Connected, but sync failed. Refresh and retry."); }
         refresh();
       })();
     }
@@ -124,7 +124,7 @@ export default function TestBench() {
         {/* 4. Full cadence */}
         <div className="bg-panel border border-edge rounded-2xl p-6">
           <p className="font-semibold mb-1">4 · Run the full cadence</p>
-          <p className="text-fog text-sm mb-4">LinkedIn and email cadence steps dispatch automatically. Hunt a match on the dashboard, then hit “send” on each step — or let the daily scheduler release them.</p>
+          <p className="text-fog text-sm mb-4">LinkedIn and email cadence steps dispatch automatically. Hunt a match on the dashboard, then hit "send" on each step, or let the daily scheduler release them.</p>
           <Link href="/dashboard" className="inline-block bg-mint text-ink font-bold px-6 py-2.5 rounded-full hover:bg-mintdim transition">Go to dashboard → run a cadence</Link>
         </div>
       </div>

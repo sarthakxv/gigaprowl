@@ -5,7 +5,7 @@ import { setUserPassword, createSessionToken, sessionCookie } from "@/lib/auth";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// GET ?token= — validate a reset token without spending it (so the form can
+// GET ?token=  validate a reset token without spending it (so the form can
 // show "link expired" before the user types a new password).
 export async function GET(req) {
   const token = new URL(req.url).searchParams.get("token");
@@ -13,7 +13,7 @@ export async function GET(req) {
   return NextResponse.json({ valid: !!rec, email: rec?.email || null });
 }
 
-// POST { token, password } — spend the token, set the new password, sign in.
+// POST { token, password }. Spend the token, set the new password, sign in.
 export async function POST(req) {
   try {
     const { token, password } = await req.json();

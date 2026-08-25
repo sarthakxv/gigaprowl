@@ -1,8 +1,8 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "Gigaprowl — the smartest job hunter in the world",
-  description: "Upload your resume. Gigaprowl finds the companies, the hiring managers, and does the outreach — personalized landing pages, videos, and cadences, on autopilot.",
+  title: "Gigaprowl, the smartest job hunter in the world",
+  description: "Upload your resume. Gigaprowl finds the companies and hiring managers, then drafts the outreach: pitch pages, videos, and cadences.",
 };
 
 export default function RootLayout({ children }) {

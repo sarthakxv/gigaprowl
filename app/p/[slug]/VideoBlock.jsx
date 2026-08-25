@@ -60,7 +60,7 @@ export default function VideoBlock({ slug, initialStatus, initialUrl, script }) 
   if (status === "pending" || status === "building")
     return (
       <div>
-        <p className="text-mint mb-2 animate-pulse">Preparing your personalized video — researching the company and building your deck. This can take a minute.</p>
+        <p className="text-mint mb-2 animate-pulse">Preparing your video. Researching the company and building the deck. This can take a minute.</p>
         <p className="text-fog text-sm italic">“{script}”</p>
       </div>
     );
@@ -80,7 +80,7 @@ export default function VideoBlock({ slug, initialStatus, initialUrl, script }) 
   return (
     <div>
       <p className="text-fog text-sm mb-2">
-        {status === "failed" ? "Video rendering failed — script below:" : "Video script (upload a face photo in onboarding to render this as a real video):"}
+        {status === "failed" ? "Video rendering failed. Script below:" : "Video script (upload a face photo in onboarding to render this as a real video):"}
       </p>
       <p className="italic text-white/90 leading-relaxed">“{script}”</p>
       {status === "failed" && (

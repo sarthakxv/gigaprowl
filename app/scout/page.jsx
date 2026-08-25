@@ -56,7 +56,7 @@ export default function Scout() {
     e?.preventDefault();
     setErr("");
     if (!/linkedin\.com\/in\//i.test(url)) {
-      setErr("Paste a full LinkedIn profile URL — e.g. linkedin.com/in/your-name");
+      setErr("Paste a full LinkedIn profile URL, e.g. linkedin.com/in/your-name");
       return;
     }
     setPhase("scanning");
@@ -74,7 +74,7 @@ export default function Scout() {
         data = await postScout({ linkedinUrl: url, runId: rid });
         if (data.runId) { rid = data.runId; setRunId(rid); }
       }
-      if (data.status !== "done") throw new Error("This is taking longer than expected — please try again.");
+      if (data.status !== "done") throw new Error("This is taking longer than expected. Please try again.");
       setReport(data);
       setPhase("unlocked");
     } catch (e2) {
@@ -95,7 +95,7 @@ export default function Scout() {
     setUnlocking(true);
     try {
       const data = await postScout({ linkedinUrl: url, runId, email });
-      if (data.status !== "done") throw new Error("Couldn't save — please try again.");
+      if (data.status !== "done") throw new Error("Couldn't save. Please try again.");
       setReport(data);
       setEmailSaved(true);
     } catch (e2) {
@@ -128,7 +128,7 @@ export default function Scout() {
         {/* ---------------- IDLE ---------------- */}
         {phase === "idle" && (
           <header className="text-center pt-10">
-            <p className="inline-block bg-panel border border-edge rounded-full px-4 py-1.5 text-sm text-fog mb-8">🎯 open to work? let's find who's hiring right now.</p>
+            <p className="inline-block bg-panel border border-edge rounded-full px-4 py-1.5 text-sm text-fog mb-8">open to work? let's find who's hiring right now.</p>
             <h1 className="font-display text-4xl md:text-6xl font-bold leading-[1.05] mb-6">
               paste your linkedin.<br />
               <span className="text-mint">get matched in 60 seconds.</span>
@@ -161,7 +161,7 @@ export default function Scout() {
             <div className="inline-block w-14 h-14 border-4 border-edge border-t-mint rounded-full animate-spin mb-8" />
             <p className="font-display text-2xl font-bold mb-2">on the gigaprowl.</p>
             <p className="text-mint text-lg h-7 transition-all">{SCANNING_LINES[scanLine]}</p>
-            <p className="text-fog/50 text-sm mt-3">reading your actual profile — this takes up to a minute.</p>
+            <p className="text-fog/50 text-sm mt-3">reading your actual profile. this takes up to a minute.</p>
           </div>
         )}
 
@@ -204,7 +204,7 @@ export default function Scout() {
               <p className="text-2xl mb-2">🔓</p>
               <h3 className="font-display text-2xl font-bold mb-2">unlock your full match report</h3>
               <p className="text-fog mb-6 max-w-md mx-auto">
-                see the exact companies, your match score for each, why you fit, and the direct apply link — free.
+                see the exact companies, your match score for each, why you fit, and the direct apply link. free.
               </p>
               <form onSubmit={unlock} className="max-w-md mx-auto flex flex-col sm:flex-row gap-3">
                 <input
@@ -273,7 +273,7 @@ export default function Scout() {
             {!emailSaved ? (
               <div className="mt-8 bg-panel border border-edge rounded-3xl p-6">
                 <p className="font-display font-bold mb-1 text-center">want these emailed to you + fresh matches as they drop?</p>
-                <p className="text-fog text-sm text-center mb-4">optional — your report's already above.</p>
+                <p className="text-fog text-sm text-center mb-4">optional. your report's already above.</p>
                 <form onSubmit={unlock} className="max-w-md mx-auto flex flex-col sm:flex-row gap-3">
                   <input
                     value={email}
@@ -289,7 +289,7 @@ export default function Scout() {
                 {err && <p className="text-red-400 text-sm mt-3 text-center">{err}</p>}
               </div>
             ) : (
-              <div className="mt-8 text-center text-mint">✓ done — we'll be in touch at {email}.</div>
+              <div className="mt-8 text-center text-mint">✓ done. we'll be in touch at {email}.</div>
             )}
 
             <div className="mt-6 bg-panel border border-edge rounded-3xl p-8 text-center">
@@ -307,7 +307,7 @@ export default function Scout() {
       </main>
 
       <footer className="relative border-t border-edge py-8 text-center text-fog/50 text-sm">
-        gigaprowl scout — the smartest job hunter in the world
+        gigaprowl scout · the smartest job hunter in the world
       </footer>
     </div>
   );

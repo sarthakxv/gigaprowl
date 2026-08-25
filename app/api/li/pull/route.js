@@ -32,7 +32,7 @@ export async function GET(req) {
   const pending = (state.linkedinQueue || []).filter((a) => a.status === "pending").slice(0, remaining);
 
   await updateUserState(userId, (s) => {
-    // Don't clobber a Unipile (server-side) connection with the extension state —
+    // Don't clobber a Unipile (server-side) connection with the extension state.
     // Unipile is the primary path. Only record extension liveness separately.
     if (s.connections.linkedin?.accountId) {
       s.connections.linkedinExt = { method: "extension", lastSeen: new Date().toISOString(), pairedAt: s.connections.linkedinExt?.pairedAt || new Date().toISOString() };

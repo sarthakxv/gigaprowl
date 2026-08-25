@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 const clientIp = (req) => (req.headers.get("x-forwarded-for") || "").split(",")[0].trim() || "unknown";
 
 // Request a password reset. ALWAYS returns 200 with the same message whether or
-// not the account exists — prevents email-enumeration attacks.
+// not the account exists. Prevents email-enumeration attacks.
 export async function POST(req) {
   const { email } = await req.json().catch(() => ({}));
   const generic = { ok: true, message: "If an account exists for that email, a reset link is on its way." };

@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 export const dynamic = "force-dynamic";
 
-// Deferred social-post generation — decoupled from the hunt so its 3 Claude
+// Deferred social-post generation, decoupled from the hunt so its 3 Claude
 // calls (draft + 2 fact-checks) get their own 60s budget. Idempotent per match.
 // POST { matchId }  → generates the LinkedIn post + X thread for that pitch.
 export async function POST(req) {

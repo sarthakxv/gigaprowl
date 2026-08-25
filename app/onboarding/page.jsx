@@ -67,14 +67,14 @@ export default function Onboarding() {
 
         {step === 0 && (
           <div>
-            <h1 className="font-display text-3xl font-bold mb-2">drop your resume ✨</h1>
-            <p className="text-fog mb-8">this is the only required step — gigaprowl builds your entire hunt from it.</p>
+            <h1 className="font-display text-3xl font-bold mb-2">drop your resume</h1>
+            <p className="text-fog mb-8">this is the only required step. gigaprowl builds the rest of the hunt from it.</p>
             {!profile ? (
               <div>
                 <div className="bg-panel border-2 border-mint rounded-2xl p-6">
                   <div className="flex items-center gap-2 mb-4">
                     <span className="text-xs font-bold bg-mint text-ink rounded-full px-3 py-1">easiest</span>
-                    <p className="font-display text-xl font-bold">import from linkedin — 2 taps</p>
+                    <p className="font-display text-xl font-bold">import from linkedin. 2 taps</p>
                   </div>
                   <ol className="text-sm text-fog space-y-1 mb-5">
                     <li>1. open your LinkedIn profile</li>
@@ -86,7 +86,7 @@ export default function Onboarding() {
                     <p className="text-mint font-bold text-lg">{busy ? "analyzing…" : "drop your PDF here or click to upload"}</p>
                     <p className="text-fog/60 text-xs mt-2">PDF, DOCX, or TXT</p>
                   </label>
-                  <p className="text-fog/60 text-xs mt-3">we read your own profile PDF — nothing sketchy, no logins, no scraping 🔒</p>
+                  <p className="text-fog/60 text-xs mt-3">we read your own profile PDF. nothing sketchy, no logins, no scraping.</p>
                 </div>
                 <div className="flex items-center gap-3 my-6">
                   <div className="flex-1 h-px bg-edge" />
