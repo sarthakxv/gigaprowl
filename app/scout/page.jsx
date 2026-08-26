@@ -120,7 +120,7 @@ export default function Scout() {
       <div className="pointer-events-none fixed -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[500px] rounded-full opacity-25 blur-3xl" style={{ background: "radial-gradient(circle, #3DFFA2 0%, transparent 70%)" }} />
 
       <nav className="relative max-w-5xl mx-auto flex items-center justify-between px-6 py-6">
-        <Link href="/" className="font-display text-2xl font-bold">prowl<span className="text-mint">.</span></Link>
+        <Link href="/" className="font-display text-2xl font-bold">gigaprowl<span className="text-mint">.</span></Link>
         <span className="text-sm text-fog">scout <span className="text-mint">·</span> free 48-hour job scan</span>
       </nav>
 
@@ -159,7 +159,7 @@ export default function Scout() {
         {phase === "scanning" && (
           <div className="pt-24 text-center">
             <div className="inline-block w-14 h-14 border-4 border-edge border-t-mint rounded-full animate-spin mb-8" />
-            <p className="font-display text-2xl font-bold mb-2">on the prowl.</p>
+            <p className="font-display text-2xl font-bold mb-2">on the gigaprowl.</p>
             <p className="text-mint text-lg h-7 transition-all">{SCANNING_LINES[scanLine]}</p>
             <p className="text-fog/50 text-sm mt-3">reading your actual profile — this takes up to a minute.</p>
           </div>
@@ -293,12 +293,12 @@ export default function Scout() {
             )}
 
             <div className="mt-6 bg-panel border border-edge rounded-3xl p-8 text-center">
-              <h3 className="font-display text-2xl font-bold mb-2">want prowl to actually do the outreach?</h3>
+              <h3 className="font-display text-2xl font-bold mb-2">want gigaprowl to actually do the outreach?</h3>
               <p className="text-fog mb-6 max-w-md mx-auto">
                 the full product finds the hiring manager, builds a personal pitch page + video of you, and drafts the emails. this scan was just a taste.
               </p>
               <Link href="/" className="inline-block bg-mint text-ink font-bold px-8 py-4 rounded-full hover:bg-mintdim hover:scale-105 transition">
-                see the full prowl →
+                see the full gigaprowl →
               </Link>
               <button onClick={reset} className="block mx-auto text-fog hover:text-white text-sm mt-4">scan another profile</button>
             </div>
@@ -307,7 +307,7 @@ export default function Scout() {
       </main>
 
       <footer className="relative border-t border-edge py-8 text-center text-fog/50 text-sm">
-        prowl scout — the smartest job hunter in the world
+        gigaprowl scout — the smartest job hunter in the world
       </footer>
     </div>
   );

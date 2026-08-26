@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import VoiceRecorder from "../onboarding/VoiceRecorder";
 
@@ -58,15 +58,55 @@ export default function Dashboard() {
     })();
   }, [state, socialRunning, refresh]);
 
+  // Apply kits are decoupled from the hunt the same way social posts are: a
+  // hunt's 60s budget is already full, so we fill ATS copy afterwards (and
+  // backfill anything already hunted that never got a kit).
+  const [kitRunning, setKitRunning] = useState(false);
+  const kitAttemptedRef = useRef(new Set());
+  useEffect(() => {
+    if (!state || kitRunning) return;
+    const kits = state.applyKits || [];
+    const pending = (state.pitches || []).filter(
+      (p) => p.matchId && !kits.some((x) => x.matchId === p.matchId) && !kitAttemptedRef.current.has(p.matchId)
+    );
+    if (!pending.length) return;
+    const batch = pending.slice(0, 5);
+    batch.forEach((p) => kitAttemptedRef.current.add(p.matchId));
+    setKitRunning(true);
+    (async () => {
+      for (const p of batch) {
+        try {
+          await fetch("/api/apply-kit", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ matchId: p.matchId }) });
+        } catch {}
+      }
+      setKitRunning(false);
+      refresh();
+    })();
+  }, [state, kitRunning, refresh]);
+
   // Outreach generation is always explicit. "Automated" controls delivery of
   // already-generated cadence steps; it never starts creating outreach.
-  async function runAutopilot() {
+  async function runAutopilot(opts = {}) {
     if (!state || autopilot === "running") return;
     setAutopilot("running");
     try {
-      await fetch("/api/autopilot", { method: "POST" });
+      await fetch("/api/autopilot", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ liteOnly: !!opts.liteOnly }),
+      });
     } catch {}
     setAutopilot("done");
+    refresh();
+  }
+
+  async function makeApplyKit(matchId) {
+    setHunting(matchId);
+    const r = await fetch("/api/apply-kit", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ matchId }) });
+    const d = await r.json().catch(() => ({}));
+    setHunting(null);
+    setToast(r.ok ? "Apply kit ready — copy bullets + note from the Apply kits tab" : (d.error || "Apply kit failed"));
+    if (r.ok) { kitAttemptedRef.current.add(matchId); setTab("Apply kits"); }
     refresh();
   }
 
@@ -84,7 +124,7 @@ export default function Dashboard() {
     const r = await fetch("/api/outreach", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ matchId }) });
     const d = await r.json();
     setHunting(null);
-    setToast(r.ok ? `Outreach ready — pitch page + ${d.cadenceSteps}-step cadence drafted (${d.creditsLeft} credits left)` : d.error);
+    setToast(r.ok ? `Outreach ready — pitch page + ${d.cadenceSteps}-step cadence drafted (${d.unlimitedCredits ? "unlimited credits" : `${d.creditsLeft} credits left`})` : d.error);
     refresh();
   }
 
@@ -123,7 +163,7 @@ export default function Dashboard() {
       gmail_ok: "Gmail connected — outreach will send from your address ✓",
       gmail_denied: "Gmail connection was cancelled.",
       gmail_unconfigured: "Gmail isn't configured yet (add GOOGLE_CLIENT_ID/SECRET).",
-      gmail_no_refresh: "Google didn't return a refresh token — remove Prowl's access in your Google account, then reconnect.",
+      gmail_no_refresh: "Google didn't return a refresh token — remove Gigaprowl's access in your Google account, then reconnect.",
       gmail_error: "Gmail connection failed — try again.",
       linkedin_ok: "LinkedIn connected ✓",
       linkedin_failed: "LinkedIn connection didn't complete.",
@@ -174,7 +214,7 @@ export default function Dashboard() {
 
   async function setMode(outreachMode) {
     const r = await fetch("/api/settings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ outreachMode }) });
-    if (r.ok) { setToast(outreachMode === "manual" ? "Manual: emails saved as Gmail drafts to review" : "Automated: Prowl sends emails for you"); refresh(); }
+    if (r.ok) { setToast(outreachMode === "manual" ? "Manual: emails saved as Gmail drafts to review" : "Automated: Gigaprowl sends emails for you"); refresh(); }
   }
 
   async function setEmailStyle(emailStyle) {
@@ -204,14 +244,16 @@ export default function Dashboard() {
   const { profile, matches, contacts, cadences, pitches, credits, integrations, media } = state;
   const applyKits = state.applyKits || [];
   const socialPosts = state.socialPosts || [];
+  const kitIds = new Set(applyKits.map((k) => k.matchId));
+  const liteWithoutKit = (matches || []).filter((m) => m.score >= 50 && m.score < 75 && !kitIds.has(m.id));
 
   return (
     <div className="min-h-screen bg-ink pb-20">
       <nav className="border-b border-edge">
         <div className="max-w-6xl mx-auto flex items-center justify-between px-6 py-4">
-          <Link href="/" className="font-display text-xl font-bold">prowl<span className="text-mint">.</span></Link>
+          <Link href="/" className="font-display text-xl font-bold">gigaprowl<span className="text-mint">.</span></Link>
           <div className="flex items-center gap-4 text-sm">
-            <span className="text-fog">{credits.balance} credits</span>
+            <span className="text-fog">{credits.unlimited ? "Unlimited credits · Dev" : `${credits.balance} credits`}</span>
             <button onClick={runSync} disabled={syncing} title="Jobs auto-refresh daily; this scans on demand" className="bg-mint text-ink font-semibold px-4 py-2 rounded-full hover:bg-mintdim transition disabled:opacity-50">
               {syncing ? "Scanning…" : "Refresh jobs"}
             </button>
@@ -227,11 +269,11 @@ export default function Dashboard() {
             <p className="text-fog text-sm">{profile.title} · {profile.seniority} · <span className="text-mint capitalize">{profile.orientation}</span>-oriented</p>
           </div>
           <div className="flex flex-wrap gap-2">
-            {profile.topSkills.map((s) => <span key={s} className="text-xs bg-edge rounded-full px-3 py-1 text-mint">{s}</span>)}
+            {profile.topSkills.map((s) => <span key={s} className="text-xs bg-edge rounded-full px-3 py-1 text-mint capitalize">{s}</span>)}
           </div>
           <label className="text-xs border border-edge hover:border-mint rounded-full px-3 py-1.5 text-fog hover:text-white cursor-pointer transition">
             <input type="file" accept=".pdf,.docx,.txt,.md" className="hidden" onChange={(e) => e.target.files[0] && updateResume(e.target.files[0])} />
-            {uploadingMedia === "resume" ? "Updating résumé…" : "Update résumé"}
+            {uploadingMedia === "resume" ? "Updating resume…" : "Update resume"}
           </label>
           <p className="text-fog/60 text-xs ml-auto">
             {state.jobCount} jobs indexed · last scan {state.lastSync ? new Date(state.lastSync).toLocaleString() : "never"}
@@ -270,7 +312,7 @@ export default function Dashboard() {
           <p className="text-fog/50 text-xs w-full">
             {(state.settings?.outreachMode || "manual") === "manual"
               ? "Manual: emails are saved as drafts in your Gmail for you to review and send. LinkedIn actions queue for the extension."
-              : "Automated: Prowl sends emails from your address directly. LinkedIn runs through the extension, paced to stay safe (ToS risk — keep volumes low)."}
+              : "Automated: Gigaprowl sends emails from your address directly. LinkedIn runs through the extension, paced to stay safe (ToS risk — keep volumes low)."}
           </p>
         </div>
 
@@ -288,8 +330,8 @@ export default function Dashboard() {
               <button onClick={() => setLiPair(null)} className="text-fog hover:text-white text-sm">Close</button>
             </div>
             <ol className="text-sm text-fog space-y-2 mb-4 list-decimal list-inside">
-              <li>Install the Prowl extension (Chrome → Extensions → Load unpacked → the <code className="text-mint">extension/</code> folder).</li>
-              <li>Click the Prowl icon, paste the token below, hit <span className="text-mint">Save &amp; pair</span>.</li>
+              <li>Install the Gigaprowl extension (Chrome → Extensions → Load unpacked → the <code className="text-mint">extension/</code> folder).</li>
+              <li>Click the Gigaprowl icon, paste the token below, hit <span className="text-mint">Save &amp; pair</span>.</li>
               <li>Stay logged into LinkedIn in that browser. Queued invites/DMs run automatically from your own session.</li>
             </ol>
             <div className="flex items-center gap-2 bg-ink border border-edge rounded-xl p-3">
@@ -334,7 +376,16 @@ export default function Dashboard() {
               <p className="font-semibold">Ready to generate outreach?</p>
               <p className="text-fog text-sm">Review your matches first. This creates pitch pages and cadence drafts; it does not send them.</p>
             </div>
-            <button onClick={runAutopilot} className="bg-mint text-ink font-bold px-5 py-2.5 rounded-full hover:bg-mintdim transition">Generate for top matches</button>
+            <button onClick={() => runAutopilot()} className="bg-mint text-ink font-bold px-5 py-2.5 rounded-full hover:bg-mintdim transition">Generate for top matches</button>
+          </div>
+        )}
+        {!!pitches.length && !!liteWithoutKit.length && autopilot !== "running" && (
+          <div className="bg-panel border border-edge rounded-2xl p-5 mb-6 flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <p className="font-semibold">Free apply kits for mid-tier matches</p>
+              <p className="text-fog text-sm">{liteWithoutKit.length} solid match{liteWithoutKit.length === 1 ? "" : "es"} (score 50–74) can get tailored bullets + an apply note — 0 credits.</p>
+            </div>
+            <button onClick={() => runAutopilot({ liteOnly: true })} className="bg-mint text-ink font-bold px-5 py-2.5 rounded-full hover:bg-mintdim transition">Generate apply kits</button>
           </div>
         )}
         {autopilot === "running" && (
@@ -389,12 +440,30 @@ export default function Dashboard() {
                   )}
                 </div>
                 {m.status === "outreach_ready" ? (
-                  <span className="text-mint text-sm font-semibold">✓ Outreach ready</span>
-                ) : m.status === "apply_kit_ready" ? (
+                  <div className="flex items-center gap-3">
+                    <span className="text-mint text-sm font-semibold">✓ Outreach ready</span>
+                    {kitIds.has(m.id) ? (
+                      <button onClick={() => setTab("Apply kits")} className="text-mint text-sm font-semibold hover:underline">⚡ Apply kit</button>
+                    ) : (
+                      <button onClick={() => makeApplyKit(m.id)} disabled={!!hunting} className="text-fog hover:text-white text-xs border border-edge rounded-full px-3 py-1.5 transition disabled:opacity-50">
+                        {hunting === m.id ? "Writing kit…" : kitRunning ? "Kit incoming…" : "Get apply kit (free)"}
+                      </button>
+                    )}
+                  </div>
+                ) : m.status === "apply_kit_ready" || kitIds.has(m.id) ? (
                   <div className="flex items-center gap-3">
                     <button onClick={() => setTab("Apply kits")} className="text-mint text-sm font-semibold hover:underline">⚡ Apply kit ready</button>
                     <button onClick={() => hunt(m.id)} disabled={!!hunting} className="text-fog hover:text-white text-xs border border-edge rounded-full px-3 py-1.5 transition disabled:opacity-50">
                       {hunting === m.id ? "Hunting…" : "Promote to full hunt (1 credit)"}
+                    </button>
+                  </div>
+                ) : m.score < 75 ? (
+                  <div className="flex items-center gap-3">
+                    <button onClick={() => makeApplyKit(m.id)} disabled={!!hunting} className="bg-mint text-ink text-sm font-bold px-5 py-2.5 rounded-full hover:bg-mintdim transition disabled:opacity-50">
+                      {hunting === m.id ? "Writing kit…" : "Get apply kit (free)"}
+                    </button>
+                    <button onClick={() => hunt(m.id)} disabled={!!hunting} className="text-fog hover:text-white text-xs border border-edge rounded-full px-3 py-1.5 transition disabled:opacity-50">
+                      {hunting === m.id ? "Hunting…" : "Hunt this (1 credit)"}
                     </button>
                   </div>
                 ) : (
@@ -409,13 +478,28 @@ export default function Dashboard() {
 
         {tab === "Apply kits" && (
           <div className="space-y-4">
-            {applyKits.length === 0 && <p className="text-fog">no apply kits yet — autopilot drops free ones here for your mid-tier matches (score 50–74).</p>}
+            {applyKits.length === 0 && (
+              <div className="bg-panel border border-edge rounded-2xl p-5">
+                {kitRunning || autopilot === "running" ? (
+                  <p className="text-mint font-semibold animate-pulse">Writing apply kits…</p>
+                ) : (
+                  <>
+                    <p className="text-fog">No apply kits yet. Hunt a job (kits fill in after outreach is ready) or generate free ones for mid-tier matches (score 50–74).</p>
+                    {!!liteWithoutKit.length && (
+                      <button onClick={() => runAutopilot({ liteOnly: true })} className="mt-4 bg-mint text-ink font-bold px-5 py-2.5 rounded-full hover:bg-mintdim transition">
+                        Generate apply kits ({liteWithoutKit.length})
+                      </button>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
             {applyKits.map((k) => (
               <div key={k.id} className="bg-panel border border-edge rounded-2xl p-6">
                 <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                   <div>
                     <a href={k.job.url} target="_blank" className="font-semibold hover:text-mint transition">{k.job.title} @ {k.job.company}</a>
-                    <p className="text-fog text-xs mt-0.5">match score {k.score} · lite hunt · 0 credits</p>
+                    <p className="text-fog text-xs mt-0.5">match score {k.score ?? "—"} · 0 credits</p>
                   </div>
                   <span className="text-xs border border-edge rounded-full px-3 py-1 text-fog">apply kit ⚡</span>
                 </div>
@@ -561,7 +645,7 @@ export default function Dashboard() {
               : <p className="text-fog">no social posts yet — every full hunt drafts a LinkedIn post + X thread that put your work in the target company's feed.</p>)}
             {socialPosts.length > 0 && (
               <>
-                <p className="text-fog/70 text-xs">review before posting — post it yourself: your voice, your profile. prowl never publishes on your behalf.</p>
+                <p className="text-fog/70 text-xs">review before posting — post it yourself: your voice, your profile. gigaprowl never publishes on your behalf.</p>
                 <p className="text-fog/70 text-xs">✓ fact-checked against your résumé — still give it your own read before posting</p>
               </>
             )}

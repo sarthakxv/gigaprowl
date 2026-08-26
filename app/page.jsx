@@ -22,7 +22,7 @@ export default function Landing() {
       <div className="pointer-events-none fixed -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[500px] rounded-full opacity-25 blur-3xl" style={{ background: "radial-gradient(circle, #3DFFA2 0%, transparent 70%)" }} />
 
       <nav className="relative max-w-6xl mx-auto flex items-center justify-between px-6 py-6">
-        <span className="font-display text-2xl font-bold">prowl<span className="text-mint">.</span></span>
+        <span className="font-display text-2xl font-bold">gigaprowl<span className="text-mint">.</span></span>
         <div className="flex items-center gap-5 text-sm text-fog">
           <Link href="/pricing" className="hover:text-white">pricing</Link>
           <Link href="/login?mode=login" className="hover:text-white">log in</Link>
@@ -31,13 +31,13 @@ export default function Landing() {
       </nav>
 
       <header className="relative max-w-4xl mx-auto text-center px-6 pt-16 pb-16">
-        <p className="inline-block bg-panel border border-edge rounded-full px-4 py-1.5 text-sm text-fog mb-8">😮‍💨 the job market is cooked. you don't have to be.</p>
+        <p className="inline-block bg-panel border border-edge rounded-full px-4 py-1.5 text-sm text-fog mb-8">the job market is cooked. you don't have to be.</p>
         <h1 className="font-display text-5xl md:text-7xl font-bold leading-[1.05] mb-6">
           stop applying.<br />
           <span className="text-mint">start getting noticed.</span>
         </h1>
         <p className="text-fog text-xl max-w-2xl mx-auto mb-10">
-          upload your resume once. prowl finds the companies, DMs the actual hiring manager, and pitches you with a personal page + an AI video of <span className="text-white">you</span>. while you sleep.
+          upload your resume once. gigaprowl finds the companies, DMs the actual hiring manager, and pitches you with a personal page + an AI video of <span className="text-white">you</span>. while you sleep.
         </p>
         <Link href="/login" className="inline-block bg-mint text-ink font-bold text-lg px-10 py-4 rounded-full hover:bg-mintdim hover:scale-105 transition">
           drop your resume → it's free
@@ -82,13 +82,14 @@ export default function Landing() {
         <div className="bg-panel border border-mint rounded-3xl p-10 text-center shadow-[0_0_80px_-20px_#3DFFA2]">
           <p className="text-3xl mb-4">👀</p>
           <h2 className="font-display text-3xl font-bold mb-3">"wait, it made a video of me pitching stripe?"</h2>
-          <p className="text-fog mb-8">yes. your face, your voice, a 30-second pitch tailored to every company — on a personal landing page the hiring manager actually opens. it's the thing that gets replies.</p>
+          <p className="text-fog mb-8">
+            Yes. Your face, your voice, a 30-second pitch tailored to every company on a personal landing page the hiring manager actually opens.<br /> It's the thing that gets replies.</p>
           <Link href="/login" className="inline-block bg-mint text-ink font-bold text-lg px-10 py-4 rounded-full hover:bg-mintdim hover:scale-105 transition">okay i'm in →</Link>
         </div>
       </section>
 
       <footer className="relative border-t border-edge py-8 text-center text-fog/50 text-sm">
-        prowl. — the smartest job hunter in the world · <Link href="/pricing" className="hover:text-fog">pricing</Link>
+        gigaprowl. — the smartest job hunter in the world · <Link href="/pricing" className="hover:text-fog">pricing</Link>
       </footer>
     </div>
   );

@@ -19,10 +19,10 @@ export async function POST(req) {
     const state = await getUserState(userId);
     const id = await sendResend({
       to,
-      subject: subject || "Test from Prowl",
-      text: body || "This is a test email sent via Resend from Prowl.",
+      subject: subject || "Test from Gigaprowl",
+      text: body || "This is a test email sent via Resend from Gigaprowl.",
       replyTo: state.profile?.email || undefined,
-      fromName: state.profile?.name || "Prowl",
+      fromName: state.profile?.name || "Gigaprowl",
     });
     return NextResponse.json({ ok: true, messageId: id });
   } catch (e) {

@@ -1,5 +1,5 @@
-// Prowl LinkedIn Engine — background service worker.
-// Every couple minutes: pull queued actions from Prowl, hand each to a
+// Gigaprowl LinkedIn Engine — background service worker.
+// Every couple minutes: pull queued actions from Gigaprowl, hand each to a
 // linkedin.com tab's content script to execute (human-paced), then report back.
 
 const DEFAULT_BASE = "https://prowl-livid.vercel.app";

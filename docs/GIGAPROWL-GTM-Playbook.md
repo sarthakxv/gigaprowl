@@ -1,4 +1,4 @@
-# Prowl — Go-to-Market Playbook
+# Gigaprowl — Go-to-Market Playbook
 
 *The smartest job hunter in the world. Upload a resume → get matched to live jobs → one click builds a personalized pitch page + avatar video to the hiring manager.*
 
@@ -8,15 +8,15 @@
 
 ## 1. Positioning & the wedge
 
-**The wedge:** everyone else helps you *apply*; Prowl helps you get *noticed*. A personalized 40-second avatar video + landing page addressed to the actual hiring manager, researched to their company. That is the demoable "wow" and the entire content hook.
+**The wedge:** everyone else helps you *apply*; Gigaprowl helps you get *noticed*. A personalized 40-second avatar video + landing page addressed to the actual hiring manager, researched to their company. That is the demoable "wow" and the entire content hook.
 
-**One-liner:** *"Stop applying into the void. Prowl builds a personalized video pitch to the hiring manager — in your voice, about their company — in one click."*
+**One-liner:** *"Stop applying into the void. Gigaprowl builds a personalized video pitch to the hiring manager — in your voice, about their company — in one click."*
 
-**Why now:** AI applications have made inboxes noisier than ever; standing out requires a pattern-interrupt. Gen Z already treats video as a resume (nearly half report landing roles via TikTok). Prowl productizes that instinct.
+**Why now:** AI applications have made inboxes noisier than ever; standing out requires a pattern-interrupt. Gen Z already treats video as a resume (nearly half report landing roles via TikTok). Gigaprowl productizes that instinct.
 
 **The unfair GTM advantage:** the product's output *is* the ad. Every pitch video a user generates is a share-worthy artifact ("look what this made for me"). This is a rare product-led + content-led combo — lean into it hard.
 
-> ⚠️ **Growth-loop decision:** you removed "Built with Prowl" from the video slides. For virality, add back a *tasteful, optional* end-frame or a "Made with Prowl" chip on the **public pitch page** (not the video itself), toggloable by the user. Attribution on shared artifacts is the cheapest acquisition channel you have.
+> ⚠️ **Growth-loop decision:** you removed "Built with Gigaprowl" from the video slides. For virality, add back a *tasteful, optional* end-frame or a "Made with Gigaprowl" chip on the **public pitch page** (not the video itself), toggloable by the user. Attribution on shared artifacts is the cheapest acquisition channel you have.
 
 ---
 
@@ -25,11 +25,11 @@
 ### Primary — B2C job seekers (lead here)
 1. **New grads / early-career (0–3 yrs), tech-adjacent.** Highest volume, most active on TikTok/IG, most willing to try novel tools, most desperate to stand out. *Beachhead.*
 2. **Tech layoff / "open to work" professionals.** High intent, active in communities, story-driven ("I got laid off and…"). Emotionally resonant content.
-3. **Career switchers & bootcamp grads.** No pedigree → need differentiation → Prowl's pitch is their edge.
+3. **Career switchers & bootcamp grads.** No pedigree → need differentiation → Gigaprowl's pitch is their edge.
 4. **International / visa-seeking candidates.** Need to over-index on standing out; underserved.
 
 ### Secondary — B2B channel partners (refer/resell)
-1. **Career coaches & resume writers** — give clients Prowl, take referral cuts.
+1. **Career coaches & resume writers** — give clients Gigaprowl, take referral cuts.
 2. **Bootcamps & universities (career services)** — bulk/partner deals; distribution to cohorts.
 3. **Creators in the career niche** — affiliate ambassadors (overlaps with §6).
 
@@ -47,7 +47,7 @@ You (or a face-of-brand creator) post daily. This is where the "you won't believ
 **The reel formula (5 beats, 20–35s):**
 1. **Hook (0–2s):** pattern-interrupt claim or visual.
 2. **Problem (2–6s):** the void / rejection / silence.
-3. **Reveal (6–12s):** screen-record Prowl doing the magic.
+3. **Reveal (6–12s):** screen-record Gigaprowl doing the magic.
 4. **Proof (12–25s):** the actual video/pitch page output on screen.
 5. **CTA (25–30s):** "Link in bio, it's free to try."
 
@@ -63,10 +63,10 @@ Use AI creator tools to mass-produce "creator talking about the tool" ads withou
 
 ### Stream C — Real UGC (users & micro-creators)
 The most trusted content. Engineer it:
-- **In-product share moment:** after a pitch video renders, prompt "Share your Prowl video" with a one-tap TikTok/Reels export + pre-filled caption/hashtag.
+- **In-product share moment:** after a pitch video renders, prompt "Share your Gigaprowl video" with a one-tap TikTok/Reels export + pre-filled caption/hashtag.
 - **"Got the interview" loop:** email/notify users who mark a reply/interview → ask for a 15-sec testimonial → feature it.
 - **Bounty:** $50–100 (or free Pro/credits) for any user video that clears 10k views. Cheap, scalable, authentic.
-- **#ProwlGotMeHired** branded hashtag + a wall of wins on the site.
+- **#GigaprowlGotMeHired** branded hashtag + a wall of wins on the site.
 
 **Volume target:** Month 1 = 60–90 posts (mostly A+B). Treat it like an experiment engine, not a broadcast.
 
@@ -80,7 +80,7 @@ Concrete concepts. Hooks are the 80/20 — write 10 hooks per idea and test.
 > *Hook:* "I stopped applying to jobs and started doing THIS instead." → screen-record: paste resume, click Hunt, video generates addressed to the hiring manager → "It made a personal video pitch. To the actual hiring manager. In my voice." → CTA.
 
 **2. Before/After the void**
-> *Hook:* "200 applications. 0 replies. Then I sent this instead." Split screen: ghosted inbox vs. the Prowl pitch page + a reply.
+> *Hook:* "200 applications. 0 replies. Then I sent this instead." Split screen: ghosted inbox vs. the Gigaprowl pitch page + a reply.
 
 **3. "You won't believe what this AI tool does" (infotainment)**
 > *Hook:* "This is either genius or illegal 😳" → demo the hiring-manager research + mockup scene → "It literally researches the company and mocks up what you'd build for them."
@@ -95,13 +95,13 @@ Concrete concepts. Hooks are the 80/20 — write 10 hooks per idea and test.
 > "POV: you got laid off from tech…", "New grad with no experience…", "Career switcher with no CS degree…". Same product, tailored cold open.
 
 **7. "Watch me get an interview in 7 days" series (docu-loop)**
-> Multi-part saga using Prowl end-to-end. Serialized content = follows + retention. Ends with the real reply/interview.
+> Multi-part saga using Gigaprowl end-to-end. Serialized content = follows + retention. Ends with the real reply/interview.
 
 **8. The founder story**
 > "I built an AI that pitches you to hiring managers because I was tired of the black hole." Origin story → mission → demo. Great for X/LinkedIn + Product Hunt.
 
 **9. "$0 vs $500 career coach"**
-> Compare a coach's advice to what Prowl does free/cheap. Value-framing for the budget-conscious.
+> Compare a coach's advice to what Gigaprowl does free/cheap. Value-framing for the budget-conscious.
 
 **10. Green-screen tool review**
 > Creator talks over a screen-record walkthrough — the classic "AI tools that feel illegal to know" format. Perfect for AI-tool roundup creators.
@@ -212,8 +212,8 @@ Use **Paved** (career/jobs/tech categories) and **SponsorGap** to browse audited
 - **Metric to watch:** CAC vs. LTV, viral coefficient (invites sent × accept rate), and % of signups from shared pitch artifacts.
 
 ### The compounding loops (design for these)
-1. **Artifact loop:** users share pitch videos → viewers discover Prowl → sign up → share.
-2. **Win loop:** "I got hired with Prowl" testimonials → social proof → more signups.
+1. **Artifact loop:** users share pitch videos → viewers discover Gigaprowl → sign up → share.
+2. **Win loop:** "I got hired with Gigaprowl" testimonials → social proof → more signups.
 3. **Referral loop:** free-credit invites.
 4. **Creator loop:** affiliates earn → post more → recruit other creators.
 

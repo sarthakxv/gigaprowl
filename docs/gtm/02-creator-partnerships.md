@@ -1,4 +1,4 @@
-# Prowl — Creator Partnership Plan (Micro-Influencer Seeding)
+# Gigaprowl — Creator Partnership Plan (Micro-Influencer Seeding)
 
 **Goal:** 10,000 users via micro/nano creator seeding.
 **ICP:** Job seekers 20–35, tech/white-collar, US + India + global English.
@@ -12,19 +12,19 @@
 
 ### Tier A — Core micro/nano targets (~5k–150k, best $-to-signup ratio)
 
-| # | Creator | Handle | Platform(s) | Approx. followers | Content style | Why they fit Prowl's ICP |
+| # | Creator | Handle | Platform(s) | Approx. followers | Content style | Why they fit Gigaprowl's ICP |
 |---|---------|--------|-------------|-------------------|---------------|--------------------------|
-| 1 | Bonnie Dilber | @bonniedilber | TikTok (also huge on LinkedIn) | ~86k TikTok / ~440k LinkedIn | Recruiting manager at Zapier; candid "what recruiters actually see" videos | Tech recruiter credibility; audience is actively applying to tech jobs — exactly Prowl's user |
+| 1 | Bonnie Dilber | @bonniedilber | TikTok (also huge on LinkedIn) | ~86k TikTok / ~440k LinkedIn | Recruiting manager at Zapier; candid "what recruiters actually see" videos | Tech recruiter credibility; audience is actively applying to tech jobs — exactly Gigaprowl's user |
 | 2 | Resume Genius (brand-creator acct) | @resumegenius | TikTok | ~92k | Fast resume/interview tips, trends | Resume-obsessed audience; already primed for resume-upload tools |
 | 3 | Morgan (resume writer) | @resumeofficial | TikTok | ~127k | Resume rewrites, remote-job lists, freebies | Job-seeker audience mid-search; loves tool recommendations |
-| 4 | Ben Sweeny ("Corporate Sween") | @corporatesween | TikTok | ~117k | Satirical boss/HR skits | Comedy angle: "the boss you'll never have to deal with if Prowl finds you a better job" — 20–35 corporate audience |
-| 5 | @findfulfillingwork | @findfulfillingwork | TikTok | ~138k | Career-change and fulfillment-focused advice | Career changers = high-intent Prowl users |
+| 4 | Ben Sweeny ("Corporate Sween") | @corporatesween | TikTok | ~117k | Satirical boss/HR skits | Comedy angle: "the boss you'll never have to deal with if Gigaprowl finds you a better job" — 20–35 corporate audience |
+| 5 | @findfulfillingwork | @findfulfillingwork | TikTok | ~138k | Career-change and fulfillment-focused advice | Career changers = high-intent Gigaprowl users |
 | 6 | Jackie Cuevas | @jackiecaves | TikTok | ~150k | HR admin/recruiter POV tips | Recruiter-insider voice, younger audience |
 | 7 | Farah Sharghi | @farahsharghi | TikTok, YouTube, IG | ~165k TikTok | Ex-Google/Uber/Lyft/TikTok recruiter; resume + salary negotiation frameworks | FAANG-adjacent audience in the US, exactly the tech/white-collar ICP; does tool reviews |
 | 8 | Mike Peditto | @realisticrecruiting | TikTok, IG, LinkedIn | ~175k TikTok | "Realistic Recruiting" — blunt, empathetic advice for the unemployed/stuck | Trusted voice for laid-off tech workers; high engagement (author of *Yes You Are Being Judged*) |
 | 9 | Gabrielle Judge ("Anti Work Girlboss") | @gabrielle_judge | TikTok, Substack | ~100–170k | Lazy-girl-jobs / anti-hustle; layoff coping + remote-job strategy | Audience wants a job with minimal grind — "let AI do the outreach" is a perfect message |
 | 10 | Chris Williams (ex-Microsoft VP HR) | @clwill / "HR is not your friend" | TikTok | ~185–225k | Ex-Microsoft VP of HR; layoffs, HR truths | Layoff-heavy audience, older end of ICP, high trust |
-| 11 | Greg Langstaff | @greglangstaff | TikTok, IG | ~100k+ | Certified resume strategist; resume teardowns, interview prep | Resume-first content maps 1:1 to Prowl's upload-resume entry point |
+| 11 | Greg Langstaff | @greglangstaff | TikTok, IG | ~100k+ | Certified resume strategist; resume teardowns, interview prep | Resume-first content maps 1:1 to Gigaprowl's upload-resume entry point |
 | 12 | Mandy Tang | @careercoachmandy | TikTok | micro (<100k) | How to quit/exit roles properly, next-move planning | People planning their next move = new-job seekers |
 | 13 | Darci Smith | @careercoachdarci | TikTok, IG | micro (<100k) | Approachable career-coach tips, job search how-tos | Core careertok micro creator, US Gen Z/millennial audience |
 | 14 | Ginny Clarke | @GinnyLeads | TikTok | micro | Former exec recruiter (Google, Spencer Stuart); leadership & hiring insight | Credibility with senior end of 25–35 ICP |
@@ -84,17 +84,17 @@
 - **Affiliate norms:** SaaS pays 15–30% of sale or flat bounty; Teal (closest comp) pays **$20 per paid upgrade** — useful anchor when creators ask "what do others pay?"
 - **Signup bounties:** $1–$5 per free-email signup is the standard band; hybrid flat + performance is now the majority model.
 
-### Recommended Prowl tiered offer
+### Recommended Gigaprowl tiered offer
 
 | Tier | Who | Offer |
 |------|-----|-------|
-| **Seed (1k–10k)** | Nano creators, career-adjacent students | Free Prowl Max (6 months) + affiliate link: **$3 per activated signup** (resume uploaded) + **25% of first-month revenue** on paid conversions. No flat fee. |
+| **Seed (1k–10k)** | Nano creators, career-adjacent students | Free Gigaprowl Max (6 months) + affiliate link: **$3 per activated signup** (resume uploaded) + **25% of first-month revenue** on paid conversions. No flat fee. |
 | **Core (10k–75k)** | Tier A list above | **$100–$250 flat per video** (2-video minimum) + free Max (12 mo) + $3/activated signup + 20% first-payment rev share. Bonus: +$150 if video passes 100k views. |
 | **Power (75k–200k)** | Upper Tier A / Tier B | **$250–$600 per video** + affiliate stack above + 60-day paid-usage rights included (worth ~+30%); negotiate 3-video packages at 15–20% discount. |
 | **Anchor (200k+)** | Tier B/C | Affiliate-first pitch ("Teal pays $20/upgrade; we pay better + you get a custom code"). Paid post only if CAC math holds: cap spend at ~$2–3 per expected signup based on their median views × 1–2% CTR × 30% signup rate. |
-| **UGC track (any size)** | Creators who won't post but make good video | $150–$250 per 30–60s vertical video, Prowl owns it for organic + 90-day paid usage; use for Prowl's own TikTok/Reels ads. |
+| **UGC track (any size)** | Creators who won't post but make good video | $150–$250 per 30–60s vertical video, Gigaprowl owns it for organic + 90-day paid usage; use for Gigaprowl's own TikTok/Reels ads. |
 
-**Mechanics:** unique code (e.g. `PROWL-FARAH` = 1 free month of Max for their audience) + UTM link; pay bounties monthly via affiliate tool (Rewardful, Tolt, or a simple Sheet at this scale); "activated signup" = resume uploaded, not just email — protects against junk traffic.
+**Mechanics:** unique code (e.g. `GIGAPROWL-FARAH` = 1 free month of Max for their audience) + UTM link; pay bounties monthly via affiliate tool (Rewardful, Tolt, or a simple Sheet at this scale); "activated signup" = resume uploaded, not just email — protects against junk traffic.
 
 **Why this shape:** at nano/micro scale the discount code *for the audience* often matters more than the fee — it gives the creator something to give. Hybrid flat+performance filters for creators who believe the product converts. Free Max is near-zero marginal cost and makes the demo video authentic ("I actually used it").
 
@@ -119,11 +119,11 @@
 
 - **Contact 30–40 creators/week** (≈8/day, personalized). Expect 10–25% replies → 20–40% of replies convert → **~3–6 signed deals/week**, i.e. 15–25 live partners by week 6.
 - Week 1–2: Tier A nano/micro (cheap learning). Week 3–4: double down on formats that drove signups; open Tier B. Week 5+: India anchors + UGC track for paid amplification.
-- Batch content drops: aim for 5+ creator videos in the same 10-day window per platform — the algorithm overlap compounds ("I keep seeing this Prowl thing").
+- Batch content drops: aim for 5+ creator videos in the same 10-day window per platform — the algorithm overlap compounds ("I keep seeing this Gigaprowl thing").
 
 ### Template 1 — Casual DM (TikTok/IG, ≤100k)
 
-> Hey [Name] — your video on [specific video, e.g. "why recruiters ghost after final rounds"] was painfully accurate 😅 I'm building Prowl (prowl-livid.vercel.app): you upload your resume and AI finds matching jobs, the actual hiring managers, and builds you a personalized pitch page + AI video intro. We're paying career creators $150–$300 per video plus $3 per signup with your code. Want me to send you a free Max account so you can break it / review it honestly? — [Your name], founder
+> Hey [Name] — your video on [specific video, e.g. "why recruiters ghost after final rounds"] was painfully accurate 😅 I'm building Gigaprowl (prowl-livid.vercel.app): you upload your resume and AI finds matching jobs, the actual hiring managers, and builds you a personalized pitch page + AI video intro. We're paying career creators $150–$300 per video plus $3 per signup with your code. Want me to send you a free Max account so you can break it / review it honestly? — [Your name], founder
 
 ### Template 2 — Email with product link
 
@@ -131,19 +131,19 @@
 >
 > Hi [Name],
 >
-> I'm [Your name], founder of Prowl (https://prowl-livid.vercel.app). Job seekers upload a resume; our AI finds matched roles, identifies the hiring managers, and auto-builds a personalized pitch page with an AI avatar video and outreach copy — the whole "apply smarter, not 400 times" workflow in one tool.
+> I'm [Your name], founder of Gigaprowl (https://prowl-livid.vercel.app). Job seekers upload a resume; our AI finds matched roles, identifies the hiring managers, and auto-builds a personalized pitch page with an AI avatar video and outreach copy — the whole "apply smarter, not 400 times" workflow in one tool.
 >
 > I've followed your [platform] content — [one specific, genuine line about their content] — and your audience is exactly who we built this for.
 >
 > The offer:
 > - $[150–300] per 30–60s video (2-video package), creative control stays with you
-> - Custom code giving your audience 1 month of Prowl Max free
+> - Custom code giving your audience 1 month of Gigaprowl Max free
 > - $3 per activated signup + 20% of first payments through your link, paid monthly
 > - Free 12-month Max account so your review is real
 >
 > If the numbers or format don't work, tell me what does — happy to flex. Can I send your login this week?
 >
-> [Name] · Founder, Prowl · [email] · [Calendly]
+> [Name] · Founder, Gigaprowl · [email] · [Calendly]
 
 ### Template 3 — Follow-up (day 3–5)
 
@@ -171,9 +171,9 @@
 ### FTC disclosure requirements (US; apply globally as best practice — India's ASCI rules are similar)
 
 1. **Any material connection triggers disclosure:** money, free Max plans, affiliate commissions, and per-signup bounties ALL count — free product alone is enough.
-2. **Clear, conspicuous, unavoidable:** "#ad", "#sponsored", or "Paid partnership with Prowl" at the *start* of the caption — never buried behind "...more", never only in a profile/About page. Use platform paid-partnership toggles *plus* the caption disclosure.
-3. **In-video disclosure for video:** verbal ("Prowl sponsored this / gave me free access") and/or persistent on-screen text — a description-only disclosure is not compliant. Audio + visual together is safest.
-4. **Banned vagueness:** no "sp," "spon," "collab," "thanks @prowl," or "ambassador" alone.
+2. **Clear, conspicuous, unavoidable:** "#ad", "#sponsored", or "Paid partnership with Gigaprowl" at the *start* of the caption — never buried behind "...more", never only in a profile/About page. Use platform paid-partnership toggles *plus* the caption disclosure.
+3. **In-video disclosure for video:** verbal ("Gigaprowl sponsored this / gave me free access") and/or persistent on-screen text — a description-only disclosure is not compliant. Audio + visual together is safest.
+4. **Banned vagueness:** no "sp," "spon," "collab," "thanks @gigaprowl," or "ambassador" alone.
 5. **Honest claims only:** creators may not claim results they didn't get ("I got 5 interviews in a week") unless true and typical, and **you** are liable for their claims. Put a claims clause in every agreement: no guaranteed-hire language, results framed as personal experience.
 6. **Penalties are real:** up to ~$53k per violation, and each non-disclosed post counts separately. Brands, not just creators, get named in FTC actions.
 7. **Operationalize it:** one-page agreement per creator including disclosure obligation, claims restrictions, usage rights, payment terms; require pre-post review of the first video from each creator; spot-check live posts weekly (add a column to the tracker).

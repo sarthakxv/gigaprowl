@@ -1,10 +1,11 @@
-# Prowl v2 — Architecture & Product Spec
+# Gigaprowl v2 — Architecture & Product Spec
 
-**Product:** Prowl (prowl-livid.vercel.app) — B2C AI job-hunt autopilot.
-**Thesis:** Everyone else automates *applying*. Prowl automates *getting noticed*.
-**Date:** 2026-07-14 · **Status:** Draft for build · **Current stack:** Next.js 14 on Vercel, Upstash Redis (per-user JSON blobs via `lib/db.js`, shared job pool ~1MB), cookie sessions (HMAC + scrypt), Stripe checkout live, no email verification.
+**Product:** Gigaprowl (prowl-livid.vercel.app) — B2C AI job-hunt autopilot.
+**Thesis:** Everyone else automates *applying*. Gigaprowl automates *getting noticed*.
+**Date:** 2026-08-06 · **Status:** Draft for build · **Current stack:** Next.js 14 on Vercel, Upstash Redis (per-user JSON blobs via `lib/db.js`, shared job pool ~1MB), cookie sessions (HMAC + scrypt), Stripe checkout live, email verification temporarily disabled.
+**Target stack:** Supabase (Auth + Postgres + Storage), Inngest for workflows, Upstash Redis demoted to rate-limit/cache only.
 
-Keys in hand: Anthropic, Apollo, Parallel.ai, Adzuna, Smartlead, PhantomBuster, HeyGen. Owner to provide: Resend, Stripe (live), Clay, AWS, Postgres.
+Keys in hand: Anthropic, Apollo, Parallel.ai, Adzuna, Smartlead, PhantomBuster, HeyGen. Owner to provide: Supabase project, Resend (custom SMTP for Supabase Auth + transactional), Stripe (live), Clay. AWS optional later for crawl workers / CDN at scale.
 
 ---
 
@@ -29,7 +30,7 @@ Tsenta (tsenta.com, **Y Combinator-backed**) is an AI job-application agent. Ver
 
 Every tier is the full product; tiers differ only by volume. They bill only "jobs actually submitted."
 
-### Strengths vs. Prowl
+### Strengths vs. Gigaprowl
 1. **Speed-to-apply moat** — 50k crawled career pages, sub-minute detection. This is real infrastructure we cannot match in 4 weeks.
 2. **ATS breadth** — 19 ATSes including Workday (the hardest: login walls, multi-page wizards).
 3. **Trust UX** — approve-before-send diffs, receipts, "no automated flag in the submission." They've thought hard about the "will recruiters know?" objection.
@@ -43,12 +44,12 @@ Every tier is the full product; tiers differ only by volume. They bill only "job
 4. **No social/content layer.** Nothing that builds the candidate's public footprint toward a target company.
 5. **Spray positioning invites platform backlash.** "Hundreds of applications a week" is exactly what ATS vendors and recruiters are building filters against. Being the anti-spray brand is both a moral and durability position.
 
-### Prowl positioning against Tsenta
-> **Tsenta gets you applied. Prowl gets you noticed.**
+### Gigaprowl positioning against Tsenta
+> **Tsenta gets you applied. Gigaprowl gets you noticed.**
 
-- Prowl treats the top ~5 matches per week like **target accounts in an ABM campaign**, not rows in a spreadsheet: a personal pitch landing page (`prowl.app/p/{slug}` — already built), an AI avatar video addressed to the hiring manager, the manager's verified contact, and a multi-touch outreach cadence.
+- Gigaprowl treats the top ~5 matches per week like **target accounts in an ABM campaign**, not rows in a spreadsheet: a personal pitch landing page (`gigaprowl.app/p/{slug}` — already built), an AI avatar video addressed to the hiring manager, the manager's verified contact, and a multi-touch outreach cadence.
 - We *include* auto-apply as table stakes for the 50–75 score band (see §2) so we're never feature-short in a comparison — but the marketing, pricing, and dashboard all center on "top accounts landed," not "applications sent."
-- Pricing consequence: Tsenta sells volume at ~$0.03/app; Prowl sells **outcomes-per-target** at $49–99/mo for 20–40 top-account treatments. Different unit, no price war.
+- Pricing consequence: Tsenta sells volume at ~$0.03/app; Gigaprowl sells **outcomes-per-target** at $49–99/mo for 20–40 top-account treatments. Different unit, no price war.
 - One-liner for the landing page: *"500 applications gets you 500 rejections faster. 5 hiring managers who watched your video gets you interviews."*
 
 ---
@@ -91,91 +92,139 @@ Two-stage to control LLM cost:
 
 **Human-in-the-loop default (learn from Tsenta):** first 10 auto-applies for any user require approval with a diff/receipt preview; after that, user can flip to full-auto per band. Every application writes an `events` row with the full payload receipt.
 
-**Why competitors use browser agents:** because the server-side surface is only ~30–40% of postings. Prowl v2 scope: server-side Greenhouse (+Lever where it works) = full auto; everything else = assisted apply (prefill + deep link). Browser-agent worker (Browserbase + Playwright, run from an AWS Lambda/ECS task, *not* Vercel) is a v2.1 line item.
+**Why competitors use browser agents:** because the server-side surface is only ~30–40% of postings. Gigaprowl v2 scope: server-side Greenhouse (+Lever where it works) = full auto; everything else = assisted apply (prefill + deep link). Browser-agent worker (Browserbase + Playwright, run from an AWS Lambda/ECS task, *not* Vercel) is a v2.1 line item.
 
 ### Resume tailoring via Claude
-- Input: structured profile JSON + job description. Output: **structured resume JSON** (not prose) → rendered to PDF with `@react-pdf/renderer` in a worker, stored in S3.
+- Input: structured profile JSON + job description. Output: **structured resume JSON** (not prose) → rendered to PDF with `@react-pdf/renderer` in a worker, stored in **Supabase Storage**.
 - Prompt contract: *"Reorder and rephrase using only facts present in the profile. Never invent employers, dates, titles, metrics, or credentials. Return a `changes[]` array of {before, after, reason}."* The `changes[]` array powers the Tsenta-style diff view — copy that UX shamelessly, it's correct.
 - Model: Sonnet-class for ≥75 band, Haiku-class for 50–74 band. Cache the base resume render; only regenerate deltas.
 - Store as `pitches.resume_json` + `resume_pdf_url`; keyed by (user, job) so re-applies reuse it.
 
 ---
 
-## 3. Auth hardening + email flow
+## 3. Auth — Supabase Auth
 
-Current state: HMAC cookie sessions + scrypt passwords (fine, keep scrypt), **no email verification, no reset, no rate limiting**. Fixes, all shippable in ~3 days once Resend key lands:
+**Decision:** replace the custom HMAC cookie + scrypt stack (`lib/auth.js`) with **Supabase Auth**. One vendor owns identity, sessions, email verification, password reset, and magic links. App data lives in the same Supabase Postgres project (see §4).
 
-### Email verification (Resend)
-1. Signup → create user with `email_verified_at = NULL` → generate 32-byte random token, store **sha256(token)** in `email_tokens` (purpose `verify`, TTL 24h, single-use) → Resend sends link `/auth/verify?token=...`.
-2. Verify route: hash incoming token, match, check expiry, set `email_verified_at = now()`, delete token, log user in.
-3. Gate: unverified users can browse but **cannot start a hunt or trigger outreach** (outreach from unverified accounts is how you burn a sending domain).
-4. Resend domain setup: dedicated subdomain `mail.prowl.app` with SPF/DKIM/DMARC; transactional only on this domain — outreach mail goes through Smartlead-managed inboxes, never the app domain.
+Current state to retire: `prowl_session` HMAC cookies, scrypt `passHash` on KV user blobs, hand-rolled verify/reset token keys in Redis. Signup currently forces `emailVerified: true` — that gate returns via Supabase confirm-email.
 
-### Password reset
-Same token table, purpose `reset`, TTL 1h. Always respond "if that email exists, we sent a link" (no enumeration). On successful reset: rotate `session_version` on the user row → all existing sessions die.
-
-### Magic link (recommended as the *default* sign-in)
-Same mechanism, purpose `magic`, TTL 15m. B2C job seekers churn passwords; magic link + optional password removes the reset-flow support load. Rate limit: 3 sends / email / hour.
-
-### Rate limiting (`@upstash/ratelimit`, sliding window)
-| Route | Limit |
+### Auth model
+| Concern | Owner |
 |---|---|
-| POST /api/auth/login | 10 / 15min / IP, 5 / 15min / email |
-| POST /api/auth/signup | 5 / hour / IP |
-| Token sends (verify/reset/magic) | 3 / hour / email |
-| POST /api/video/build, /api/outreach | plan-based, backed by `credits_ledger` |
-| All API, global | 100 / min / user (middleware) |
+| Credentials, sessions, JWT/cookies | Supabase Auth (`auth.users`, Auth API) |
+| App profile / plan / Stripe / product state | `public.users` (+ related tables), `id = auth.users.id` |
+| Auth emails (confirm, reset, magic link) | Supabase Auth, **custom SMTP via Resend** on `mail.gigaprowl.app` |
+| Outreach / product email | Still Resend or Smartlead — never the auth domain's reputation path mixed with cold send |
 
-### Session hardening
-- Cookie: `__Host-session`, `HttpOnly`, `Secure`, `SameSite=Lax`, `Path=/`.
-- Move from pure HMAC-payload cookies to **server-side sessions**: cookie holds opaque `session_id`; Redis `session:{id}` → `{user_id, created, ua_hash}` TTL 30d, sliding. Enables logout-everywhere and revocation (impossible with stateless HMAC).
-- Include `session_version` check against the user row (bump on password change/reset).
-- CSRF: keep to POST + SameSite=Lax + origin-header check in middleware (sufficient for cookie auth without cross-site embeds).
-- Add basic audit: `events` rows for login, failed login, reset, verification.
+### Flows (built-in; wire UI to Supabase, do not reimplement tokens)
+1. **Signup (email + password):** `signUp` → Supabase creates `auth.users` with unconfirmed email → confirm link → on first confirmed session, upsert `public.users` (trigger or app code) with `plan='free'` and initial credits ledger grant.
+2. **Magic link (recommended default for B2C):** `signInWithOtp` — job seekers churn passwords; keep password as optional fallback.
+3. **Password reset:** `resetPasswordForEmail` — no `email_tokens` table in app schema.
+4. **Gate:** unverified users can browse but **cannot start a hunt or trigger outreach** (check `user.email_confirmed_at` / session). Outreach from unverified accounts burns sending domains.
+5. **Logout / logout-everywhere:** Supabase session revoke; drop the custom `session_version` rotation design.
+
+### Next.js integration
+- Use `@supabase/ssr` (cookie-based sessions) for App Router server components, route handlers, and middleware.
+- Clients: browser client for login UI; **server client** for RSC/API; **service-role client** only in trusted server paths (webhooks, crons, backfill) — never expose the service key to the browser.
+- Replace `getUserId(req)` in `lib/auth.js` with a thin helper that reads the Supabase session (`supabase.auth.getUser()`). Delete scrypt/HMAC helpers once cutover completes.
+- Existing routes under `app/api/auth/*` become thin wrappers or page actions that call Supabase Auth; prefer Server Actions / route handlers that set cookies via `@supabase/ssr`.
+
+### Row Level Security (RLS)
+Enable RLS on all user-owned tables. Pattern:
+- `authenticated` role: `user_id = auth.uid()` for select/insert/update on profiles, matches, hunts, pitches (owner), cadences, etc.
+- Public pitch pages (`/p/[slug]`): either a **security-definer** RPC / narrow `anon` select on published pitches, or server-only fetch with the service role in the pitch page RSC (simpler for v2 launch; add anon RLS later if pitches are read from the browser client).
+- Cron / Inngest / Stripe webhooks: service role, never user JWT.
+
+### Rate limiting
+Supabase Auth has built-in abuse protections; keep app-level limits for product mutations:
+
+| Route / action | Limit |
+|---|---|
+| Auth endpoints | Rely on Supabase + optional edge middleware IP cap |
+| POST `/api/video/build`, `/api/outreach`, autopilot | plan-based, backed by `credits_ledger` |
+| All API, global | 100 / min / user (middleware; `@upstash/ratelimit` or Postgres counters) |
+
+### Email domain split (unchanged product rule)
+- Transactional + auth: `mail.gigaprowl.app` (Resend SMTP plugged into Supabase Auth + Resend for digests).
+- Cold outreach: Smartlead-managed inboxes only — never `mail.gigaprowl.app` or the app apex domain.
+
+### Cutover note
+Existing KV users cannot keep scrypt hashes inside Supabase Auth. Migration options: (a) force password reset / magic-link on next login after email match backfill into `auth.users` via Admin API, or (b) one-time invite emails. Announce a logout + re-auth; do not attempt to import raw scrypt strings into GoTrue.
 
 ---
 
-## 4. Database migration: Neon Postgres + Redis demoted to cache
+## 4. Database migration: Supabase Postgres + Storage (Redis demoted to cache)
 
-**Choice: Neon** (or Vercel Postgres, which is Neon-backed — same thing; take Neon direct for branch-per-PR and clearer pricing). Serverless driver (`@neondatabase/serverless`) over HTTP/WebSocket works in Vercel functions without pool exhaustion; use **Drizzle ORM** (schema-as-code, SQL-first, tiny runtime — better fit than Prisma for serverless cold starts).
+**Choice: Supabase** for **Auth (§3), Postgres, and Storage** in one project. Replaces Upstash Redis as the system of record and replaces the planned Neon + custom-session + S3 split.
+
+**Access from Vercel:**
+- **Pooled** connection (Supavisor, transaction mode, port `6543`) for Next.js route handlers / Inngest steps — avoid connection exhaustion.
+- **Direct** connection for migrations and long transactions.
+- Prefer **Drizzle ORM** (schema-as-code, SQL-first, small runtime) against Postgres, *or* Supabase SQL migrations + `@supabase/supabase-js` for Storage/Auth. Do not use the browser anon key as the app’s only DB path for writes that must bypass RLS (crons need service role).
+
+**Storage buckets (not Redis, not Vercel Blob for durable media):**
+- `media` — face photos, voice samples (private; signed URLs)
+- `resumes` — tailored PDFs (private or signed)
+- `videos` — HeyGen MP4 copies (HeyGen share URLs expire; always copy)
+- Optional public bucket for pitch-page assets if needed
 
 ### Schema (SQL sketch)
 
 ```sql
--- users & auth
-CREATE TABLE users (
-  id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  email         citext UNIQUE NOT NULL,
-  password_hash text,                          -- null for magic-link-only users
-  email_verified_at timestamptz,
-  session_version int NOT NULL DEFAULT 1,
-  plan          text NOT NULL DEFAULT 'free',  -- free | plus | max
+-- Enable extensions (Supabase dashboard or migration)
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+CREATE EXTENSION IF NOT EXISTS "citext";
+CREATE EXTENSION IF NOT EXISTS "vector";  -- pgvector for stage-1 match filter
+
+-- App user row: 1:1 with auth.users (Supabase Auth owns credentials)
+CREATE TABLE public.users (
+  id                 uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  email              citext UNIQUE NOT NULL,
+  name               text,
+  plan               text NOT NULL DEFAULT 'free',  -- free | plus | max
   stripe_customer_id text UNIQUE,
-  created_at    timestamptz NOT NULL DEFAULT now()
+  settings           jsonb NOT NULL DEFAULT '{}'::jsonb,  -- outreachMode, emailStyle, …
+  created_at         timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE TABLE email_tokens (
-  token_hash  bytea PRIMARY KEY,
-  user_id     uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  purpose     text NOT NULL CHECK (purpose IN ('verify','reset','magic')),
-  expires_at  timestamptz NOT NULL
-);
+-- Auto-create public.users on signup (optional; can also upsert from app)
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER SET search_path = public
+AS $$
+BEGIN
+  INSERT INTO public.users (id, email, name)
+  VALUES (
+    NEW.id,
+    NEW.email,
+    COALESCE(NEW.raw_user_meta_data->>'name', split_part(NEW.email, '@', 1))
+  )
+  ON CONFLICT (id) DO NOTHING;
+  RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
 -- profile: structured resume, one active per user (keep versions)
-CREATE TABLE profiles (
+CREATE TABLE public.profiles (
   id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id     uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id     uuid NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   version     int NOT NULL DEFAULT 1,
   raw_text    text,                 -- original upload extraction
   data        jsonb NOT NULL,       -- structured: skills[], roles[], education[], answers{visa, salary_floor,...}
+  media       jsonb NOT NULL DEFAULT '{}'::jsonb,  -- storage paths: facePhoto, voiceSample, talkingPhotoId
   embedding   vector(1536),         -- pgvector, for stage-1 match filter
   is_active   boolean NOT NULL DEFAULT true,
   created_at  timestamptz NOT NULL DEFAULT now()
 );
-CREATE UNIQUE INDEX one_active_profile ON profiles(user_id) WHERE is_active;
+CREATE UNIQUE INDEX one_active_profile ON public.profiles(user_id) WHERE is_active;
 
 -- shared job pool (replaces the 1MB Redis blob)
-CREATE TABLE jobs (
+CREATE TABLE public.jobs (
   id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   source       text NOT NULL,       -- adzuna | greenhouse | lever | ashby | manual
   external_id  text NOT NULL,
@@ -193,14 +242,14 @@ CREATE TABLE jobs (
   fetched_at   timestamptz NOT NULL DEFAULT now(),
   UNIQUE (source, external_id)
 );
-CREATE INDEX jobs_recent ON jobs (posted_at DESC);
-CREATE INDEX jobs_company ON jobs (company_domain);
+CREATE INDEX jobs_recent ON public.jobs (posted_at DESC);
+CREATE INDEX jobs_company ON public.jobs (company_domain);
 
 -- user x job scoring result
-CREATE TABLE matches (
+CREATE TABLE public.matches (
   id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id     uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  job_id      uuid NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+  user_id     uuid NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  job_id      uuid NOT NULL REFERENCES public.jobs(id) ON DELETE CASCADE,
   score       int NOT NULL,
   band        text NOT NULL,        -- top | apply | ignored
   score_breakdown jsonb,
@@ -208,13 +257,13 @@ CREATE TABLE matches (
   created_at  timestamptz NOT NULL DEFAULT now(),
   UNIQUE (user_id, job_id)
 );
-CREATE INDEX matches_user_band ON matches (user_id, band, status);
+CREATE INDEX matches_user_band ON public.matches (user_id, band, status);
 
 -- a hunt = the campaign wrapper for one match (top-account treatment or auto-apply)
-CREATE TABLE hunts (
+CREATE TABLE public.hunts (
   id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id     uuid NOT NULL REFERENCES users(id),
-  match_id    uuid NOT NULL UNIQUE REFERENCES matches(id),
+  user_id     uuid NOT NULL REFERENCES public.users(id),
+  match_id    uuid NOT NULL UNIQUE REFERENCES public.matches(id),
   tier        text NOT NULL,        -- top | apply
   state       text NOT NULL DEFAULT 'pending',
   -- pending | tailoring | assets_ready | awaiting_approval | outreach_live | applied | done | failed
@@ -224,25 +273,26 @@ CREATE TABLE hunts (
 );
 
 -- generated assets per hunt
-CREATE TABLE pitches (
+CREATE TABLE public.pitches (
   id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  hunt_id       uuid NOT NULL REFERENCES hunts(id) ON DELETE CASCADE,
+  hunt_id       uuid NOT NULL REFERENCES public.hunts(id) ON DELETE CASCADE,
+  user_id       uuid NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   slug          text UNIQUE NOT NULL,          -- /p/{slug}
   page_json     jsonb,                         -- pitch page content blocks
   resume_json   jsonb,
-  resume_pdf_url text,                         -- S3
+  resume_pdf_url text,                         -- Supabase Storage URL/path
   video_script  text,
   video_status  text DEFAULT 'none',           -- none|queued|rendering|ready|failed
   heygen_video_id text,
-  video_url     text,                          -- S3 copy (HeyGen URLs expire)
+  video_url     text,                          -- Storage copy (HeyGen URLs expire)
   views         int NOT NULL DEFAULT 0,
   created_at    timestamptz NOT NULL DEFAULT now()
 );
 
 -- hiring-manager / recruiter contacts per hunt
-CREATE TABLE contacts (
+CREATE TABLE public.contacts (
   id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  hunt_id     uuid NOT NULL REFERENCES hunts(id) ON DELETE CASCADE,
+  hunt_id     uuid NOT NULL REFERENCES public.hunts(id) ON DELETE CASCADE,
   name        text, title text,
   email       text, email_status text,   -- verified | catch_all | guessed | none
   linkedin_url text,
@@ -252,10 +302,10 @@ CREATE TABLE contacts (
 );
 
 -- outreach cadence + steps
-CREATE TABLE cadences (
+CREATE TABLE public.cadences (
   id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  hunt_id     uuid NOT NULL REFERENCES hunts(id) ON DELETE CASCADE,
-  contact_id  uuid REFERENCES contacts(id),
+  hunt_id     uuid NOT NULL REFERENCES public.hunts(id) ON DELETE CASCADE,
+  contact_id  uuid REFERENCES public.contacts(id),
   channel     text NOT NULL,             -- email | linkedin | social
   state       text NOT NULL DEFAULT 'draft', -- draft | approved | live | paused | done
   steps       jsonb NOT NULL,            -- [{day:0, template, subject, status, sent_at}, ...]
@@ -263,20 +313,43 @@ CREATE TABLE cadences (
   created_at  timestamptz NOT NULL DEFAULT now()
 );
 
--- append-only activity log (auth, applies, sends, opens, page views, webhook events)
-CREATE TABLE events (
+-- connected channels + LinkedIn extension queue (was nested in the user KV blob)
+CREATE TABLE public.connections (
+  user_id        uuid PRIMARY KEY REFERENCES public.users(id) ON DELETE CASCADE,
+  gmail          jsonb,  -- { email, refreshToken, connectedAt } — encrypt at rest / vault later
+  linkedin       jsonb,  -- { method, accountId, pairedAt, lastSeen, name }
+  updated_at     timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE TABLE public.linkedin_queue (
+  id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id      uuid NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  payload      jsonb NOT NULL,  -- type, identifier, message, cadenceId, stepIndex, …
+  status       text NOT NULL DEFAULT 'pending',
+  created_at   timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE TABLE public.email_suppressions (
+  email      citext PRIMARY KEY,
+  reason     text,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+-- append-only activity log (auth hooks, applies, sends, opens, page views, webhook events)
+CREATE TABLE public.events (
   id          bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  user_id     uuid, hunt_id uuid,
+  user_id     uuid REFERENCES public.users(id),
+  hunt_id     uuid,
   type        text NOT NULL,
   data        jsonb,
   created_at  timestamptz NOT NULL DEFAULT now()
 );
-CREATE INDEX events_user ON events (user_id, created_at DESC);
+CREATE INDEX events_user ON public.events (user_id, created_at DESC);
 
 -- metered usage: videos, top-account credits, applies
-CREATE TABLE credits_ledger (
+CREATE TABLE public.credits_ledger (
   id          bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  user_id     uuid NOT NULL REFERENCES users(id),
+  user_id     uuid NOT NULL REFERENCES public.users(id),
   delta       int NOT NULL,              -- +grant / -spend
   kind        text NOT NULL,             -- top_account | apply | video | social_post
   ref_id      uuid,                      -- hunt/pitch id
@@ -286,34 +359,36 @@ CREATE TABLE credits_ledger (
 -- balance = SUM(delta) per (user, kind); enforce >= 0 in app layer inside a tx.
 ```
 
-Extensions: `pgvector` (profile/job embeddings), `citext`.
+**Dropped vs older Neon sketch:** `password_hash`, `email_verified_at`, `session_version`, and `email_tokens` — all owned by Supabase Auth / `auth.users`.
 
-### What stays in Redis (Upstash)
-- **Rate-limit counters** (`@upstash/ratelimit`).
-- **Sessions** (`session:{id}`, TTL).
-- **Hot caches:** rendered job-feed page per user (TTL 10m), match-feed JSON, Apollo/Clay enrichment responses keyed by `person:{domain}:{title-hash}` (TTL 30d — enrichment is expensive, cache aggressively).
+**Also migrate from the KV user blob (not only the tables above):** `apply_kits`, `social_posts`, and `sends` — either dedicated tables or `jsonb` on `hunts` / `events` in the first cut; prefer tables before launch if the dashboard queries them.
+
+### What stays in Redis (Upstash) — optional, not source of truth
+- **Rate-limit counters** (`@upstash/ratelimit`) for product APIs.
+- **Hot caches:** per-user scored feed (TTL 10m), Apollo/Clay enrichment (`person:{domain}:{title-hash}`, TTL 30d).
+- **Not sessions** — Supabase Auth owns sessions.
+- **Not the job pool or user state** — those live in Postgres; the 1MB Redis job blob **dies**.
 - **QStash/Inngest is the queue** (§5) — do not build a Redis list queue.
-- The 1MB shared job-pool blob **dies**; jobs live in Postgres.
 
-### Migration plan (zero-downtime, ~2 days)
-1. Provision Neon, run Drizzle migrations, deploy code that has both drivers.
-2. **Backfill script** (one-off, run locally against prod Redis): `SCAN` all user keys from current `lib/db.js` conventions → insert into `users/profiles/matches/pitches`; parse the shared job-pool blob → `jobs`. Idempotent upserts so it can re-run.
-3. **Dual-write window (1–3 days):** writes go to Postgres *and* legacy KV; reads from Postgres with KV fallback + repair-on-read. Log any fallback hit.
-4. Flip reads fully to Postgres, stop dual writes, keep KV snapshot 30 days, delete.
-5. Passwords: scrypt hashes copy over verbatim (same verify code). Sessions: users get logged out once at cutover — acceptable; announce it.
+### Migration plan (zero-downtime, ~2–3 days)
+1. Provision Supabase project; enable email confirm + magic link; wire Resend as custom SMTP; create Storage buckets; run SQL/Drizzle migrations; enable RLS.
+2. Ship `@supabase/ssr` clients + rewrite auth UI/routes; keep legacy `lib/db.js` KV path for product data until dual-write.
+3. **Backfill script** (one-off, local against prod Redis/files): map `prowl:user:*` / `prowl:u:*` → create `auth.users` via Admin API (invite or confirmed email) + upsert `public.users` / `profiles` / matches / pitches / cadences; parse `prowl:jobs` → `jobs`. Idempotent upserts. **Passwords are not portable** — email users a magic link / reset (see §3).
+4. **Dual-write window (1–3 days):** product writes go to Postgres *and* legacy KV; reads from Postgres with KV fallback + repair-on-read. Log fallback hits.
+5. Flip reads fully to Supabase Postgres, stop dual writes, delete legacy auth code and KV primary path; keep a Redis/KV snapshot 30 days.
 
 ### Caching strategy
-- **Job pool:** Postgres is the source of truth; the daily scan queries `jobs WHERE fetched_at > now()-interval '36 hours'`. Cache the per-user scored feed in Redis 10m.
-- **Profile:** cache structured profile JSON in Redis (TTL 1h, bust on edit) — it's read on every scoring pass.
-- **Pitch pages (`/p/[slug]`):** convert to **ISR** — `revalidate: false` + `revalidateTag('pitch:'+slug)` on edit, and `unstable_cache`/tag for the view. These pages get shared with hiring managers; they must be <100ms and survive traffic spikes. View counter increments via a lightweight edge route writing to Redis, flushed to Postgres hourly (don't bust ISR for a counter).
-- **Resume PDFs / videos:** S3 + CloudFront (or S3 presigned via Vercel), immutable URLs.
+- **Job pool:** Postgres is the source of truth; daily scan queries `jobs WHERE fetched_at > now() - interval '36 hours'`. Optional Redis cache of the per-user scored feed (TTL 10m).
+- **Profile:** read from Postgres (indexed by `user_id`); optional Redis TTL 1h, bust on edit.
+- **Pitch pages (`/p/[slug]`):** ISR — `revalidate: false` + `revalidateTag('pitch:'+slug)` on edit. View counter: Redis or a lightweight `UPDATE pitches` edge path flushed periodically (don't bust ISR for a counter).
+- **Resume PDFs / videos / media:** Supabase Storage; signed URLs for private objects. At 100k-user CDN scale, optionally front with Cloudflare or move hot video to S3/CloudFront — not required for launch.
 
 ---
 
 ## 5. Queue / worker layer
 
 **Recommendation: Inngest.** Reasoning:
-- Prowl's long jobs are **multi-step workflows**, not fire-and-forget HTTP: a top-account hunt is *tailor resume → build pitch page → request HeyGen render → wait (webhook, minutes) → store video → find contacts → wait for user approval (possibly days) → start cadence*. Inngest's step functions give per-step retry, `step.waitForEvent()` (perfect for both the HeyGen webhook *and* the human-approval gate), `step.sleep()` for cadence delays, and concurrency/throttle keys per user. QStash would force us to hand-roll a state machine across `hunts.state` — which is exactly the bug farm we're trying to avoid.
+- Gigaprowl's long jobs are **multi-step workflows**, not fire-and-forget HTTP: a top-account hunt is *tailor resume → build pitch page → request HeyGen render → wait (webhook, minutes) → store video → find contacts → wait for user approval (possibly days) → start cadence*. Inngest's step functions give per-step retry, `step.waitForEvent()` (perfect for both the HeyGen webhook *and* the human-approval gate), `step.sleep()` for cadence delays, and concurrency/throttle keys per user. QStash would force us to hand-roll a state machine across `hunts.state` — which is exactly the bug farm we're trying to avoid.
 - First-class Vercel integration: functions deploy inside the Next.js app (`/api/inngest`), auto-registered on deploy; no separate worker infra. Each *step* is its own function invocation, so Vercel's per-function timeout applies per step, not per workflow.
 - Keep QStash in the back pocket for dumb scheduled pings if needed; but one orchestrator is better than two.
 
@@ -322,7 +397,7 @@ Extensions: `pgvector` (profile/job embeddings), `citext`.
 |---|---|---|
 | `jobs/scan.daily` | cron `0 6 * * *` + per-user stagger | fetch Adzuna + GH/Lever boards → upsert `jobs` → fan out `match/score.user` events |
 | `match/score.user` | event | stage-1 filter → Claude rubric → write `matches`, emit `hunt/requested` for auto-banded ones within caps |
-| `hunt/run.top` | event | tailor resume → pitch page → **`step.run` HeyGen create** → **`step.waitForEvent('heygen/video.done', timeout 30m)`** → S3 copy → contacts (Apollo→Clay) → draft cadence → `waitForEvent('hunt/approved', timeout 7d)` → push cadence to Smartlead |
+| `hunt/run.top` | event | tailor resume → pitch page → **`step.run` HeyGen create** → **`step.waitForEvent('heygen/video.done', timeout 30m)`** → Storage copy → contacts (Apollo→Clay) → draft cadence → `waitForEvent('hunt/approved', timeout 7d)` → push cadence to Smartlead |
 | `hunt/run.apply` | event | tailor resume → attempt gh_api/lever_post → on CAPTCHA/failure mark `assisted` + notify user → write receipt |
 | `cadence/tick` | event + `step.sleep` per step | send step N via Smartlead/Resend, sleep until step N+1 |
 | `social/generate` | event (§6) | generate LinkedIn post + thread + video script → await review |
@@ -336,14 +411,14 @@ Extensions: `pgvector` (profile/job embeddings), `citext`.
 
 ### HeyGen webhook
 - Register webhook endpoint `POST /api/webhooks/heygen` for `avatar_video.success` / `avatar_video.fail`; verify HeyGen signature; translate into an Inngest event `heygen/video.done {video_id, url}` which resolves the waiting step. Also run a 10-minute polling fallback step (HeyGen webhooks occasionally drop).
-- On success: **download the MP4 to S3 immediately** — HeyGen share URLs are not permanent and you don't want pitch pages hotlinking them.
+- On success: **download the MP4 to Supabase Storage immediately** — HeyGen share URLs are not permanent and you don't want pitch pages hotlinking them.
 - Same pattern for Stripe (`/api/webhooks/stripe`, already partially built) and Smartlead reply webhooks (reply → `matches.status='replied'`, pause cadence).
 
 ---
 
 ## 6. Agentic social-posts feature ("Signal Boost")
 
-**Concept:** for a top-account hunt, Prowl generates public content that makes the candidate *discoverable by the target company* — an indirect pitch: their real work mapped to the company's visible needs, never "please hire me."
+**Concept:** for a top-account hunt, Gigaprowl generates public content that makes the candidate *discoverable by the target company* — an indirect pitch: their real work mapped to the company's visible needs, never "please hire me."
 
 ### Inputs
 - Structured profile (skills, shipped projects, metrics).
@@ -387,7 +462,7 @@ Task: one LinkedIn post + one X thread + one 60s video script that demonstrate
 
 Clay is the **enrichment orchestrator**, not another data vendor. Use it where waterfalls and signals beat single-source lookups:
 
-1. **Hiring-manager waterfall (primary use):** Prowl webhook → Clay table → find people at `{company_domain}` with titles matching the role's likely manager (e.g., "Engineering Manager, Platform" for a platform-eng job) → **email waterfall across 10+ providers** (Prospeo, Datagma, LeadMagic, Hunter…) with built-in verification → HTTP API callback to `POST /api/webhooks/clay` → write `contacts` with `email_status`. Waterfalls typically lift verified-email hit rate from ~50–60% (Apollo alone) to ~80%+, and you pay only for hits.
+1. **Hiring-manager waterfall (primary use):** Gigaprowl webhook → Clay table → find people at `{company_domain}` with titles matching the role's likely manager (e.g., "Engineering Manager, Platform" for a platform-eng job) → **email waterfall across 10+ providers** (Prospeo, Datagma, LeadMagic, Hunter…) with built-in verification → HTTP API callback to `POST /api/webhooks/clay` → write `contacts` with `email_status`. Waterfalls typically lift verified-email hit rate from ~50–60% (Apollo alone) to ~80%+, and you pay only for hits.
 2. **Intent signals:** Clay monitors on target companies — job-posting velocity (they're scaling the team = warmer), new funding, tech-stack detection, recent hires in the same org (manager likely still building). Feed these into the outreach copy ("saw you're scaling the platform team after the Series B…") and into match scoring as a bonus signal.
 3. **Claygent** for the long tail: scrape "team" pages / conference talks for companies where structured providers miss (startups <50 people — a big share of top matches).
 
@@ -410,20 +485,20 @@ Assumptions per **active** user/month: 20 auto-applies, 6 top-account hunts, 6 v
 | | 1k users | 10k users | 100k users |
 |---|---|---|---|
 | Vercel | Pro $20 | Pro + usage ~$150 | ~$1.5–3k (or Enterprise; move heavy compute off) |
-| Neon Postgres | Launch ~$19 | Scale ~$70–150 | ~$700+ (or RDS ~$500) |
-| Upstash Redis | ~$10 | ~$50 | ~$250 |
+| Supabase (Auth + Postgres + Storage) | Pro ~$25 | Team ~$599 or usage | ~$1k+ / dedicated compute as needed |
+| Upstash Redis (rate limit + cache only) | ~$10 | ~$50 | ~$250 |
 | Inngest | free/$0 | ~$75–150 | ~$500–1k (volume-priced) |
 | HeyGen (std quality) | ~$340 | ~$3.4k | ~$34k ← biggest COGS line |
 | Anthropic | ~$480 | ~$4.8k | ~$48k → prompt caching + Haiku routing cuts ~40% |
 | Apollo + Clay | ~$400 | ~$2.5k | ~$15k (negotiate Clay enterprise) |
 | Resend + Smartlead | ~$50 | ~$300 | ~$2k |
-| AWS (S3/CloudFront, later ECS) | ~$5 | ~$50 | ~$500–1.5k |
-| **Total infra/COGS** | **~$1.3k/mo** | **~$11.5k/mo** | **~$103k/mo** |
+| AWS (optional: ECS crawl workers; CDN only if Storage egress hurts) | ~$0–5 | ~$50 | ~$500–1.5k |
+| **Total infra/COGS** | **~$1.3k/mo** | **~$12k/mo** | **~$103k/mo** |
 
 **Architecture inflection points:**
-- **@1k:** everything on Vercel + Neon + Inngest + Upstash. Add **S3 from day one** for PDFs/MP4s (do not store media in Redis or Vercel Blob at these unit prices).
-- **@10k:** move job-pool crawling to a scheduled **AWS ECS/Fargate task** (long-running, cheap, own egress IPs); pgvector index maintenance; read replica for feed queries; CloudFront in front of S3.
-- **@100k:** dedicated Postgres (Neon Scale/RDS), SQS + Lambda for the apply/browser-agent fleet (Inngest stays as orchestrator, SQS feeds the heavy workers), negotiate HeyGen enterprise ($1/min list has volume room), consider self-hosted avatar pipeline (e.g., open-source talking-head models) to attack the biggest COGS line.
+- **@1k:** everything on Vercel + **Supabase (Auth + DB + Storage)** + Inngest + Upstash (cache/ratelimit only). Media in Supabase Storage from day one — do not store media in Redis or Vercel Blob.
+- **@10k:** move job-pool crawling to a scheduled **AWS ECS/Fargate task** (long-running, cheap, own egress IPs); pgvector index maintenance; Supabase read replicas / larger compute; CDN in front of hot Storage objects if needed.
+- **@100k:** larger Supabase compute (or external Postgres if warranted), SQS + Lambda for the apply/browser-agent fleet (Inngest stays as orchestrator, SQS feeds the heavy workers), negotiate HeyGen enterprise ($1/min list has volume room), consider self-hosted avatar pipeline (e.g., open-source talking-head models) to attack the biggest COGS line.
 
 ### Unit economics per subscriber (monthly)
 | | Plus $49/mo | Max $99/mo |
@@ -439,30 +514,30 @@ Assumptions per **active** user/month: 20 auto-applies, 6 top-account hunts, 6 v
 Max margin is thin because of Avatar IV — either price Max at $129 or make IV-quality an add-on. Free tier: 1 top-account hunt total (not per month) as the "wow" moment, no video download, watermarked pitch page.
 
 ### The 5 things that break first
-1. **Redis 1MB job-pool blob** — breaks at ~1,500 jobs; already near the cliff. *Fix:* §4 — jobs to Postgres, done in week 1.
+1. **Redis 1MB job-pool blob** — breaks at ~1,500 jobs; already near the cliff. *Fix:* §4 — jobs to Supabase Postgres, done in week 1.
 2. **Vercel function timeouts** — daily scan + scoring for N users in one cron invocation dies past ~200 users; video/apply flows can't run inline at all. *Fix:* §5 — Inngest fan-out; one event per user; each step < 60s.
 3. **HeyGen quota/cost** — API wallet drains fast; renders queue at peak. *Fix:* per-plan video credits via `credits_ledger`; render queue with per-user concurrency 1; standard quality default; pre-buy credits; alert at 70% wallet.
 4. **Apollo credits** — contact lookups on every top hunt burn the plan's credit pool within weeks. *Fix:* 30-day Redis enrichment cache (contacts don't change weekly), Apollo→Clay escalation only on miss, hard budget of 2 escalations/hunt, monthly credit alarm.
-5. **Email deliverability** — the true existential risk: cold outreach from a shared domain gets prowl.app blocklisted and *transactional* email dies with it. *Fix:* strict domain separation (transactional = `mail.prowl.app` via Resend; outreach = Smartlead-managed inboxes on user-adjacent or purchased domains, warmed 2 weeks, ≤30 sends/inbox/day); mandatory human approval on cadence copy; global suppression list in Postgres; kill switch per sending domain on bounce rate >3%.
+5. **Email deliverability** — the true existential risk: cold outreach from a shared domain gets gigaprowl.app blocklisted and *transactional* email dies with it. *Fix:* strict domain separation (transactional = `mail.gigaprowl.app` via Resend; outreach = Smartlead-managed inboxes on user-adjacent or purchased domains, warmed 2 weeks, ≤30 sends/inbox/day); mandatory human approval on cadence copy; global suppression list in Postgres; kill switch per sending domain on bounce rate >3%.
 
 ---
 
 ## 9. Build order — 4-week sprint plan
 
-### Week 1 — Foundation (DB + auth)
-Everything else depends on this. **Env keys:** `DATABASE_URL` (Neon), `UPSTASH_REDIS_REST_URL/TOKEN` (existing), `RESEND_API_KEY`, `SESSION_SECRET`, `S3_BUCKET`/`AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY`.
-- [ ] Neon + Drizzle, full schema (§4), pgvector
-- [ ] Backfill script from Redis KV; dual-write shim in `lib/db.js`
-- [ ] Server-side sessions, `__Host-` cookie, rate limiting middleware
-- [ ] Email verification + password reset + magic link (Resend)
-- [ ] S3 media store; move existing pitch assets/HeyGen outputs to S3
-- **Exit test:** new signup → verify email → magic-link login → old user's data intact from Postgres.
+### Week 1 — Foundation (Supabase Auth + DB + Storage)
+Everything else depends on this. **Env keys:** `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `DATABASE_URL` (pooled) + `DIRECT_URL` (migrations), `UPSTASH_REDIS_REST_URL/TOKEN` (optional cache/ratelimit), `RESEND_API_KEY` (Supabase custom SMTP + transactional).
+- [ ] Supabase project: Auth (email confirm + magic link), Postgres schema (§4), RLS, pgvector, Storage buckets (`media`, `resumes`, `videos`)
+- [ ] `@supabase/ssr` clients; replace `lib/auth.js` HMAC/scrypt with Supabase session helpers; retire `app/api/auth/*` token routes in favor of Supabase flows
+- [ ] Backfill script from Redis KV → `auth.users` (Admin API) + `public.*`; dual-write shim in `lib/db.js`
+- [ ] Gate hunts/outreach on `email_confirmed_at`; Resend as Auth SMTP on `mail.gigaprowl.app`
+- [ ] Move pitch assets / HeyGen outputs / face+voice uploads into Supabase Storage
+- **Exit test:** new signup → confirm email → magic-link login → start hunt blocked until verified; legacy user re-auths via magic link and sees backfilled profile/jobs data from Postgres.
 
 ### Week 2 — Engine (queue + tiered hunts)
-Depends on: schema, S3. **Env keys:** `INNGEST_EVENT_KEY`, `INNGEST_SIGNING_KEY`, `ANTHROPIC_API_KEY` (existing), `ADZUNA_APP_ID/KEY` (existing), `HEYGEN_API_KEY` (existing), `HEYGEN_WEBHOOK_SECRET`.
+Depends on: schema, Storage. **Env keys:** `INNGEST_EVENT_KEY`, `INNGEST_SIGNING_KEY`, `ANTHROPIC_API_KEY` (existing), `ADZUNA_APP_ID/KEY` (existing), `HEYGEN_API_KEY` (existing), `HEYGEN_WEBHOOK_SECRET`.
 - [ ] Inngest installed; port `jobs/sync` cron → `jobs/scan.daily` + per-user fan-out
 - [ ] Two-stage scorer (embeddings + Claude rubric) writing `matches` with bands
-- [ ] `hunt/run.top` workflow incl. HeyGen webhook + S3 copy + poll fallback
+- [ ] `hunt/run.top` workflow incl. HeyGen webhook + Supabase Storage copy + poll fallback
 - [ ] Resume tailoring (structured JSON + diff `changes[]`) + PDF render worker
 - [ ] Greenhouse public-API auto-apply + receipt; assisted-apply fallback UX
 - **Exit test:** seeded profile → scan → one ≥75 hunt produces page+video+resume unattended; one 50–74 job auto-applies to a live Greenhouse board (use a friendly test org).
@@ -483,8 +558,8 @@ Depends on: everything. **Env keys:** none new for v1 social (copy-to-clipboard)
 - [ ] Delete legacy KV blob path; onboarding polish; positioning page vs auto-apply tools; launch
 - **Exit test:** 1k-user synthetic scan completes < 15 min; zero duplicate applies/videos under forced retries.
 
-**Dependency spine:** Postgres → Inngest → hunts → outreach → social. Do not start Week 2 until the backfill has run clean against prod data.
+**Dependency spine:** Supabase (Auth + Postgres + Storage) → Inngest → hunts → outreach → social. Do not start Week 2 until the backfill has run clean against prod data.
 
 ---
 
-*Sources: [tsenta.com](https://tsenta.com) (fetched 2026-07-14), [LoopCV Tsenta review](https://www.loopcv.pro/directory/tsenta/), [HeyGen API pricing](https://help.heygen.com/en/articles/10060327-heygen-api-pricing-explained), [Inngest background jobs guide](https://www.inngest.com/docs/guides/background-jobs), [QStash docs](https://upstash.com/docs/qstash/features/background-jobs), [QStash vs Inngest vs SQS](https://apiscout.dev/guides/upstash-qstash-vs-inngest-vs-aws-sqs-2026).*
+*Sources: [tsenta.com](https://tsenta.com) (fetched 2026-07-14), [LoopCV Tsenta review](https://www.loopcv.pro/directory/tsenta/), [HeyGen API pricing](https://help.heygen.com/en/articles/10060327-heygen-api-pricing-explained), [Inngest background jobs guide](https://www.inngest.com/docs/guides/background-jobs), [Supabase Auth](https://supabase.com/docs/guides/auth), [Supabase SSR](https://supabase.com/docs/guides/auth/server-side/nextjs), [QStash docs](https://upstash.com/docs/qstash/features/background-jobs), [QStash vs Inngest vs SQS](https://apiscout.dev/guides/upstash-qstash-vs-inngest-vs-aws-sqs-2026).*

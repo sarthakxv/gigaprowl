@@ -45,7 +45,7 @@ export default async function PitchPage({ params }) {
             {content.cta}
           </a>
         </div>
-        <p className="text-center text-xs text-fog/50 mt-10">Built with Prowl — the smartest job hunter in the world</p>
+        <p className="text-center text-xs text-fog/50 mt-10">Built with Gigaprowl — the smartest job hunter in the world</p>
       </div>
     </div>
   );
