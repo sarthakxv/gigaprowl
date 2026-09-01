@@ -58,9 +58,8 @@ export default function Dashboard() {
     })();
   }, [state, socialRunning, refresh]);
 
-  // Apply kits are decoupled from the hunt the same way social posts are: a
-  // hunt's 60s budget is already full, so we fill ATS copy afterwards (and
-  // backfill anything already hunted that never got a kit).
+  // Kits wait until the hunt finishes, same as social posts. Hunt already burns the 60s budget.
+  // Also writes kits for jobs you hunted before this existed.
   const [kitRunning, setKitRunning] = useState(false);
   const kitAttemptedRef = useRef(new Set());
   useEffect(() => {
