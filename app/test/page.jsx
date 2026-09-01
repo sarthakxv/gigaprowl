@@ -1,10 +1,10 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+import { toast } from "sonner";
 
 export default function TestBench() {
   const [state, setState] = useState(null);
-  const [toast, setToast] = useState(null);
   const [busy, setBusy] = useState(null);
   const [liUrl, setLiUrl] = useState("");
   const [liMsg, setLiMsg] = useState("Hi. Testing Gigaprowl's LinkedIn outreach. Ignore this!");
@@ -21,19 +21,20 @@ export default function TestBench() {
   useEffect(() => {
     const c = new URLSearchParams(window.location.search).get("connect");
     if (c === "linkedin_ok") {
-      setToast("Finishing LinkedIn connection…");
+      const toastId = toast.loading("Finishing LinkedIn connection…");
       window.history.replaceState({}, "", "/test");
       // Actively reconcile with Unipile (don't depend on the webhook firing).
       (async () => {
         try {
           const r = await fetch("/api/connect/linkedin/sync", { method: "POST" });
           const d = await r.json().catch(() => ({}));
-          setToast(d.connected ? "LinkedIn connected ✓" : "Connected, but couldn't confirm the account. Try again.");
-        } catch { setToast("Connected, but sync failed. Refresh and retry."); }
+          if (d.connected) toast.success("LinkedIn connected", { id: toastId });
+          else toast.error("Connected, but couldn't confirm the account. Try again.", { id: toastId });
+        } catch { toast.error("Connected, but sync failed. Refresh and retry.", { id: toastId }); }
         refresh();
       })();
     }
-    if (c === "linkedin_failed") { setToast("LinkedIn connection didn't complete."); window.history.replaceState({}, "", "/test"); }
+    if (c === "linkedin_failed") { toast.error("LinkedIn connection didn't complete."); window.history.replaceState({}, "", "/test"); }
   }, [refresh]);
 
   async function connectLinkedIn() {
@@ -42,21 +43,23 @@ export default function TestBench() {
     const d = await r.json().catch(() => ({}));
     setBusy(null);
     if (r.ok && d.url) window.location.href = d.url; // redirect (Unipile recommends no iframe)
-    else setToast(d.error || "Couldn't start LinkedIn connection.");
+    else toast.error(d.error || "Couldn't start LinkedIn connection.");
   }
   async function sendInvite(dm) {
     setBusy(dm ? "dm" : "invite");
     const r = await fetch("/api/test/linkedin", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ profileUrl: liUrl, message: liMsg, dm }) });
     const d = await r.json().catch(() => ({}));
     setBusy(null);
-    setToast(r.ok ? `${dm ? "DM" : "Connection request"} sent ✓` : (d.error || "Failed"));
+    if (r.ok) toast.success(`${dm ? "DM" : "Connection request"} sent`);
+    else toast.error(d.error || "Failed");
   }
   async function sendEmail() {
     setBusy("email");
     const r = await fetch("/api/test/email", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ to: emTo, subject: emSub, body: emBody }) });
     const d = await r.json().catch(() => ({}));
     setBusy(null);
-    setToast(r.ok ? `Email sent via Resend ✓ (id ${String(d.messageId).slice(0, 8)}…)` : (d.error || "Failed"));
+    if (r.ok) toast.success(`Email sent via Resend (id ${String(d.messageId).slice(0, 8)}…)`);
+    else toast.error(d.error || "Failed");
   }
 
   if (!state) return <div className="min-h-screen bg-ink flex items-center justify-center text-fog">Loading…</div>;
@@ -128,8 +131,6 @@ export default function TestBench() {
           <Link href="/dashboard" className="inline-block bg-mint text-ink font-bold px-6 py-2.5 rounded-full hover:bg-mintdim transition">Go to dashboard → run a cadence</Link>
         </div>
       </div>
-
-      {toast && <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-panel border border-mint rounded-full px-6 py-3 text-sm cursor-pointer" onClick={() => setToast(null)}>{toast}</div>}
     </div>
   );
 }

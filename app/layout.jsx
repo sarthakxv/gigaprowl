@@ -1,4 +1,5 @@
 import "./globals.css";
+import { Toaster } from "sonner";
 
 export const metadata = {
   title: "Gigaprowl, the smartest job hunter in the world",
@@ -8,7 +9,16 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className="font-body text-white antialiased">{children}</body>
+      <body className="font-body text-white antialiased">
+        {children}
+        <Toaster
+          closeButton
+          position="bottom-center"
+          richColors
+          theme="dark"
+          toastOptions={{ duration: 4500 }}
+        />
+      </body>
     </html>
   );
 }

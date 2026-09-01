@@ -5,3 +5,18 @@
 
 body { background: #0A0E0D; }
 ::selection { background: #3DFFA2; color: #0A0E0D; }
+
+[data-sonner-toaster] {
+  --border-radius: 0.75rem;
+  font-family: "Inter", system-ui, sans-serif;
+  transition-duration: 200ms !important;
+}
+
+[data-sonner-toast],
+[data-sonner-toast] > * {
+  transition-duration: 200ms !important;
+}
+
+[data-sonner-toast] {
+  transition-property: transform, opacity, box-shadow !important;
+}

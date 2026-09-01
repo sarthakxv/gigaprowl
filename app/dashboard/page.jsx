@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
+import { toast } from "sonner";
 import VoiceRecorder from "../onboarding/VoiceRecorder";
 
 const TABS = ["Matches", "Apply kits", "Contacts", "Cadences", "Activity", "Pitch pages", "Social posts"];
@@ -18,7 +19,6 @@ export default function Dashboard() {
   const [syncing, setSyncing] = useState(false);
   const [hunting, setHunting] = useState(null); // matchId in flight
   const [autopilot, setAutopilot] = useState(null); // "running" | "done"
-  const [toast, setToast] = useState(null);
   const [uploadingMedia, setUploadingMedia] = useState(null); // "face" | "voice"
   const [mediaHidden, setMediaHidden] = useState(false);
   const [mediaError, setMediaError] = useState(null);
@@ -104,7 +104,8 @@ export default function Dashboard() {
     const r = await fetch("/api/apply-kit", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ matchId }) });
     const d = await r.json().catch(() => ({}));
     setHunting(null);
-    setToast(r.ok ? "Apply kit ready — copy bullets + note from the Apply kits tab" : (d.error || "Apply kit failed"));
+    if (r.ok) toast.success("Apply kit ready. Copy the bullets and note from Apply kits.");
+    else toast.error(d.error || "Apply kit failed");
     if (r.ok) { kitAttemptedRef.current.add(matchId); setTab("Apply kits"); }
     refresh();
   }
@@ -114,7 +115,8 @@ export default function Dashboard() {
     const r = await fetch("/api/jobs/sync", { method: "POST" });
     const d = await r.json();
     setSyncing(false);
-    setToast(r.ok ? `Scan complete: ${d.added} new · ${d.stored} in pool (${d.kb}KB)` : d.error);
+    if (r.ok) toast.success(`Scan complete: ${d.added} new · ${d.stored} in pool (${d.kb}KB)`);
+    else toast.error(d.error || "Scan failed");
     refresh();
   }
 
@@ -123,7 +125,8 @@ export default function Dashboard() {
     const r = await fetch("/api/outreach", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ matchId }) });
     const d = await r.json();
     setHunting(null);
-    setToast(r.ok ? `Outreach ready. Pitch page + ${d.cadenceSteps}-step cadence drafted (${d.unlimitedCredits ? "unlimited credits" : `${d.creditsLeft} credits left`})` : d.error);
+    if (r.ok) toast.success(`Outreach ready. Pitch page + ${d.cadenceSteps}-step cadence drafted (${d.unlimitedCredits ? "unlimited credits" : `${d.creditsLeft} credits left`})`);
+    else toast.error(d.error || "Outreach failed");
     refresh();
   }
 
@@ -137,7 +140,7 @@ export default function Dashboard() {
     catch { setUploadingMedia(null); return setMediaError("Upload failed. Check your connection and retry."); }
     const data = await r.json().catch(() => ({}));
     setUploadingMedia(null);
-    if (r.ok) { setToast(kind === "voice" ? "Voice added. Your videos will use your cloned voice" : "Photo added. Avatar videos enabled"); refresh(); }
+    if (r.ok) { toast.success(kind === "voice" ? "Voice added. Your videos will use your cloned voice" : "Photo added. Avatar videos enabled"); refresh(); }
     else setMediaError(data.error || `${kind === "voice" ? "Voice" : "Photo"} upload failed.`);
   }
 
@@ -148,7 +151,8 @@ export default function Dashboard() {
     const r = await fetch("/api/resume", { method: "POST", body: fd });
     const data = await r.json().catch(() => ({}));
     setUploadingMedia(null);
-    setToast(r.ok ? "Résumé updated. Your profile and matches will refresh" : (data.error || "Résumé update failed"));
+    if (r.ok) toast.success("Résumé updated. Your profile and matches will refresh");
+    else toast.error(data.error || "Résumé update failed");
     if (r.ok) refresh();
   }
 
@@ -167,7 +171,10 @@ export default function Dashboard() {
       linkedin_ok: "LinkedIn connected ✓",
       linkedin_failed: "LinkedIn connection didn't complete.",
     }[p];
-    if (msg) setToast(msg);
+    if (msg) {
+      if (p.endsWith("_ok")) toast.success(msg);
+      else toast.error(msg);
+    }
     window.history.replaceState({}, "", "/dashboard");
     if (p === "linkedin_ok") {
       // Reconcile immediately in case the provider callback arrived late.
@@ -180,7 +187,7 @@ export default function Dashboard() {
   }, [refresh]);
 
   function connectGmail() {
-    if (!state?.integrations?.gmail) return setToast("Gmail isn't configured yet (add GOOGLE_CLIENT_ID/SECRET in Vercel).");
+    if (!state?.integrations?.gmail) return toast.error("Gmail isn't configured yet (add GOOGLE_CLIENT_ID/SECRET in Vercel).");
     window.location.href = "/api/connect/google";
   }
   const [liPair, setLiPair] = useState(null); // { token, base }
@@ -192,12 +199,12 @@ export default function Dashboard() {
         window.location.href = d.url;
         return;
       }
-      return setToast(d.error || "Couldn't start LinkedIn connection.");
+      return toast.error(d.error || "Couldn't start LinkedIn connection.");
     }
     const r = await fetch("/api/li/pair");
     const d = await r.json().catch(() => ({}));
     if (r.ok && d.token) setLiPair(d);
-    else setToast(d.error || "Couldn't generate a pairing token.");
+    else toast.error(d.error || "Couldn't generate a pairing token.");
   }
 
   async function sendStep(cad, idx) {
@@ -207,18 +214,19 @@ export default function Dashboard() {
     const d = await r.json().catch(() => ({}));
     setSending(null);
     const msg = d.drafted ? "Saved as a draft in your Gmail ✓" : d.queued ? "Queued for LinkedIn ✓" : `Sent via ${(d.channel || "channel").replace("_", " ")} ✓`;
-    setToast(r.ok ? msg : (d.error || "Send failed"));
+    if (r.ok) toast.success(msg.replace(" ✓", ""));
+    else toast.error(d.error || "Send failed");
     if (r.ok) refresh();
   }
 
   async function setMode(outreachMode) {
     const r = await fetch("/api/settings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ outreachMode }) });
-    if (r.ok) { setToast(outreachMode === "manual" ? "Manual: emails saved as Gmail drafts to review" : "Automated: Gigaprowl sends emails for you"); refresh(); }
+    if (r.ok) { toast.success(outreachMode === "manual" ? "Manual: emails saved as Gmail drafts to review" : "Automated: Gigaprowl sends emails for you"); refresh(); }
   }
 
   async function setEmailStyle(emailStyle) {
     const r = await fetch("/api/settings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ emailStyle }) });
-    if (r.ok) { setToast(emailStyle === "founder_direct" ? "New hunts will write short founder-direct emails" : "New hunts will use the standard pitch-led style"); refresh(); }
+    if (r.ok) { toast.success(emailStyle === "founder_direct" ? "New hunts will write short founder-direct emails" : "New hunts will use the standard pitch-led style"); refresh(); }
   }
 
   const [restyling, setRestyling] = useState(null);
@@ -227,7 +235,8 @@ export default function Dashboard() {
     const r = await fetch("/api/cadence/restyle", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ cadenceId: cadId, style }) });
     const d = await r.json().catch(() => ({}));
     setRestyling(null);
-    setToast(r.ok ? `Rewritten in ${style === "founder_direct" ? "founder-direct" : "standard"} style ✓` : (d.error || "Rewrite failed"));
+    if (r.ok) toast.success(`Rewritten in ${style === "founder_direct" ? "founder-direct" : "standard"} style`);
+    else toast.error(d.error || "Rewrite failed");
     if (r.ok) refresh();
   }
 
@@ -342,7 +351,7 @@ export default function Dashboard() {
             </ol>
             <div className="flex items-center gap-2 bg-ink border border-edge rounded-xl p-3">
               <code className="text-mint text-xs break-all flex-1">{liPair.token}</code>
-              <button onClick={() => { navigator.clipboard.writeText(liPair.token); setToast("pairing token copied ✓"); }} className="text-xs bg-mint text-ink font-bold rounded-full px-3 py-1.5 shrink-0">copy</button>
+              <button onClick={() => { navigator.clipboard.writeText(liPair.token); toast.success("Pairing token copied"); }} className="text-xs bg-mint text-ink font-bold rounded-full px-3 py-1.5 shrink-0">copy</button>
             </div>
           </div>
         )}
@@ -388,8 +397,8 @@ export default function Dashboard() {
         {!!pitches.length && !!liteWithoutKit.length && autopilot !== "running" && (
           <div className="bg-panel border border-edge rounded-2xl p-5 mb-6 flex flex-wrap items-center justify-between gap-4">
             <div>
-              <p className="font-semibold">Free apply kits for mid-tier matches</p>
-              <p className="text-fog text-sm">{liteWithoutKit.length} solid match{liteWithoutKit.length === 1 ? "" : "es"} (score 50–74) can get tailored bullets + an apply note — 0 credits.</p>
+              <p className="font-semibold">Kits for matches scored 50-74</p>
+              <p className="text-fog text-sm">{liteWithoutKit.length} still need a kit. Resume bullets and an apply note, no credits.</p>
             </div>
             <button onClick={() => runAutopilot({ liteOnly: true })} className="bg-mint text-ink font-bold px-5 py-2.5 rounded-full hover:bg-mintdim transition">Generate apply kits</button>
           </div>
@@ -397,13 +406,13 @@ export default function Dashboard() {
         {autopilot === "running" && (
           <div className="bg-panel border border-mint rounded-2xl p-5 mb-6">
             <p className="text-mint font-semibold animate-pulse">🎯 Generating outreach drafts…</p>
-            <p className="text-fog text-sm mt-1">Top matches get the full treatment (pitch page + contacts + outreach); solid matches get free apply kits. ~1 minute.</p>
+            <p className="text-fog text-sm mt-1">75+ gets a pitch page, contacts, and outreach. 50-74 gets a kit. About a minute.</p>
           </div>
         )}
         {autopilot === "done" && (
           <div className="bg-panel border border-mint rounded-2xl p-5 mb-6">
-            <p className="text-mint font-semibold">✓ Autopilot done — your first hunts are ready.</p>
-            <p className="text-fog text-sm mt-1">Check Pitch pages + Cadences for full hunts, and Apply kits for the freebies. Videos render in a couple of minutes.</p>
+            <p className="text-mint font-semibold">✓ Autopilot done. First hunts are ready.</p>
+            <p className="text-fog text-sm mt-1">Pitch pages and Cadences for hunts. Apply kits for the rest. Videos take a couple of minutes.</p>
           </div>
         )}
         <div className="flex gap-2 mb-6">
@@ -452,7 +461,7 @@ export default function Dashboard() {
                       <button onClick={() => setTab("Apply kits")} className="text-mint text-sm font-semibold hover:underline">Apply kit</button>
                     ) : (
                       <button onClick={() => makeApplyKit(m.id)} disabled={!!hunting} className="text-fog hover:text-white text-xs border border-edge rounded-full px-3 py-1.5 transition disabled:opacity-50">
-                        {hunting === m.id ? "Writing kit…" : kitRunning ? "Kit incoming…" : "Get apply kit (free)"}
+                        {hunting === m.id ? "Writing kit…" : kitRunning ? "Still writing…" : "Get apply kit"}
                       </button>
                     )}
                   </div>
@@ -466,7 +475,7 @@ export default function Dashboard() {
                 ) : m.score < 75 ? (
                   <div className="flex items-center gap-3">
                     <button onClick={() => makeApplyKit(m.id)} disabled={!!hunting} className="bg-mint text-ink text-sm font-bold px-5 py-2.5 rounded-full hover:bg-mintdim transition disabled:opacity-50">
-                      {hunting === m.id ? "Writing kit…" : "Get apply kit (free)"}
+                      {hunting === m.id ? "Writing kit…" : "Get apply kit"}
                     </button>
                     <button onClick={() => hunt(m.id)} disabled={!!hunting} className="text-fog hover:text-white text-xs border border-edge rounded-full px-3 py-1.5 transition disabled:opacity-50">
                       {hunting === m.id ? "Hunting…" : "Hunt this (1 credit)"}
@@ -490,7 +499,7 @@ export default function Dashboard() {
                   <p className="text-mint font-semibold animate-pulse">Writing apply kits…</p>
                 ) : (
                   <>
-                    <p className="text-fog">No apply kits yet. Hunt a job (kits fill in after outreach is ready) or generate free ones for mid-tier matches (score 50–74).</p>
+                    <p className="text-fog">Nothing here yet. Hunt a job and a kit shows up after outreach lands. Or generate kits for matches scored 50-74.</p>
                     {!!liteWithoutKit.length && (
                       <button onClick={() => runAutopilot({ liteOnly: true })} className="mt-4 bg-mint text-ink font-bold px-5 py-2.5 rounded-full hover:bg-mintdim transition">
                         Generate apply kits ({liteWithoutKit.length})
@@ -517,7 +526,7 @@ export default function Dashboard() {
                 <div className="border border-edge rounded-xl p-4 mb-3">
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-mint text-xs font-semibold uppercase tracking-wider">resume bullets</p>
-                    <button onClick={() => { navigator.clipboard.writeText((k.bullets || []).map((b) => `• ${b}`).join("\n")); setToast("bullets copied ✓"); }} className="text-xs text-fog hover:text-mint transition">copy all</button>
+                    <button onClick={() => { navigator.clipboard.writeText((k.bullets || []).map((b) => `• ${b}`).join("\n")); toast.success("Bullets copied"); }} className="text-xs text-fog hover:text-mint transition">copy all</button>
                   </div>
                   <ul className="space-y-1.5">
                     {(k.bullets || []).map((b, i) => <li key={i} className="text-sm text-fog leading-relaxed">• {b}</li>)}
@@ -526,7 +535,7 @@ export default function Dashboard() {
                 <div className="border border-edge rounded-xl p-4">
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-mint text-xs font-semibold uppercase tracking-wider">apply note</p>
-                    <button onClick={() => { navigator.clipboard.writeText(k.applyNote || ""); setToast("apply note copied ✓"); }} className="text-xs text-fog hover:text-mint transition">copy</button>
+                    <button onClick={() => { navigator.clipboard.writeText(k.applyNote || ""); toast.success("Apply note copied"); }} className="text-xs text-fog hover:text-mint transition">copy</button>
                   </div>
                   <p className="text-sm text-fog whitespace-pre-wrap leading-relaxed">{k.applyNote}</p>
                 </div>
@@ -672,14 +681,14 @@ export default function Dashboard() {
                 <div className="border border-edge rounded-xl p-4 mb-3">
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-mint text-xs font-semibold uppercase tracking-wider">linkedin post</p>
-                    <button onClick={() => { navigator.clipboard.writeText(p.linkedinPost || ""); setToast("linkedin post copied ✓"); }} className="text-xs text-fog hover:text-mint transition">copy</button>
+                    <button onClick={() => { navigator.clipboard.writeText(p.linkedinPost || ""); toast.success("LinkedIn post copied"); }} className="text-xs text-fog hover:text-mint transition">copy</button>
                   </div>
                   <p className="text-sm text-fog whitespace-pre-wrap leading-relaxed">{p.linkedinPost}</p>
                 </div>
                 <div className="border border-edge rounded-xl p-4">
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-mint text-xs font-semibold uppercase tracking-wider">x / twitter thread</p>
-                    <button onClick={() => { navigator.clipboard.writeText((p.twitterThread || []).join("\n\n")); setToast("thread copied ✓"); }} className="text-xs text-fog hover:text-mint transition">copy thread</button>
+                    <button onClick={() => { navigator.clipboard.writeText((p.twitterThread || []).join("\n\n")); toast.success("Thread copied"); }} className="text-xs text-fog hover:text-mint transition">copy thread</button>
                   </div>
                   <ol className="space-y-2">
                     {(p.twitterThread || []).map((t, i) => (
@@ -696,12 +705,6 @@ export default function Dashboard() {
           </div>
         )}
       </div>
-
-      {toast && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-panel border border-mint rounded-full px-6 py-3 text-sm cursor-pointer" onClick={() => setToast(null)}>
-          {toast}
-        </div>
-      )}
     </div>
   );
 }
