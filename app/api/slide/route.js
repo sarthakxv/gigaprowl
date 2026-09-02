@@ -64,7 +64,7 @@ export async function GET(req) {
     body = Frame(
       <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
         <div style={{ display: "flex", color: MINT, fontSize: 28, fontWeight: 700, textTransform: "uppercase", letterSpacing: 2 }}>
-          How I'd add value
+          How I'd help
         </div>
         <div style={{ display: "flex", fontSize: 52, fontWeight: 800, lineHeight: 1.1, maxWidth: 1040 }}>{heading || `Impact at ${company}`}</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 16, marginTop: 8 }}>
