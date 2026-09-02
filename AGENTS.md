@@ -44,6 +44,8 @@ Use JavaScript/JSX, ES modules, two-space indentation, semicolons, and double
 quotes. Use PascalCase for React components, camelCase for functions and
 variables, and the `@/` import alias for repository-root modules. Prefer
 Tailwind utilities and shared tokens; keep `app/globals.css` genuinely global.
+Use `lucide-react` for UI icons; do not add inline SVG icons or another icon
+library.
 
 There is no test or lint script. For code changes, run `npm run build` and
 manually exercise the changed UI or API path, including its authorization,

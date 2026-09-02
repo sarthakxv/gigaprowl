@@ -2,6 +2,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { ExternalLink } from "lucide-react";
 import VoiceRecorder from "../onboarding/VoiceRecorder";
 
 const TABS = ["Matches", "Apply kits", "Contacts", "Cadences", "Activity", "Pitch pages", "Social posts"];
@@ -151,8 +152,8 @@ export default function Dashboard() {
     const r = await fetch("/api/resume", { method: "POST", body: fd });
     const data = await r.json().catch(() => ({}));
     setUploadingMedia(null);
-    if (r.ok) toast.success("Résumé updated. Your profile and matches will refresh");
-    else toast.error(data.error || "Résumé update failed");
+    if (r.ok) toast.success("Resume updated. Your profile and matches will refresh");
+    else toast.error(data.error || "Resume update failed");
     if (r.ok) refresh();
   }
 
@@ -261,6 +262,12 @@ export default function Dashboard() {
     if (typeof k.score === "number") return k.score;
     return null;
   }
+  const pitchMatchIds = new Set((pitches || []).map((p) => p.matchId));
+  const hasLiteBandKits = applyKits.some((k) => {
+    if (k.matchId && !pitchMatchIds.has(k.matchId)) return true;
+    const s = kitScore(k);
+    return typeof s === "number" && s >= 50 && s < 75;
+  });
 
   return (
     <div className="min-h-screen bg-ink pb-20">
@@ -394,7 +401,7 @@ export default function Dashboard() {
             <button onClick={() => runAutopilot()} className="bg-mint text-ink font-bold px-5 py-2.5 rounded-full hover:bg-mintdim transition">Generate for top matches</button>
           </div>
         )}
-        {!!pitches.length && !!liteWithoutKit.length && autopilot !== "running" && (
+        {!!pitches.length && !!liteWithoutKit.length && !hasLiteBandKits && autopilot !== "running" && (
           <div className="bg-panel border border-edge rounded-2xl p-5 mb-6 flex flex-wrap items-center justify-between gap-4">
             <div>
               <p className="font-semibold">Kits for matches scored 50-74</p>
@@ -515,7 +522,10 @@ export default function Dashboard() {
               <div key={k.id} className="bg-panel border border-edge rounded-2xl p-6">
                 <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                   <div>
-                    <a href={k.job.url} target="_blank" className="font-semibold hover:text-mint transition">{k.job.title} @ {k.job.company}</a>
+                    <a href={k.job.url} target="_blank" rel="noopener noreferrer" className="font-semibold hover:text-mint transition">
+                      {k.job.title} @ {k.job.company}
+                      <ExternalLink className="ml-1.5 inline-block size-3.5 align-[-0.1em] opacity-55" aria-hidden="true" />
+                    </a>
                     {typeof score === "number" && (
                       <p className="text-fog text-xs mt-0.5">match score {score}</p>
                     )}
@@ -661,12 +671,12 @@ export default function Dashboard() {
         {tab === "Social posts" && (
           <div className="space-y-4">
             {socialPosts.length === 0 && (socialRunning
-              ? <p className="text-mint animate-pulse">✍️ writing your posts, fact-checked against your résumé, ~30s…</p>
+              ? <p className="text-mint animate-pulse">✍️ writing your posts, fact-checked against your resume, ~30s…</p>
               : <p className="text-fog">no social posts yet. every full hunt drafts a LinkedIn post + X thread that put your work in the target company's feed.</p>)}
             {socialPosts.length > 0 && (
               <>
                 <p className="text-fog/70 text-xs">review before posting. post it yourself: your voice, your profile. gigaprowl never publishes on your behalf.</p>
-                <p className="text-fog/70 text-xs">✓ fact-checked against your résumé. still give it your own read before posting</p>
+                <p className="text-fog/70 text-xs">✓ fact-checked against your resume. still give it your own read before posting</p>
               </>
             )}
             {socialPosts.map((p) => (

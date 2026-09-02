@@ -91,7 +91,7 @@ export async function POST(req) {
         return NextResponse.json(
           {
             error:
-              "We couldn't read any text from that file. If it's a scanned or photo-based PDF, it has no selectable text. Re-export a text PDF from Word/Google Docs (File → Save/Download as PDF), or paste your résumé text below.",
+              "We couldn't read any text from that file. If it's a scanned or photo-based PDF, it has no selectable text. Re-export a text PDF from Word/Google Docs (File → Save/Download as PDF), or paste your resume text below.",
           },
           { status: 422 }
         );
@@ -155,7 +155,7 @@ export async function POST(req) {
     const profile = await parseResume(text);
 
     // Parse-quality gate: refuse to build a profile from genuine junk, but don't
-    // punish a real résumé just because the keyword fallback missed its skills.
+    // punish a real resume just because the keyword fallback missed its skills.
     const badName = !profile?.name || /^candidate$/i.test(String(profile.name).trim());
     const noSkills = !Array.isArray(profile?.skills) || profile.skills.length === 0;
     const tooShort = text.trim().length < 120;
@@ -165,7 +165,7 @@ export async function POST(req) {
       return NextResponse.json(
         {
           error: fromFile
-            ? "We couldn't extract enough from that file. Try a text-based PDF/DOCX, or paste your résumé text below."
+            ? "We couldn't extract enough from that file. Try a text-based PDF/DOCX, or paste your resume text below."
             : "We couldn't extract enough from that. Paste a bit more detail (your About + Experience) and we'll take it from there.",
         },
         { status: 422 }
