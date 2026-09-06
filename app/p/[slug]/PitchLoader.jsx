@@ -23,18 +23,18 @@ export default function PitchLoader({ slug }) {
   }, [slug, router]);
 
   return (
-    <div className="min-h-screen bg-ink text-white font-body flex items-center justify-center px-6">
+    <div className="min-h-dvh bg-ink text-white font-body flex items-center justify-center px-6">
       <div className="max-w-md text-center">
         {!gaveUp ? (
           <>
-            <div className="w-10 h-10 border-2 border-edge border-t-mint rounded-full animate-spin mx-auto mb-6" />
-            <h1 className="font-display text-2xl font-bold mb-2">Building your pitch page…</h1>
-            <p className="text-fog">Personalizing the page and video for this role. This can take a minute. It will load when it's ready.</p>
+            <div className="size-10 border-2 border-edge border-t-mint rounded-full animate-spin mx-auto mb-6" />
+            <h1 className="font-display text-2xl font-bold text-balance mb-2">Building your pitch page…</h1>
+            <p className="text-pretty text-fog">Personalizing the page and video for this role. This can take a minute. It will load when it's ready.</p>
           </>
         ) : (
           <>
-            <h1 className="font-display text-2xl font-bold mb-2">Still working on it</h1>
-            <p className="text-fog mb-6">This pitch is taking longer than expected. Refresh in a moment, or head back to your dashboard.</p>
+            <h1 className="font-display text-2xl font-bold text-balance mb-2">Still working on it</h1>
+            <p className="text-pretty text-fog mb-6">This pitch is taking longer than expected. Refresh in a moment, or head back to your dashboard.</p>
             <button onClick={() => router.refresh()} className="bg-mint text-ink font-bold px-6 py-3 rounded-full hover:bg-mintdim transition">
               Refresh
             </button>

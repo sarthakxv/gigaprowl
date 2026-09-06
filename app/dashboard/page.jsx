@@ -4,6 +4,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { ExternalLink } from "lucide-react";
 import VoiceRecorder from "../onboarding/VoiceRecorder";
+import { cn } from "@/lib/cn";
 
 const TABS = ["Matches", "Apply kits", "Contacts", "Cadences", "Activity", "Pitch pages", "Social posts"];
 
@@ -241,10 +242,10 @@ export default function Dashboard() {
     if (r.ok) refresh();
   }
 
-  if (!state) return <div className="min-h-screen bg-ink flex items-center justify-center text-fog">Loading…</div>;
+  if (!state) return <div className="min-h-dvh bg-ink flex items-center justify-center text-fog">Loading…</div>;
   if (!state.profile)
     return (
-      <div className="min-h-screen bg-ink flex flex-col items-center justify-center gap-4 text-fog">
+      <div className="min-h-dvh bg-ink flex flex-col items-center justify-center gap-4 text-fog">
         <p>No profile yet.</p>
         <Link href="/onboarding" className="bg-mint text-ink font-bold px-8 py-3 rounded-full">Upload your resume</Link>
       </div>
@@ -270,12 +271,12 @@ export default function Dashboard() {
   });
 
   return (
-    <div className="min-h-screen bg-ink pb-20">
+    <div className="min-h-dvh bg-ink pb-20">
       <nav className="border-b border-edge">
         <div className="max-w-6xl mx-auto flex items-center justify-between px-6 py-4">
           <Link href="/" className="font-display text-xl font-bold">gigaprowl<span className="text-mint">.</span></Link>
           <div className="flex items-center gap-4 text-sm">
-            <span className="text-fog">{credits.unlimited ? "Unlimited credits · Dev" : `${credits.balance} credits`}</span>
+            <span className="text-fog tabular-nums">{credits.unlimited ? "Unlimited credits · Dev" : `${credits.balance} credits`}</span>
             <button onClick={runSync} disabled={syncing} title="Jobs auto-refresh daily; this scans on demand" className="bg-mint text-ink font-semibold px-4 py-2 rounded-full hover:bg-mintdim transition disabled:opacity-50">
               {syncing ? "Scanning…" : "Refresh jobs"}
             </button>
@@ -297,7 +298,7 @@ export default function Dashboard() {
             <input type="file" accept=".pdf,.docx,.txt,.md" className="hidden" onChange={(e) => e.target.files[0] && updateResume(e.target.files[0])} />
             {uploadingMedia === "resume" ? "Updating resume…" : "Update resume"}
           </label>
-          <p className="text-fog/60 text-xs ml-auto">
+          <p className="text-fog/60 text-xs ml-auto tabular-nums">
             {state.jobCount} jobs indexed · last scan {state.lastSync ? new Date(state.lastSync).toLocaleString() : "never"}
             {!integrations.ai && " · demo AI (add ANTHROPIC_API_KEY)"}
             {!integrations.apollo && " · demo contacts (add APOLLO_API_KEY)"}
@@ -306,18 +307,18 @@ export default function Dashboard() {
 
         <div className="bg-panel border border-edge rounded-2xl p-5 mb-6 flex flex-wrap items-center gap-4">
           <p className="font-semibold text-sm">Outreach channels</p>
-          <button onClick={connectGmail} className={`text-sm rounded-full px-4 py-2 border transition ${state.connections?.gmail ? "border-mint text-mint" : "border-edge text-fog hover:text-white hover:border-mint"}`}>
+          <button onClick={connectGmail} className={cn("text-sm rounded-full px-4 py-2 border transition", state.connections?.gmail ? "border-mint text-mint" : "border-edge text-fog hover:text-white hover:border-mint")}>
             {state.connections?.gmail ? `✓ Gmail: ${state.connections.gmail.email}` : "Connect Gmail (send as you)"}
           </button>
-          <button onClick={connectLinkedIn} className={`text-sm rounded-full px-4 py-2 border transition ${state.connections?.linkedin ? "border-mint text-mint" : "border-edge text-fog hover:text-white hover:border-mint"}`}>
+          <button onClick={connectLinkedIn} className={cn("text-sm rounded-full px-4 py-2 border transition", state.connections?.linkedin ? "border-mint text-mint" : "border-edge text-fog hover:text-white hover:border-mint")}>
             {state.connections?.linkedin
               ? `✓ LinkedIn connected${state.connections.linkedin.name ? ` · ${state.connections.linkedin.name}` : state.connections.linkedin.lastSeen ? ` · seen ${new Date(state.connections.linkedin.lastSeen).toLocaleTimeString()}` : ""}`
               : integrations.linkedinManaged ? "Connect LinkedIn" : "Connect LinkedIn (browser extension)"}
           </button>
-          {state.liQueue?.pending > 0 && <span className="text-xs text-fog">{state.liQueue.pending} LinkedIn action(s) queued</span>}
+          {state.liQueue?.pending > 0 && <span className="text-xs text-fog tabular-nums">{state.liQueue.pending} LinkedIn action(s) queued</span>}
           <div className="flex items-center gap-1 bg-ink border border-edge rounded-full p-1 ml-auto">
             {["manual", "automated"].map((m) => (
-              <button key={m} onClick={() => setMode(m)} className={`text-xs rounded-full px-3 py-1.5 transition ${(state.settings?.outreachMode || "manual") === m ? "bg-mint text-ink font-semibold" : "text-fog hover:text-white"}`}>
+              <button key={m} onClick={() => setMode(m)} className={cn("text-xs rounded-full px-3 py-1.5 transition", (state.settings?.outreachMode || "manual") === m ? "bg-mint text-ink font-semibold" : "text-fog hover:text-white")}>
                 {m === "manual" ? "Manual (save drafts)" : "Automated (send)"}
               </button>
             ))}
@@ -326,7 +327,7 @@ export default function Dashboard() {
             <span className="text-fog/60 text-xs">Email style:</span>
             <div className="flex items-center gap-1 bg-ink border border-edge rounded-full p-1">
               {[["standard", "Standard"], ["founder_direct", "Founder-direct"]].map(([v, lbl]) => (
-                <button key={v} onClick={() => setEmailStyle(v)} className={`text-xs rounded-full px-3 py-1.5 transition ${(state.settings?.emailStyle || "standard") === v ? "bg-mint text-ink font-semibold" : "text-fog hover:text-white"}`}>{lbl}</button>
+                <button key={v} onClick={() => setEmailStyle(v)} className={cn("text-xs rounded-full px-3 py-1.5 transition", (state.settings?.emailStyle || "standard") === v ? "bg-mint text-ink font-semibold" : "text-fog hover:text-white")}>{lbl}</button>
               ))}
             </div>
             <span className="text-fog/50 text-xs">{(state.settings?.emailStyle || "standard") === "founder_direct" ? "short, no-buzzword cold emails straight to founders (Backdoor-style)" : "polished, pitch-page-led outreach"}</span>
@@ -341,7 +342,7 @@ export default function Dashboard() {
         {state.connections?.linkedin?.status === "checkpoint" && (
           <div className="bg-panel border border-red-500/60 rounded-2xl p-4 mb-6">
             <p className="text-red-400 text-sm font-semibold">⚠ LinkedIn needs a re-login</p>
-            <p className="text-fog text-sm mt-1">Your LinkedIn session hit a security check. Open LinkedIn in the browser running the extension, sign in / complete any prompt, and outreach resumes automatically.</p>
+            <p className="text-pretty text-fog text-sm mt-1">Your LinkedIn session hit a security check. Open LinkedIn in the browser running the extension, sign in / complete any prompt, and outreach resumes automatically.</p>
           </div>
         )}
 
@@ -368,7 +369,7 @@ export default function Dashboard() {
             <div className="flex items-start justify-between gap-4 mb-4">
               <div>
                 <p className="font-display text-lg font-bold">Enable personalized video</p>
-                <p className="text-fog text-sm">Add your photo and a ~30s voice sample to put a 15-second avatar video of you, in your own voice, on every pitch page. Optional, and you can do it anytime.</p>
+                <p className="text-pretty text-fog text-sm">Add your photo and a ~30s voice sample to put a 15-second avatar video of you, in your own voice, on every pitch page. Optional, and you can do it anytime.</p>
               </div>
               <button onClick={() => setMediaHidden(true)} className="text-fog hover:text-white text-sm shrink-0">Add later</button>
             </div>
@@ -396,7 +397,7 @@ export default function Dashboard() {
           <div className="bg-panel border border-edge rounded-2xl p-5 mb-6 flex flex-wrap items-center justify-between gap-4">
             <div>
               <p className="font-semibold">Ready to generate outreach?</p>
-              <p className="text-fog text-sm">Review your matches first. This creates pitch pages and cadence drafts; it does not send them.</p>
+              <p className="text-pretty text-fog text-sm">Review your matches first. This creates pitch pages and cadence drafts; it does not send them.</p>
             </div>
             <button onClick={() => runAutopilot()} className="bg-mint text-ink font-bold px-5 py-2.5 rounded-full hover:bg-mintdim transition">Generate for top matches</button>
           </div>
@@ -405,7 +406,7 @@ export default function Dashboard() {
           <div className="bg-panel border border-edge rounded-2xl p-5 mb-6 flex flex-wrap items-center justify-between gap-4">
             <div>
               <p className="font-semibold">Kits for matches scored 50-74</p>
-              <p className="text-fog text-sm">{liteWithoutKit.length} still need a kit. Resume bullets and an apply note, no credits.</p>
+              <p className="text-pretty text-fog text-sm">{liteWithoutKit.length} still need a kit. Resume bullets and an apply note, no credits.</p>
             </div>
             <button onClick={() => runAutopilot({ liteOnly: true })} className="bg-mint text-ink font-bold px-5 py-2.5 rounded-full hover:bg-mintdim transition">Generate apply kits</button>
           </div>
@@ -413,18 +414,18 @@ export default function Dashboard() {
         {autopilot === "running" && (
           <div className="bg-panel border border-mint rounded-2xl p-5 mb-6">
             <p className="text-mint font-semibold animate-pulse">🎯 Generating outreach drafts…</p>
-            <p className="text-fog text-sm mt-1">75+ gets a pitch page, contacts, and outreach. 50-74 gets a kit. About a minute.</p>
+            <p className="text-pretty text-fog text-sm mt-1">75+ gets a pitch page, contacts, and outreach. 50-74 gets a kit. About a minute.</p>
           </div>
         )}
         {autopilot === "done" && (
           <div className="bg-panel border border-mint rounded-2xl p-5 mb-6">
             <p className="text-mint font-semibold">✓ Autopilot done. First hunts are ready.</p>
-            <p className="text-fog text-sm mt-1">Pitch pages and Cadences for hunts. Apply kits for the rest. Videos take a couple of minutes.</p>
+            <p className="text-pretty text-fog text-sm mt-1">Pitch pages and Cadences for hunts. Apply kits for the rest. Videos take a couple of minutes.</p>
           </div>
         )}
         <div className="flex gap-2 mb-6">
           {TABS.map((t) => (
-            <button key={t} onClick={() => setTab(t)} className={`px-4 py-2 rounded-full text-sm transition ${tab === t ? "bg-mint text-ink font-semibold" : "text-fog hover:text-white border border-edge"}`}>
+            <button key={t} onClick={() => setTab(t)} className={cn("px-4 py-2 rounded-full text-sm tabular-nums transition", tab === t ? "bg-mint text-ink font-semibold" : "text-fog hover:text-white border border-edge")}>
               {t} {t === "Matches" ? `(${matches.length})` : t === "Apply kits" ? `(${applyKits.length})` : t === "Contacts" ? `(${contacts.length})` : t === "Cadences" ? `(${cadences.length})` : t === "Activity" ? `(${(state.sends || []).length})` : t === "Social posts" ? `(${socialPosts.length})` : `(${pitches.length})`}
             </button>
           ))}
@@ -435,7 +436,7 @@ export default function Dashboard() {
             {matches.length === 0 && <p className="text-fog">No matches yet. Hit Refresh jobs.</p>}
             {matches.map((m) => (
               <div key={m.id} className="bg-panel border border-edge rounded-2xl p-5 flex flex-wrap items-center gap-4">
-                <div className={`font-display font-bold text-lg w-14 h-14 rounded-xl flex items-center justify-center shrink-0 ${m.score >= 70 ? "bg-mint text-ink" : "bg-edge text-mint"}`}>{m.score}</div>
+                <div className={cn("font-display font-bold text-lg size-14 rounded-xl flex items-center justify-center shrink-0 tabular-nums", m.score >= 70 ? "bg-mint text-ink" : "bg-edge text-mint")}>{m.score}</div>
                 <div className="flex-1 min-w-[220px]">
                   <a href={m.job.url} target="_blank" className="font-semibold hover:text-mint transition">{m.job.title}</a>
                   <p className="text-fog text-sm">{m.job.company} · {m.job.location}{m.job.salary ? ` · ${m.job.salary}` : ""}</p>
@@ -506,7 +507,7 @@ export default function Dashboard() {
                   <p className="text-mint font-semibold animate-pulse">Writing apply kits…</p>
                 ) : (
                   <>
-                    <p className="text-fog">Nothing here yet. Hunt a job and a kit shows up after outreach lands. Or generate kits for matches scored 50-74.</p>
+                    <p className="text-pretty text-fog">Nothing here yet. Hunt a job and a kit shows up after outreach lands. Or generate kits for matches scored 50-74.</p>
                     {!!liteWithoutKit.length && (
                       <button onClick={() => runAutopilot({ liteOnly: true })} className="mt-4 bg-mint text-ink font-bold px-5 py-2.5 rounded-full hover:bg-mintdim transition">
                         Generate apply kits ({liteWithoutKit.length})
@@ -527,15 +528,15 @@ export default function Dashboard() {
                       <ExternalLink className="ml-1.5 inline-block size-3.5 align-[-0.1em] opacity-55" aria-hidden="true" />
                     </a>
                     {typeof score === "number" && (
-                      <p className="text-fog text-xs mt-0.5">match score {score}</p>
+                      <p className="text-fog text-xs mt-0.5 tabular-nums">match score {score}</p>
                     )}
                   </div>
                   <span className="text-xs border border-edge rounded-full px-3 py-1 text-fog">apply kit</span>
                 </div>
-                {k.fitNote && <p className="text-fog text-sm mb-4">{k.fitNote}</p>}
+                {k.fitNote && <p className="text-pretty text-fog text-sm mb-4">{k.fitNote}</p>}
                 <div className="border border-edge rounded-xl p-4 mb-3">
                   <div className="flex items-center justify-between mb-2">
-                    <p className="text-mint text-xs font-semibold uppercase tracking-wider">resume bullets</p>
+                    <p className="text-mint text-xs font-semibold uppercase">resume bullets</p>
                     <button onClick={() => { navigator.clipboard.writeText((k.bullets || []).map((b) => `• ${b}`).join("\n")); toast.success("Bullets copied"); }} className="text-xs text-fog hover:text-mint transition">copy all</button>
                   </div>
                   <ul className="space-y-1.5">
@@ -544,10 +545,10 @@ export default function Dashboard() {
                 </div>
                 <div className="border border-edge rounded-xl p-4">
                   <div className="flex items-center justify-between mb-2">
-                    <p className="text-mint text-xs font-semibold uppercase tracking-wider">apply note</p>
+                    <p className="text-mint text-xs font-semibold uppercase">apply note</p>
                     <button onClick={() => { navigator.clipboard.writeText(k.applyNote || ""); toast.success("Apply note copied"); }} className="text-xs text-fog hover:text-mint transition">copy</button>
                   </div>
-                  <p className="text-sm text-fog whitespace-pre-wrap leading-relaxed">{k.applyNote}</p>
+                  <p className="text-pretty text-sm text-fog whitespace-pre-wrap leading-relaxed">{k.applyNote}</p>
                 </div>
               </div>
               );
@@ -600,7 +601,7 @@ export default function Dashboard() {
                     return (
                       <div key={i} className="border border-edge rounded-xl p-4">
                         <div className="flex items-start justify-between gap-3 mb-1">
-                          <p className="text-mint text-xs font-semibold uppercase tracking-wider">Day {s.day} · {s.channel.replace("_", " ")}{s.subject ? ` · ${s.subject}` : ""}{dueLabel ? ` · ${dueLabel}` : ""}</p>
+                          <p className="text-mint text-xs font-semibold uppercase tabular-nums">Day {s.day} · {s.channel.replace("_", " ")}{s.subject ? ` · ${s.subject}` : ""}{dueLabel ? ` · ${dueLabel}` : ""}</p>
                           {doneLabel ? (
                             <span className="text-mint text-xs font-semibold shrink-0">{doneLabel}</span>
                           ) : (
@@ -613,7 +614,7 @@ export default function Dashboard() {
                             </button>
                           )}
                         </div>
-                        <p className="text-sm text-fog whitespace-pre-wrap leading-relaxed">{s.body}</p>
+                        <p className="text-pretty text-sm text-fog whitespace-pre-wrap leading-relaxed">{s.body}</p>
                       </div>
                     );
                   })}
@@ -628,11 +629,11 @@ export default function Dashboard() {
             <div className="flex flex-wrap items-center gap-x-6 gap-y-1 mb-4 text-xs text-fog/70">
               <span>Mode: <span className="text-mint">{(state.settings?.outreachMode || "manual") === "manual" ? "manual (drafts)" : "automated (sends)"}</span></span>
               <span>Auto-run: <span className="text-mint">daily</span></span>
-              {state.liQueue?.pending > 0 && <span>{state.liQueue.pending} LinkedIn queued</span>}
+              {state.liQueue?.pending > 0 && <span className="tabular-nums">{state.liQueue.pending} LinkedIn queued</span>}
               {state.connections?.linkedin?.lastSeen && <span>extension seen {new Date(state.connections.linkedin.lastSeen).toLocaleString()}</span>}
             </div>
             {(state.sends || []).length === 0 ? (
-              <p className="text-fog">nothing sent yet. sent emails, drafts, and LinkedIn actions will show up here with timestamps.</p>
+              <p className="text-pretty text-fog">nothing sent yet. sent emails, drafts, and LinkedIn actions will show up here with timestamps.</p>
             ) : (
               <div className="space-y-2">
                 {[...(state.sends || [])].reverse().map((sd) => {
@@ -641,10 +642,10 @@ export default function Dashboard() {
                   const icon = sd.status === "sent" ? "✓ sent" : sd.status === "drafted" ? "📝 draft" : sd.status === "queued" ? "⏳ queued" : "✕ failed";
                   return (
                     <div key={sd.id} className="bg-panel border border-edge rounded-xl px-4 py-3 flex items-center gap-4 text-sm">
-                      <span className={`${color} font-semibold shrink-0 w-20`}>{icon}</span>
+                      <span className={cn(color, "font-semibold shrink-0 w-20")}>{icon}</span>
                       <span className="text-fog shrink-0 w-28">{label}</span>
                       <span className="flex-1 truncate text-fog/80">{sd.to || "—"}</span>
-                      <span className="text-fog/50 text-xs shrink-0">{new Date(sd.at).toLocaleString()}</span>
+                      <span className="text-fog/50 text-xs shrink-0 tabular-nums">{new Date(sd.at).toLocaleString()}</span>
                     </div>
                   );
                 })}
@@ -672,11 +673,11 @@ export default function Dashboard() {
           <div className="space-y-4">
             {socialPosts.length === 0 && (socialRunning
               ? <p className="text-mint animate-pulse">✍️ writing your posts, fact-checked against your resume, ~30s…</p>
-              : <p className="text-fog">no social posts yet. every full hunt drafts a LinkedIn post + X thread that put your work in the target company's feed.</p>)}
+              : <p className="text-pretty text-fog">no social posts yet. every full hunt drafts a LinkedIn post + X thread that put your work in the target company's feed.</p>)}
             {socialPosts.length > 0 && (
               <>
-                <p className="text-fog/70 text-xs">review before posting. post it yourself: your voice, your profile. gigaprowl never publishes on your behalf.</p>
-                <p className="text-fog/70 text-xs">✓ fact-checked against your resume. still give it your own read before posting</p>
+                <p className="text-pretty text-fog/70 text-xs">review before posting. post it yourself: your voice, your profile. gigaprowl never publishes on your behalf.</p>
+                <p className="text-pretty text-fog/70 text-xs">✓ fact-checked against your resume. still give it your own read before posting</p>
               </>
             )}
             {socialPosts.map((p) => (
@@ -690,14 +691,14 @@ export default function Dashboard() {
                 </div>
                 <div className="border border-edge rounded-xl p-4 mb-3">
                   <div className="flex items-center justify-between mb-2">
-                    <p className="text-mint text-xs font-semibold uppercase tracking-wider">linkedin post</p>
+                    <p className="text-mint text-xs font-semibold uppercase">linkedin post</p>
                     <button onClick={() => { navigator.clipboard.writeText(p.linkedinPost || ""); toast.success("LinkedIn post copied"); }} className="text-xs text-fog hover:text-mint transition">copy</button>
                   </div>
-                  <p className="text-sm text-fog whitespace-pre-wrap leading-relaxed">{p.linkedinPost}</p>
+                  <p className="text-pretty text-sm text-fog whitespace-pre-wrap leading-relaxed">{p.linkedinPost}</p>
                 </div>
                 <div className="border border-edge rounded-xl p-4">
                   <div className="flex items-center justify-between mb-2">
-                    <p className="text-mint text-xs font-semibold uppercase tracking-wider">x / twitter thread</p>
+                    <p className="text-mint text-xs font-semibold uppercase">x / twitter thread</p>
                     <button onClick={() => { navigator.clipboard.writeText((p.twitterThread || []).join("\n\n")); toast.success("Thread copied"); }} className="text-xs text-fog hover:text-mint transition">copy thread</button>
                   </div>
                   <ol className="space-y-2">
@@ -709,7 +710,7 @@ export default function Dashboard() {
                     ))}
                   </ol>
                 </div>
-                <p className="text-fog/50 text-xs mt-3">review, tweak to taste, then post from your own account. that's the whole point.</p>
+                <p className="text-pretty text-fog/50 text-xs mt-3">review, tweak to taste, then post from your own account. that's the whole point.</p>
               </div>
             ))}
           </div>

@@ -154,12 +154,12 @@ export default function VoiceRecorder({ onUpload, done }) {
           {state === "recording" && (
             <div className="mb-4">
               <div className="flex items-center gap-2 mb-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse" />
-                <span className="text-mint font-mono text-lg">0:{String(secs).padStart(2, "0")}</span>
+                <span className="size-2.5 rounded-full bg-red-500 animate-pulse" />
+                <span className="text-mint font-mono text-lg tabular-nums">0:{String(secs).padStart(2, "0")}</span>
                 <span className="text-fog/50 text-xs">/ 0:30</span>
               </div>
               <div className="h-1.5 bg-edge rounded-full overflow-hidden">
-                <div className="h-full bg-mint transition-all" style={{ width: `${pct}%` }} />
+                <div className="h-full origin-left bg-mint transition-transform ease-out" style={{ transform: `scaleX(${pct / 100})` }} />
               </div>
             </div>
           )}

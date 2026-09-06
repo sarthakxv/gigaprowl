@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { cn } from "@/lib/cn";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -45,7 +46,7 @@ export default function Onboarding() {
   }
 
   return (
-    <div className="min-h-screen bg-ink px-6 py-10">
+    <div className="min-h-dvh bg-ink px-6 py-10">
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center justify-between">
           <Link href="/" className="font-display text-2xl font-bold">gigaprowl<span className="text-mint">.</span></Link>
@@ -59,16 +60,16 @@ export default function Onboarding() {
         <div className="flex gap-2 my-8">
           {STEPS.map((s, i) => (
             <div key={s} className="flex-1">
-              <div className={`h-1 rounded-full ${i <= step ? "bg-mint" : "bg-edge"}`} />
-              <p className={`text-xs mt-2 ${i <= step ? "text-mint" : "text-fog/50"}`}>{s}</p>
+              <div className={cn("h-1 rounded-full", i <= step ? "bg-mint" : "bg-edge")} />
+              <p className={cn("text-xs mt-2", i <= step ? "text-mint" : "text-fog/50")}>{s}</p>
             </div>
           ))}
         </div>
 
         {step === 0 && (
           <div>
-            <h1 className="font-display text-3xl font-bold mb-2">drop your resume</h1>
-            <p className="text-fog mb-8">this is the only required step. gigaprowl builds the rest of the hunt from it.</p>
+            <h1 className="font-display text-3xl font-bold text-balance mb-2">drop your resume</h1>
+            <p className="text-pretty text-fog mb-8">this is the only required step. gigaprowl builds the rest of the hunt from it.</p>
             {!profile ? (
               <div>
                 <div className="bg-panel border-2 border-mint rounded-2xl p-6">
@@ -86,11 +87,11 @@ export default function Onboarding() {
                     <p className="text-mint font-bold text-lg">{busy ? "analyzing…" : "drop your PDF here or click to upload"}</p>
                     <p className="text-fog/60 text-xs mt-2">PDF, DOCX, or TXT</p>
                   </label>
-                  <p className="text-fog/60 text-xs mt-3">we read your own profile PDF. nothing sketchy, no logins, no scraping.</p>
+                  <p className="text-pretty text-fog/60 text-xs mt-3">we read your own profile PDF. nothing sketchy, no logins, no scraping.</p>
                 </div>
                 <div className="flex items-center gap-3 my-6">
                   <div className="flex-1 h-px bg-edge" />
-                  <p className="text-fog/50 text-xs uppercase tracking-widest">or upload a resume file</p>
+                  <p className="text-fog/50 text-xs uppercase">or upload a resume file</p>
                   <div className="flex-1 h-px bg-edge" />
                 </div>
                 <label className="block bg-panel border border-edge hover:border-mint rounded-2xl p-6 text-center cursor-pointer transition">
@@ -100,7 +101,7 @@ export default function Onboarding() {
                 </label>
                 <div className="flex items-center gap-3 my-6">
                   <div className="flex-1 h-px bg-edge" />
-                  <p className="text-fog/50 text-xs uppercase tracking-widest">or paste your experience</p>
+                  <p className="text-fog/50 text-xs uppercase">or paste your experience</p>
                   <div className="flex-1 h-px bg-edge" />
                 </div>
                 <div className="bg-panel border border-edge rounded-2xl p-4 space-y-3">
@@ -123,13 +124,13 @@ export default function Onboarding() {
             ) : (
               <div className="bg-panel border border-edge rounded-2xl p-6">
                 <p className="font-display text-xl font-bold mb-1">{profile.name}</p>
-                <p className="text-fog text-sm mb-4">{profile.title} · {profile.yearsExperience} yrs · {profile.seniority}</p>
-                <p className="text-sm mb-3"><span className="text-mint font-semibold capitalize">{profile.orientation}-oriented.</span> <span className="text-fog">{profile.orientationReason}</span></p>
+                <p className="text-fog text-sm mb-4 tabular-nums">{profile.title} · {profile.yearsExperience} yrs · {profile.seniority}</p>
+                <p className="text-pretty text-sm mb-3"><span className="text-mint font-semibold capitalize">{profile.orientation}-oriented.</span> <span className="text-fog">{profile.orientationReason}</span></p>
                 <div className="flex flex-wrap gap-2 mb-6">
                   {profile.topSkills.map((s) => <span key={s} className="text-xs bg-edge rounded-full px-3 py-1 text-mint">{s}</span>)}
                 </div>
                 <button onClick={() => setStep(1)} className="bg-mint text-ink font-bold px-8 py-3 rounded-full hover:bg-mintdim transition">Looks right →</button>
-                <p className="text-fog/60 text-xs mt-4">You can connect email and LinkedIn, add a photo, or record your voice later from the dashboard.</p>
+                <p className="text-pretty text-fog/60 text-xs mt-4">You can connect email and LinkedIn, add a photo, or record your voice later from the dashboard.</p>
               </div>
             )}
             {error && <p className="text-red-400 mt-4 text-sm">{error}</p>}
@@ -138,8 +139,8 @@ export default function Onboarding() {
 
         {step === 1 && (
           <div>
-            <h1 className="font-display text-3xl font-bold mb-2">You stay in control</h1>
-            <p className="text-fog mb-8">Gigaprowl finds the opportunities and prepares the work. Nothing is sent just because you finished onboarding.</p>
+            <h1 className="font-display text-3xl font-bold text-balance mb-2">You stay in control</h1>
+            <p className="text-pretty text-fog mb-8">Gigaprowl finds the opportunities and prepares the work. Nothing is sent just because you finished onboarding.</p>
             <div className="space-y-3 mb-8">
               {[
                 ["1", "Review your matches", "See why each role fits before generating anything."],
@@ -147,8 +148,8 @@ export default function Onboarding() {
                 ["3", "Connect and send when ready", "Add email, LinkedIn, a face photo, or a voice recording later from the dashboard."],
               ].map(([n, title, detail]) => (
                 <div key={n} className="bg-panel border border-edge rounded-2xl p-5 flex gap-4">
-                  <span className="w-8 h-8 shrink-0 rounded-full bg-mint text-ink font-bold flex items-center justify-center">{n}</span>
-                  <div><p className="font-semibold">{title}</p><p className="text-fog text-sm mt-1">{detail}</p></div>
+                  <span className="size-8 shrink-0 rounded-full bg-mint text-ink font-bold flex items-center justify-center">{n}</span>
+                  <div><p className="font-semibold">{title}</p><p className="text-pretty text-fog text-sm mt-1">{detail}</p></div>
                 </div>
               ))}
             </div>
@@ -161,7 +162,7 @@ export default function Onboarding() {
 
         {step === 2 && (
           <div className="text-center py-20">
-            <h1 className="font-display text-4xl font-bold mb-4">The hunt is on<span className="text-mint">.</span></h1>
+            <h1 className="font-display text-4xl font-bold text-balance mb-4">The hunt is on<span className="text-mint">.</span></h1>
             <p className="text-fog">Scanning job boards and matching companies to your profile…</p>
           </div>
         )}

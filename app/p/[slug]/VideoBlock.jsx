@@ -60,15 +60,15 @@ export default function VideoBlock({ slug, initialStatus, initialUrl, script }) 
   if (status === "pending" || status === "building")
     return (
       <div>
-        <p className="text-mint mb-2 animate-pulse">Preparing your video. Researching the company and building the deck. This can take a minute.</p>
-        <p className="text-fog text-sm italic">“{script}”</p>
+        <p className="text-pretty text-mint mb-2 animate-pulse">Preparing your video. Researching the company and building the deck. This can take a minute.</p>
+        <p className="text-pretty text-fog text-sm italic">“{script}”</p>
       </div>
     );
 
   if (status === "rendering")
     return (
       <div>
-        <p className="text-mint mb-2 animate-pulse">Rendering your video… this takes a couple of minutes.</p>
+        <p className="text-pretty text-mint mb-2 animate-pulse">Rendering your video… this takes a couple of minutes.</p>
         <p className="text-fog text-sm italic">“{script}”</p>
       </div>
     );
@@ -79,10 +79,10 @@ export default function VideoBlock({ slug, initialStatus, initialUrl, script }) 
 
   return (
     <div>
-      <p className="text-fog text-sm mb-2">
+      <p className="text-pretty text-fog text-sm mb-2">
         {status === "failed" ? "Video rendering failed. Script below:" : "Video script (upload a face photo in onboarding to render this as a real video):"}
       </p>
-      <p className="italic text-white/90 leading-relaxed">“{script}”</p>
+      <p className="text-pretty italic text-white/90 leading-relaxed">“{script}”</p>
       {status === "failed" && (
         <button onClick={retry} className="mt-4 bg-mint text-ink text-sm font-bold px-5 py-2.5 rounded-full hover:bg-mintdim transition">
           Retry render

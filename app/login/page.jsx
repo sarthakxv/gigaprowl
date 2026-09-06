@@ -47,11 +47,11 @@ function LoginForm() {
 
   if (forgot) {
     return (
-      <div className="min-h-screen bg-ink flex flex-col items-center justify-center px-6">
+      <div className="min-h-dvh bg-ink flex flex-col items-center justify-center px-6">
         <Link href="/" className="font-display text-3xl font-bold mb-10">gigaprowl<span className="text-mint">.</span></Link>
         <form onSubmit={sendForgot} className="w-full max-w-sm bg-panel border border-edge rounded-2xl p-8">
-          <h1 className="font-display text-2xl font-bold mb-2">Reset password</h1>
-          <p className="text-fog text-sm mb-5">Enter your email and we'll send you a reset link.</p>
+          <h1 className="font-display text-2xl font-bold text-balance mb-2">Reset password</h1>
+          <p className="text-pretty text-fog text-sm mb-5">Enter your email and we'll send you a reset link.</p>
           <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" required placeholder="Email"
             className="w-full bg-ink border border-edge rounded-xl px-4 py-3 mb-4 text-sm focus:border-mint outline-none" />
           {forgotMsg && <p className="text-mint text-sm mb-4">{forgotMsg}</p>}
@@ -67,10 +67,10 @@ function LoginForm() {
   }
 
   return (
-    <div className="min-h-screen bg-ink flex flex-col items-center justify-center px-6">
+    <div className="min-h-dvh bg-ink flex flex-col items-center justify-center px-6">
       <Link href="/" className="font-display text-3xl font-bold mb-10">gigaprowl<span className="text-mint">.</span></Link>
       <form onSubmit={submit} className="w-full max-w-sm bg-panel border border-edge rounded-2xl p-8">
-        <h1 className="font-display text-2xl font-bold mb-6">{mode === "signup" ? "let's get you hired" : "welcome back"}</h1>
+        <h1 className="font-display text-2xl font-bold text-balance mb-6">{mode === "signup" ? "let's get you hired" : "welcome back"}</h1>
         {mode === "signup" && (
           <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name"
             className="w-full bg-ink border border-edge rounded-xl px-4 py-3 mb-3 text-sm focus:border-mint outline-none" />
@@ -102,7 +102,7 @@ function LoginForm() {
 
 export default function Login() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-ink" />}>
+    <Suspense fallback={<div className="min-h-dvh bg-ink" />}>
       <LoginForm />
     </Suspense>
   );
