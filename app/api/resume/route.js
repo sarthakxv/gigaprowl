@@ -26,7 +26,7 @@ async function extractText(file) {
   const ext = name.slice(name.lastIndexOf("."));
 
   if (ext === ".pdf") {
-    // unpdf bundles a modern pdf.js — the old pdf-parse throws "Invalid PDF
+    // unpdf bundles a modern pdf.js. The old pdf-parse throws "Invalid PDF
     // structure" / "bad XRef entry" on many perfectly valid resumes.
     let text = "";
     try {
@@ -37,7 +37,7 @@ async function extractText(file) {
     } catch (e) {
       console.error("unpdf failed:", e.message);
     }
-    // Fallback: pdf-parse (different engine — sometimes reads what unpdf misses).
+    // Fallback: pdf-parse (different engine, sometimes reads what unpdf misses).
     if (text.trim().length < 100) {
       try {
         const pdfParse = (await import("pdf-parse")).default;
@@ -55,7 +55,7 @@ async function extractText(file) {
     return out.value;
   }
   if (ext === ".doc") {
-    // Legacy binary Word — mammoth can't read these; word-extractor can.
+    // Legacy binary Word. Mammoth can't read these; word-extractor can.
     try {
       const WordExtractor = (await import("word-extractor")).default;
       const doc = await new WordExtractor().extract(buf);
@@ -86,12 +86,12 @@ export async function POST(req) {
       fromFile = true;
       text = await extractText(file);
       // A file that yields almost no text is a scanned/image PDF (no text layer)
-      // or an unreadable format — tell the user precisely what to do.
+      // or an unreadable format. Tell the user precisely what to do.
       if (!text || text.trim().length < 60) {
         return NextResponse.json(
           {
             error:
-              "We couldn't read any text from that file. If it's a scanned or photo-based PDF, it has no selectable text — re-export a text PDF from Word/Google Docs (File → Save/Download as PDF), or paste your résumé text below.",
+              "We couldn't read any text from that file. If it's a scanned or photo-based PDF, it has no selectable text. Re-export a text PDF from Word/Google Docs (File → Save/Download as PDF), or paste your resume text below.",
           },
           { status: 422 }
         );
@@ -116,7 +116,7 @@ export async function POST(req) {
 
       const candidates = [];
       if (isLinkedIn) {
-        // Normalized public-profile form first — jina has the best shot at this.
+        // Normalized public-profile form first. Jina has the best shot at this.
         const m = target.match(/linkedin\.com\/in\/([^/?#]+)/i);
         if (m) candidates.push(`https://www.linkedin.com/in/${m[1]}`);
       }
@@ -136,8 +136,8 @@ export async function POST(req) {
         return NextResponse.json(
           {
             error: isLinkedIn
-              ? "LinkedIn blocks robots from reading profiles 😤 — easiest fix: open your profile, hit 'More → Save to PDF', and upload that here. Or just paste your About + Experience text below."
-              : "Couldn't read that link — some sites block bots. Paste your profile text instead and we'll take it from there.",
+              ? "LinkedIn blocks robots from reading profiles. Easiest fix: open your profile, hit 'More → Save to PDF', and upload that here. Or just paste your About + Experience text below."
+              : "Couldn't read that link. Some sites block bots. Paste your profile text instead and we'll take it from there.",
           },
           { status: 422 }
         );
@@ -146,16 +146,16 @@ export async function POST(req) {
     } else if (pasted && String(pasted).trim()) {
       text = String(pasted);
     } else {
-      return NextResponse.json({ error: "Give us something to work with — a file, a link, or pasted text." }, { status: 400 });
+      return NextResponse.json({ error: "Give us something to work with. A file, a link, or pasted text." }, { status: 400 });
     }
 
     if (!text || text.trim().length < 50)
-      return NextResponse.json({ error: "That was a little too short — we need at least a few sentences about you." }, { status: 422 });
+      return NextResponse.json({ error: "That was a little too short. We need at least a few sentences about you." }, { status: 422 });
 
     const profile = await parseResume(text);
 
     // Parse-quality gate: refuse to build a profile from genuine junk, but don't
-    // punish a real résumé just because the keyword fallback missed its skills.
+    // punish a real resume just because the keyword fallback missed its skills.
     const badName = !profile?.name || /^candidate$/i.test(String(profile.name).trim());
     const noSkills = !Array.isArray(profile?.skills) || profile.skills.length === 0;
     const tooShort = text.trim().length < 120;
@@ -165,8 +165,8 @@ export async function POST(req) {
       return NextResponse.json(
         {
           error: fromFile
-            ? "We couldn't extract enough from that file — try a text-based PDF/DOCX, or paste your résumé text below."
-            : "We couldn't extract enough from that — paste a bit more detail (your About + Experience) and we'll take it from there.",
+            ? "We couldn't extract enough from that file. Try a text-based PDF/DOCX, or paste your resume text below."
+            : "We couldn't extract enough from that. Paste a bit more detail (your About + Experience) and we'll take it from there.",
         },
         { status: 422 }
       );

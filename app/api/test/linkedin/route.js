@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 export const dynamic = "force-dynamic";
 
-// POST { profileUrl, message, dm? } — end-to-end LinkedIn test via Unipile.
+// POST { profileUrl, message, dm? }. End-to-end LinkedIn test via Unipile.
 // Resolves the profile, then sends a connection request (or a DM if dm:true).
 export async function POST(req) {
   try {

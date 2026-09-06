@@ -7,7 +7,7 @@ export const maxDuration = 60;
 export const dynamic = "force-dynamic";
 
 // Vercel Cron hits GET on a schedule (see vercel.json). If CRON_SECRET is set,
-// Vercel signs cron requests with it — reject anything else so the worldwide
+// Vercel signs cron requests with it. Reject anything else so the worldwide
 // scan only runs on our cadence, not on demand from strangers.
 export async function GET(req) {
   const secret = process.env.CRON_SECRET;
@@ -18,7 +18,7 @@ export async function GET(req) {
   return runScan();
 }
 
-// Manual refresh (dashboard button) — supplementary to the scheduled scan.
+// Manual refresh (dashboard button). Supplementary to the scheduled scan.
 export async function POST() {
   return runScan();
 }

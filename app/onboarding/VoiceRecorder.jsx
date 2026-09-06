@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 // A short, natural script so people aren't stuck deciding what to say.
 // Reading ~25-30s of this gives the clone plenty of clean phonemes.
 const PROMPT =
-  "Hey, I'm building my career on my own terms. I'm someone who ships real work, learns fast, and cares about doing things well. When I find a team I believe in, I go all in — and I'd rather reach out directly than wait in a pile of applications. So here's me, in my own voice, ready to get hunted.";
+  "Hey. I'm recording this so you can hear how I talk. I do real work, I learn as I go, and I'd rather write to a hiring manager than dump another resume in a portal.";
 
 const MAX_MS = 30000;
 
@@ -77,7 +77,7 @@ export default function VoiceRecorder({ onUpload, done }) {
       ? chunksRef.current.reduce((acc, c) => { const m = new Float32Array(acc.length + c.length); m.set(acc); m.set(c, acc.length); return m; }, new Float32Array(0))
       : new Float32Array(0);
     if (merged.length < sr * 3) { // under ~3s = too short to clone well
-      setError("That was too short — aim for at least 15 seconds.");
+      setError("That was too short. Aim for at least 15 seconds.");
       setState("idle"); setElapsed(0); return;
     }
     const blob = encodeWav(merged, sr);
@@ -129,7 +129,7 @@ export default function VoiceRecorder({ onUpload, done }) {
       await onUpload(file);
       setState("recorded");
     } catch {
-      setError("Upload failed — please retry.");
+      setError("Upload failed. Please retry.");
       setState("recorded");
     }
   }
@@ -154,12 +154,12 @@ export default function VoiceRecorder({ onUpload, done }) {
           {state === "recording" && (
             <div className="mb-4">
               <div className="flex items-center gap-2 mb-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse" />
-                <span className="text-mint font-mono text-lg">0:{String(secs).padStart(2, "0")}</span>
+                <span className="size-2.5 rounded-full bg-red-500 animate-pulse" />
+                <span className="text-mint font-mono text-lg tabular-nums">0:{String(secs).padStart(2, "0")}</span>
                 <span className="text-fog/50 text-xs">/ 0:30</span>
               </div>
               <div className="h-1.5 bg-edge rounded-full overflow-hidden">
-                <div className="h-full bg-mint transition-all" style={{ width: `${pct}%` }} />
+                <div className="h-full origin-left bg-mint transition-transform ease-out" style={{ transform: `scaleX(${pct / 100})` }} />
               </div>
             </div>
           )}

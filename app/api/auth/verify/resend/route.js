@@ -18,7 +18,7 @@ export async function POST(req) {
   if (!resendEnabled()) return NextResponse.json({ error: "Email sending not configured" }, { status: 503 });
 
   const { allowed } = await bumpDailyCounter(userId, "verifymail", 5);
-  if (!allowed) return NextResponse.json({ error: "Too many requests — try again tomorrow" }, { status: 429 });
+  if (!allowed) return NextResponse.json({ error: "Too many requests. Try again tomorrow" }, { status: 429 });
 
   const token = await createToken("verify", { userId: user.id, email: user.email });
   const url = `${appUrl()}/api/auth/verify?token=${token}`;

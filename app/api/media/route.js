@@ -26,8 +26,8 @@ export async function POST(req) {
     if (kind === "face") {
       if (!process.env.HEYGEN_API_KEY)
         return NextResponse.json({ error: "Avatar videos aren't configured yet (HEYGEN_API_KEY missing)" }, { status: 501 });
-      // The avatar is created ONCE per profile and reused for every pitch video —
-      // only the script/voice changes. Skip re-creating it unless the user is
+      // The avatar is created ONCE per profile and reused for every pitch video.
+      // Only the script/voice changes. Skip re-creating it unless the user is
       // explicitly replacing their photo (?replace=1), to avoid re-billing.
       const replace = new URL(req.url).searchParams.get("replace") === "1";
       const existing = (await getUserState(userId)).media?.talkingPhotoId;
@@ -45,8 +45,8 @@ export async function POST(req) {
     // voice → HeyGen instant voice clone (single-vendor; same HEYGEN_API_KEY as the avatar)
     if (!process.env.HEYGEN_API_KEY)
       return NextResponse.json({ error: "Voice cloning isn't configured yet (HEYGEN_API_KEY missing)" }, { status: 501 });
-    // The voice clone is created ONCE per profile and reused for every pitch —
-    // only the script changes. Skip re-cloning (which burns clone quota) unless
+    // The voice clone is created ONCE per profile and reused for every pitch.
+    // Only the script changes. Skip re-cloning (which burns clone quota) unless
     // the user is explicitly replacing their sample (?replace=1).
     const replaceVoice = new URL(req.url).searchParams.get("replace") === "1";
     const existingVoice = (await getUserState(userId)).media?.heygenVoiceId;

@@ -17,9 +17,9 @@ export async function POST(req) {
     const { matchId } = await req.json();
     const [state, pool] = await Promise.all([getUserState(userId), getJobPool()]);
     if (!state.profile) return NextResponse.json({ error: "Upload a resume first" }, { status: 400 });
-    if (!creditsAreUnlimited() && state.credits.balance <= 0) return NextResponse.json({ error: "Out of credits — upgrade your plan" }, { status: 402 });
+    if (!creditsAreUnlimited() && state.credits.balance <= 0) return NextResponse.json({ error: "Out of credits. Upgrade your plan" }, { status: 402 });
     const job = pool.jobs.find((j) => j.sourceId === matchId);
-    if (!job) return NextResponse.json({ error: "Job not found — run a scan and retry" }, { status: 404 });
+    if (!job) return NextResponse.json({ error: "Job not found. Run a scan and retry" }, { status: 404 });
 
     const result = await runFullHunt({ userId, state, job, base: requestBase(req) });
     return NextResponse.json(result);

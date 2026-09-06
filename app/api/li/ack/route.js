@@ -12,7 +12,7 @@ const CORS = {
 };
 export async function OPTIONS() { return new NextResponse(null, { status: 204, headers: CORS }); }
 
-// POST { results: [{ id, ok, error }] } — the extension reports what it executed.
+// POST { results: [{ id, ok, error }] }. The extension reports what it executed.
 // We finalize the queue item, mark the matching cadence step sent, and log it.
 export async function POST(req) {
   const userId = verifySessionToken(req.headers.get("x-prowl-token"));

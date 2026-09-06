@@ -13,11 +13,15 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",
     "@resvg/resvg-js": "^2.6.2",
+    "clsx": "^2.1.1",
+    "lucide-react": "^1.39.0",
     "mammoth": "^1.8.0",
     "next": "14.2.15",
     "pdf-parse": "^1.1.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "sonner": "^2.0.8",
+    "tailwind-merge": "^3.6.0",
     "unpdf": "^1.6.2",
     "word-extractor": "^1.0.4"
   },

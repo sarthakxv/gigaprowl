@@ -23,6 +23,13 @@ next-env.d.ts
 /tmp
 .firecrawl/
 *.log
+MISSION.md
+NOTES.md
+RESOURCES.md
+PHASE-BOUNDARIES.md
+skills.lock
+skills-lock.json
+.agents/
 
 # os / editor
 .DS_Store

@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import cases from "../../../scripts/contact-cases.json";
+import { cn } from "@/lib/cn";
 
 const REASONS = {
   missing_key: "No APOLLO_API_KEY in env",
@@ -43,7 +44,7 @@ export default function ContactProbe() {
   }
 
   return (
-    <div className="min-h-screen bg-ink text-white pb-24">
+    <div className="min-h-dvh bg-ink text-white pb-24">
       <nav className="border-b border-edge">
         <div className="max-w-3xl mx-auto flex items-center justify-between px-6 py-4">
           <Link href="/" className="font-display text-xl font-bold">gigaprowl<span className="text-mint">.</span></Link>
@@ -56,8 +57,8 @@ export default function ContactProbe() {
 
       <div className="max-w-3xl mx-auto px-6 pt-8 space-y-6">
         <div>
-          <h1 className="font-display text-2xl font-bold">Contact probe</h1>
-          <p className="text-fog text-sm mt-1">Same Apollo path as hunt. Empty means Apollo found nobody — no Alex/Jordan.</p>
+          <h1 className="font-display text-2xl font-bold text-balance">Contact probe</h1>
+          <p className="text-pretty text-fog text-sm mt-1">Same Apollo path as hunt. Empty means Apollo found nobody, not a demo Alex/Jordan.</p>
         </div>
 
         <div className="space-y-2">
@@ -70,9 +71,10 @@ export default function ContactProbe() {
                 type="button"
                 disabled={!!busy}
                 onClick={() => probe({ company: job.company, title: job.title, domain: job.domain || "" }, key)}
-                className={`w-full text-left rounded-xl border px-4 py-3 transition ${
+                className={cn(
+                  "w-full text-left rounded-xl border px-4 py-3 transition disabled:opacity-50",
                   active ? "border-mint bg-mint/10" : "border-edge bg-panel hover:border-fog/40"
-                } disabled:opacity-50`}
+                )}
               >
                 <div className="font-medium">{job.company} · {job.title}</div>
                 <div className="text-xs text-fog mt-0.5">{job.domain ? `domain ${job.domain}` : "domain guessed like hunt"}</div>
@@ -92,7 +94,7 @@ export default function ContactProbe() {
             );
           }}
         >
-          <div className="text-xs uppercase tracking-wide text-fog">Custom</div>
+          <div className="text-xs uppercase text-fog">Custom</div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             <input
               className="bg-ink border border-edge rounded-lg px-3 py-2 text-sm"
@@ -137,7 +139,7 @@ function ProbeResult({ result }) {
   return (
     <div className="space-y-4">
       <div className="rounded-xl border border-edge bg-panel px-4 py-3">
-        <div className="text-xs uppercase tracking-wide text-fog">Contacts</div>
+        <div className="text-xs uppercase text-fog">Contacts</div>
         {!contacts?.length && (
           <p className="mt-2 text-sm text-fog">None. {REASONS[reason] || reason || "No usable people."}</p>
         )}
@@ -156,8 +158,8 @@ function ProbeResult({ result }) {
         </div>
       </div>
 
-      <div className="rounded-xl border border-edge bg-panel px-4 py-3 space-y-2 text-sm">
-        <div className="text-xs uppercase tracking-wide text-fog">Trace</div>
+      <div className="rounded-xl border border-edge bg-panel px-4 py-3 space-y-2 text-sm tabular-nums">
+        <div className="text-xs uppercase text-fog">Trace</div>
         <Row label="Titles searched" value={(debug.titles || []).join(", ") || "—"} />
         <Row label="Org filter" value={`${debug.orgFilter || "—"} = ${debug.orgValue || "—"}`} />
         <Row label="Hunt would guess" value={debug.guessedDomain || "—"} />

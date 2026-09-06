@@ -5,7 +5,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 // Unipile notify_url. Fires when the user finishes (or fails) the hosted connect.
-// Body includes { status, account_id, name } — name is the userId we passed in.
+// Body includes { status, account_id, name }. Name is the userId we passed in.
 // This is the RELIABLE per-user mapping (account_id tied to the exact user who
 // started the session), so it's the primary path; the /sync route is a backup.
 export async function POST(req) {

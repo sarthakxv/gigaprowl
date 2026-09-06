@@ -1,31 +1,61 @@
-# Repository Guidelines
+# Gigaprowl repository guide
 
-## Project Structure & Module Organization
+## Orient first
 
-Gigaprowl is a Next.js 14 App Router application. Page routes and UI live in `app/`; server endpoints follow the `app/api/<feature>/route.js` convention. Shared business logic and integrations belong in `lib/` (for example, `lib/match.js` for scoring and `lib/db.js` for Redis/local JSON persistence). The browser companion is isolated in `extension/`. Product, architecture, launch, and go-to-market material live in `docs/` (including `docs/gtm/`). Local state is written to `data/` and ignored by Git.
+Gigaprowl is a Next.js 14 App Router application for job matching, personalized
+outreach, and a companion LinkedIn extension. Treat the code and configuration
+as the source of truth: `package.json` for commands and dependencies,
+`.env.example` for supported configuration, and `vercel.json` for scheduled
+routes. `docs/architecture-v2.md` is a future-state draft; do not implement it
+as though it already describes the running application. Consult
+`docs/OBSOLETE.md` before reviving a removed integration or flow.
 
-## Build, Test, and Development Commands
+## Where changes belong
 
-- `npm ci` installs the exact dependency versions from `package-lock.json`.
-- `cp .env.example .env` creates local configuration; integrations fall back to demo behavior when keys are absent.
-- `npm run dev` starts the development server at `http://localhost:3000`.
-- `npm run build` creates a production build and is the primary pre-PR validation check.
-- `npm start` serves the completed production build locally.
+- UI and page routes live in `app/`; API handlers use
+  `app/api/<feature>/route.js`.
+- Reusable domain and integration code belongs in `lib/`. Keep route handlers
+  focused on request validation, authorization, and response formatting.
+- The Manifest V3 browser companion is self-contained in `extension/`; read
+  `extension/README.md` before changing its pairing, polling, or LinkedIn
+  execution flow.
+- Product, launch, architecture, and GTM material lives in `docs/`. Treat
+  generated media and local application state as disposable local artifacts.
 
-There is currently no lint or automated test script. Do not document or rely on one without adding its configuration and package script.
+## Application invariants
 
-## Coding Style & Naming Conventions
+- This is a multi-tenant app. For authenticated API routes, derive the user
+  from `getUserId(req)` in `lib/auth.js`; never accept a client-supplied user
+  ID as authorization. Read and mutate per-user state through `lib/db.js`,
+  using `updateUserState` for writes.
+- Most APIs use Node-only dependencies (`fs`, crypto, PDF/DOCX parsing, or
+  native rasterization). Set `export const runtime = "nodejs"` for such routes;
+  retain an Edge runtime only when its dependency boundary supports it.
+- Scheduled and administrative endpoints must keep their existing secret or
+  provider-signature checks. Preserve limits, idempotency checks, suppression
+  handling, and the manual-by-default outreach mode when extending automation.
+- Local persistence falls back to ignored JSON files under `data/`; production
+  uses the configured Upstash/Vercel KV REST service. Do not add sensitive or
+  user-uploaded data to the repository.
 
-Use JavaScript/JSX with ES modules, two-space indentation, semicolons, and double quotes, matching the existing code. Name React components in PascalCase (`VoiceRecorder.jsx`), functions and variables in camelCase, and route files exactly `route.js`. Prefer the `@/` import alias for repository-root imports. Keep API handlers thin: validate requests and format responses in the route, then place reusable domain logic in `lib/`. Use Tailwind utility classes and the shared tokens defined in `tailwind.config.js`; reserve `app/globals.css` for genuinely global styles.
+## Code and verification
 
-## Testing Guidelines
+Use JavaScript/JSX, ES modules, two-space indentation, semicolons, and double
+quotes. Use PascalCase for React components, camelCase for functions and
+variables, and the `@/` import alias for repository-root modules. Prefer
+Tailwind utilities and shared tokens; keep `app/globals.css` genuinely global.
+Use `lucide-react` for UI icons; do not add inline SVG icons or another icon
+library.
 
-Until a test runner is introduced, run `npm run build` and manually exercise changed pages and API routes, including success, invalid-input, and integration-fallback paths. When adding automated tests, include the runner and `npm test` script in the same PR, and use clear `*.test.js` or `*.test.jsx` names near the module under test.
+There is no test or lint script. For code changes, run `npm run build` and
+manually exercise the changed UI or API path, including its authorization,
+invalid-input, and keyless/fallback behavior when applicable. Update
+`.env.example` whenever a new environment variable is required, without
+including credentials in documentation, logs, or commits.
 
-## Commit & Pull Request Guidelines
+## Change hygiene
 
-History is minimal, so follow its concise, imperative style: `Add Resend webhook validation`. Keep commits focused. PRs should explain the user-visible change, list verification performed, link relevant issues, and include screenshots for UI changes. Call out new environment variables, cron changes, or external-service setup explicitly.
-
-## Security & Configuration
-
-Never commit `.env`, tokens, user uploads, or generated `data/`. Add placeholders and comments to `.env.example` for new settings. Preserve demo-mode fallbacks where practical, and avoid logging credentials, session cookies, resumes, or provider payloads containing personal data.
+Keep commits focused and imperative. Preserve unrelated working-tree changes.
+For UI work, include a screenshot in the pull request; for integration or
+deployment work, call out new configuration, provider setup, webhook, or cron
+requirements.

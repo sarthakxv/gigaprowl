@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 // GET → a pairing token the user pastes into the browser extension. It's a
 // signed session token; the extension sends it back on every pull/ack so we
-// know which user's queue to serve — no cookies needed cross-origin.
+// know which user's queue to serve. No cookies needed cross-origin.
 export async function GET(req) {
   const userId = getUserId(req);
   if (!userId) return NextResponse.json({ error: "Not signed in" }, { status: 401 });

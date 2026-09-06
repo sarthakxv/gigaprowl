@@ -6,7 +6,7 @@ function render() {
     $("base").value = s.base || DEFAULT_BASE;
     $("token").value = s.token || "";
     const parts = [];
-    if (s.checkpoint) parts.push('<span style="color:#ff6b6b">⚠ LinkedIn needs a re-login — open LinkedIn and sign in, then Run now.</span>');
+    if (s.checkpoint) parts.push('<span style="color:#ff6b6b">⚠ LinkedIn needs a re-login. Open LinkedIn and sign in, then Run now.</span>');
     parts.push(s.token ? '<span class="ok">✓ paired</span>' : "not paired yet");
     if (s.heldOffHours) parts.push("paused: outside sending hours (8am–8pm)");
     if (s.lastPoll) parts.push(`last check: ${new Date(s.lastPoll).toLocaleTimeString()}`);

@@ -8,10 +8,10 @@ export const dynamic = "force-dynamic";
 // Resend delivery webhooks (signed via Svix). Set RESEND_WEBHOOK_SECRET to the
 // "whsec_..." signing secret from the Resend dashboard → Webhooks.
 // Hard bounces + spam complaints are added to the suppression list so we never
-// email that address again — this is what protects sender reputation at scale.
+// email that address again. This is what protects sender reputation at scale.
 
 function verifySvix(secret, headers, payload) {
-  if (!secret) return true; // if unset, accept (dev) — set it in prod!
+  if (!secret) return true; // if unset, accept (dev). Set it in prod!
   const id = headers.get("svix-id");
   const ts = headers.get("svix-timestamp");
   const sigHeader = headers.get("svix-signature");

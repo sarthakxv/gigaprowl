@@ -29,7 +29,7 @@ export async function POST(req) {
     try {
       const body = await req.json();
       liteOnly = !!body?.liteOnly;
-    } catch { /* no body — run both bands */ }
+    } catch { /* empty body: run both bands */ }
 
     const [state, pool] = await Promise.all([getUserState(userId), getJobPool()]);
     if (!state.profile) return NextResponse.json({ error: "Upload a resume first" }, { status: 400 });
@@ -38,7 +38,7 @@ export async function POST(req) {
     const fullTargets = liteOnly ? [] : ranked
       .filter((m) => !state.statusById[m.job.sourceId] && m.score >= FULL_BAND && videoEligibility(state.profile, m.job).eligible)
       .slice(0, MAX_FULL);
-    // Kits are independent of hunt status — a hunted 62 still deserves ATS copy.
+    // A hunted 62 still gets a kit. Hunt status does not block it.
     const liteTargets = ranked
       .filter((m) => m.score >= LITE_BAND && m.score < FULL_BAND && !hasApplyKit(state, m.job.sourceId))
       .slice(0, MAX_LITE);

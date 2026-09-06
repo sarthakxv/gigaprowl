@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getUserState, getJobPool, getUserById } from "@/lib/db";
 import { getUserId } from "@/lib/auth";
-import { rankJobs } from "@/lib/match";
+import { rankJobs, scoreJob } from "@/lib/match";
 import { creditsAreUnlimited } from "@/lib/credits";
 
 export const runtime = "nodejs";
@@ -31,13 +31,19 @@ export async function GET(req) {
     contacts: state.contacts,
     cadences: state.cadences,
     pitches: state.pitchRefs,
-    applyKits: state.applyKits || [],
+    applyKits: (state.applyKits || []).map((k) => {
+      const live = matches.find((m) => m.id === k.matchId);
+      if (typeof live?.score === "number") return { ...k, score: live.score };
+      if (typeof k.score === "number") return k;
+      if (!state.profile || !k.job) return k;
+      return { ...k, score: scoreJob(state.profile, { title: k.job.title, company: k.job.company, description: "", tags: [] }).score };
+    }),
     socialPosts: state.socialPosts || [],
     credits: { ...state.credits, unlimited: creditsAreUnlimited() },
     sends: state.sends || [],
     settings: { outreachMode: state.settings?.outreachMode || "manual", emailStyle: state.settings?.emailStyle || "standard" },
     liQueue: { pending: (state.linkedinQueue || []).filter((a) => a.status === "pending").length },
-    // Connected channels — expose status only, never the tokens.
+    // Connected channels. Expose status only, never the tokens.
     connections: {
       gmail: state.connections?.gmail ? { email: state.connections.gmail.email, connectedAt: state.connections.gmail.connectedAt } : null,
       linkedin: state.connections?.linkedin?.accountId

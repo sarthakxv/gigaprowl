@@ -6,7 +6,7 @@ import { generateMockupImage, mockupEnabled } from "@/lib/mockup";
 import { videoEligibility } from "@/lib/match";
 
 export const runtime = "nodejs";
-export const maxDuration = 60; // Hobby cap — each stage below stays well under it.
+export const maxDuration = 60; // Hobby cap. Each stage below stays well under it.
 export const dynamic = "force-dynamic";
 
 // Stepped build state machine, driven call-by-call by the pitch page so no single
@@ -63,7 +63,7 @@ export async function POST(req) {
     const base = host ? `${proto}://${host}` : (process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000");
     try {
       const research = pitch.research || null;
-      // Mockup scene is OFF for now — the AI SVG mockups weren't good enough.
+      // Mockup scene is OFF for now. The AI SVG mockups weren't good enough.
       // Video ends on the researched "how I'd help" ideas instead. Flip
       // ENABLE_MOCKUP=1 to bring it back once a real image model is wired.
       const mockupImage = (process.env.ENABLE_MOCKUP === "1" && mockupEnabled() && (research?.mockupBrief || research?.ideas?.length))

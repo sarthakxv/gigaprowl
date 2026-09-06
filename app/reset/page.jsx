@@ -36,20 +36,20 @@ export default function ResetPage() {
   const input = "w-full bg-ink border border-edge focus:border-mint rounded-xl px-4 py-2.5 text-sm outline-none";
 
   return (
-    <div className="min-h-screen bg-ink text-white flex items-center justify-center px-6">
+    <div className="min-h-dvh bg-ink text-white flex items-center justify-center px-6">
       <div className="max-w-md w-full bg-panel border border-edge rounded-2xl p-8">
         <div className="font-display text-2xl font-bold mb-6 text-center">gigaprowl<span className="text-mint">.</span></div>
         {state === "checking" && <p className="text-fog text-sm text-center">Checking your link…</p>}
         {state === "invalid" && (
           <div className="text-center">
-            <h1 className="font-display text-xl font-bold mb-2">Link expired</h1>
-            <p className="text-fog text-sm mb-6">This reset link is invalid or has expired. Request a new one.</p>
+            <h1 className="font-display text-xl font-bold text-balance mb-2">Link expired</h1>
+            <p className="text-pretty text-fog text-sm mb-6">This reset link is invalid or has expired. Request a new one.</p>
             <Link href="/login?forgot=1" className="inline-block bg-mint text-ink font-bold px-6 py-2.5 rounded-full">Request new link</Link>
           </div>
         )}
         {state === "valid" && (
           <form onSubmit={submit}>
-            <h1 className="font-display text-xl font-bold mb-4">Choose a new password</h1>
+            <h1 className="font-display text-xl font-bold text-balance mb-4">Choose a new password</h1>
             <input type="password" value={pw} onChange={(e) => setPw(e.target.value)} placeholder="New password" className={input + " mb-3"} />
             <input type="password" value={pw2} onChange={(e) => setPw2(e.target.value)} placeholder="Confirm password" className={input + " mb-3"} />
             {err && <p className="text-red-400 text-xs mb-3">{err}</p>}
@@ -59,8 +59,8 @@ export default function ResetPage() {
         {state === "done" && (
           <div className="text-center">
             <div className="text-4xl mb-3">✓</div>
-            <h1 className="font-display text-xl font-bold mb-2">Password updated</h1>
-            <p className="text-fog text-sm mb-6">You're signed in with your new password.</p>
+            <h1 className="font-display text-xl font-bold text-balance mb-2">Password updated</h1>
+            <p className="text-pretty text-fog text-sm mb-6">You're signed in with your new password.</p>
             <Link href="/dashboard" className="inline-block bg-mint text-ink font-bold px-6 py-2.5 rounded-full">Go to dashboard →</Link>
           </div>
         )}

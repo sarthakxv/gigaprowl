@@ -5,7 +5,7 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 export const dynamic = "force-dynamic";
 
-// Guarded marketing tool — NOT user-facing. Generates one Hugging Face
+// Guarded marketing tool. NOT user-facing. Generates one Hugging Face
 // text-to-video UGC clip per call. Protected by x-ugc-token so randoms can't
 // burn credits. We generate one-per-request (not a batch loop) so each render
 // stays inside the 60s function limit; the caller loops over concepts.
@@ -33,7 +33,7 @@ export async function POST(req) {
   }
 }
 
-// GET — quick config check (does not generate).
+// GET: quick config check (does not generate).
 export async function GET(req) {
   if (!authed(req)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   return NextResponse.json({ enabled: ugcEnabled(), model: ugcModel() });
