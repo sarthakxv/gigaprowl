@@ -170,8 +170,12 @@ export default function Dashboard() {
     const msg = {
       gmail_ok: "Gmail connected. Outreach will send from your address ✓",
       gmail_denied: "Gmail connection was cancelled.",
-      gmail_unconfigured: "Gmail isn't configured yet (add GOOGLE_CLIENT_ID/SECRET).",
+      gmail_unconfigured: "Gmail isn't configured yet (add GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, and GMAIL_TOKEN_ENCRYPTION_KEY).",
+      gmail_bad_state: "Gmail connection expired or was replayed. Try connecting again.",
       gmail_no_refresh: "Google didn't return a refresh token. Remove Gigaprowl's access in your Google account, then reconnect.",
+      gmail_scope: "Gmail compose permission wasn't granted. Reconnect and allow compose access.",
+      gmail_unverified: "That Google account's email isn't verified. Use a verified Gmail address.",
+      gmail_storage: "Couldn't store the Gmail grant. Check GMAIL_TOKEN_ENCRYPTION_KEY and try again.",
       gmail_error: "Gmail connection failed. Try again.",
       linkedin_ok: "LinkedIn connected ✓",
       linkedin_failed: "LinkedIn connection didn't complete.",
@@ -192,8 +196,15 @@ export default function Dashboard() {
   }, [refresh]);
 
   function connectGmail() {
-    if (!state?.integrations?.gmail) return toast.error("Gmail isn't configured yet (add GOOGLE_CLIENT_ID/SECRET in Vercel).");
+    if (!state?.integrations?.gmail) return toast.error("Gmail isn't configured yet (add GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, and GMAIL_TOKEN_ENCRYPTION_KEY).");
     window.location.href = "/api/connect/google";
+  }
+  async function disconnectGmail() {
+    const r = await fetch("/api/connect/google/disconnect", { method: "POST" });
+    const d = await r.json().catch(() => ({}));
+    if (r.ok) toast.success("Gmail disconnected");
+    else toast.error(d.error || "Couldn't disconnect Gmail");
+    if (r.ok) refresh();
   }
   const [liPair, setLiPair] = useState(null); // { token, base }
   async function connectLinkedIn() {
@@ -255,6 +266,8 @@ export default function Dashboard() {
     );
 
   const { profile, matches, contacts, cadences, pitches, credits, integrations, media } = state;
+  const gmail = state.connections?.gmail;
+  const gmailReady = !!gmail && !gmail.reconnectRequired;
   const applyKits = state.applyKits || [];
   const socialPosts = state.socialPosts || [];
   const kitIds = new Set(applyKits.map((k) => k.matchId));
@@ -310,9 +323,12 @@ export default function Dashboard() {
 
         <div className="bg-panel border border-edge rounded-2xl p-5 mb-6 flex flex-wrap items-center gap-4">
           <p className="font-semibold text-sm">Outreach channels</p>
-          <button onClick={connectGmail} className={cn("text-sm rounded-full px-4 py-2 border transition", state.connections?.gmail ? "border-mint text-mint" : "border-edge text-fog hover:text-white hover:border-mint")}>
-            {state.connections?.gmail ? `✓ Gmail: ${state.connections.gmail.email}` : "Connect Gmail (send as you)"}
+          <button onClick={connectGmail} className={cn("text-sm rounded-full px-4 py-2 border transition", gmailReady ? "border-mint text-mint" : gmail?.reconnectRequired ? "border-red-400 text-red-400" : "border-edge text-fog hover:text-white hover:border-mint")}>
+            {gmailReady ? `✓ Gmail: ${gmail.email}` : gmail?.reconnectRequired ? `Reconnect Gmail${gmail.email ? `: ${gmail.email}` : ""}` : "Connect Gmail (send as you)"}
           </button>
+          {gmail && (
+            <button onClick={disconnectGmail} className="text-xs text-fog hover:text-white">Disconnect</button>
+          )}
           <button onClick={connectLinkedIn} className={cn("text-sm rounded-full px-4 py-2 border transition", state.connections?.linkedin ? "border-mint text-mint" : "border-edge text-fog hover:text-white hover:border-mint")}>
             {state.connections?.linkedin
               ? `✓ LinkedIn connected${state.connections.linkedin.name ? ` · ${state.connections.linkedin.name}` : state.connections.linkedin.lastSeen ? ` · seen ${new Date(state.connections.linkedin.lastSeen).toLocaleTimeString()}` : ""}`
@@ -595,9 +611,10 @@ export default function Dashboard() {
                 <div className="space-y-3">
                   {c.steps.map((s, i) => {
                     const li = /linkedin|connect|invite|dm/i.test(s.channel || "");
-                    const ready = li ? !!state.connections?.linkedin : !!state.connections?.gmail;
+                    const ready = li ? !!state.connections?.linkedin : gmailReady;
+                    const connectLabel = li ? "connect LinkedIn first" : gmail?.reconnectRequired ? "reconnect Gmail first" : "connect Gmail first";
                     const manual = (state.settings?.outreachMode || "manual") === "manual";
-                    const doneLabel = s.status === "sent" ? "✓ sent" : s.status === "drafted" ? "✓ draft in Gmail" : s.status === "queued" ? "✓ queued" : null;
+                    const doneLabel = s.status === "sent" ? "✓ sent" : s.status === "drafted" ? "✓ draft in Gmail" : s.status === "queued" ? "✓ queued" : ["dispatching", "uncertain"].includes(s.status) ? "⚠ check Gmail" : null;
                     const action = li ? "send on LinkedIn" : manual ? "save as draft" : "send email";
                     const due = stepDate(c, s);
                     const dueLabel = doneLabel ? null : (due.getTime() <= Date.now() ? "due now" : `auto ${fmtDay(due)}`);
@@ -613,7 +630,7 @@ export default function Dashboard() {
                               disabled={sending === `${c.id}:${i}`}
                               className="text-xs font-bold shrink-0 rounded-full px-4 py-1.5 bg-mint text-ink hover:bg-mintdim transition disabled:opacity-50"
                             >
-                              {sending === `${c.id}:${i}` ? "working…" : ready ? action : `connect ${li ? "LinkedIn" : "Gmail"} first`}
+                              {sending === `${c.id}:${i}` ? "working…" : ready ? action : connectLabel}
                             </button>
                           )}
                         </div>

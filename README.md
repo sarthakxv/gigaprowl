@@ -23,7 +23,7 @@ npm run dev             # http://localhost:3000
 | Hiring-manager discovery | Keyed — `APOLLO_API_KEY` (+ optional `LEADMAGIC_API_KEY`); demo contacts otherwise |
 | Pitch pages + cadences | **Real** — AI-generated with key, templates without. Live at `/p/<slug>` |
 | Avatar video | Keyed — face/voice upload → HeyGen clone/render (`HEYGEN_API_KEY`; optional `ELEVENLABS_API_KEY`) |
-| Email send | Keyed — Resend and/or Gmail OAuth send-as / drafts (`RESEND_API_KEY`, `GOOGLE_CLIENT_*`) |
+| Email send | Keyed — Gmail OAuth send-as / drafts (`GOOGLE_CLIENT_*`, `GMAIL_TOKEN_ENCRYPTION_KEY`). Resend is transactional-only (`RESEND_API_KEY`) |
 | LinkedIn send | **Real** — Chrome extension (`extension/`) queues invites/DMs from the user's browser session; optional Unipile managed path (`UNIPILE_*`) |
 | Payments | Keyed — Stripe Checkout + webhook (`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`) |
 | Persistence | Upstash Redis / Vercel KV in prod (`KV_REST_API_*`); local JSON under `data/` in dev |
@@ -35,7 +35,7 @@ Vercel Cron (`vercel.json`):
 - `GET/POST /api/jobs/sync` — `0 6 * * *` top-company job scan
 - `/api/cron/scheduler` — `0 14 * * *` cadence dispatch
 
-Gate both with `CRON_SECRET` in production.
+Gate both with `CRON_SECRET` in production. The scheduler rejects missing or invalid authorization whenever `NODE_ENV=production` or `VERCEL` is set.
 
 ## Architecture
 

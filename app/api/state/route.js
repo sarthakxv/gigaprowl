@@ -3,6 +3,7 @@ import { getUserState, getJobPool, getUserById } from "@/lib/db";
 import { getUserId } from "@/lib/auth";
 import { rankJobs, scoreJob } from "@/lib/match";
 import { creditsAreUnlimited } from "@/lib/credits";
+import { publicGmailConnection, gmailEnabled } from "@/lib/gmail";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -59,7 +60,7 @@ export async function GET(req) {
     liQueue: { pending: (state.linkedinQueue || []).filter((a) => a.status === "pending").length },
     // Connected channels. Expose status only, never the tokens.
     connections: {
-      gmail: state.connections?.gmail ? { email: state.connections.gmail.email, connectedAt: state.connections.gmail.connectedAt } : null,
+      gmail: publicGmailConnection(state.connections?.gmail),
       linkedin: state.connections?.linkedin?.accountId
         ? { method: "managed", accountId: true, name: state.connections.linkedin.name || null, connectedAt: state.connections.linkedin.connectedAt || null }
         : state.connections?.linkedin?.pairedAt
@@ -77,7 +78,7 @@ export async function GET(req) {
       heygen: !!process.env.HEYGEN_API_KEY,
       elevenlabs: !!process.env.ELEVENLABS_API_KEY,
       leadmagic: !!process.env.LEADMAGIC_API_KEY,
-      gmail: !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET),
+      gmail: gmailEnabled(),
       linkedinManaged: !!(process.env.UNIPILE_DSN && process.env.UNIPILE_API_KEY),
       resend: !!process.env.RESEND_API_KEY,
     },

@@ -34,9 +34,9 @@ If `RESEND_API_KEY` is missing, the forgot-password endpoint still returns succe
 Use distinct reputation paths:
 
 - **Account and transactional email:** a dedicated subdomain such as `mail.gigaprowl.app`, sent through Resend. Use it for password resets and, after the Supabase migration, confirmation and magic-link messages.
-- **Cold outreach:** Smartlead-managed, warmed inboxes on separate outreach domains. Never send cold campaigns from the app domain or the account-email subdomain.
+- **Cold outreach:** the user's connected Gmail account, via Google OAuth send-as / drafts. Never send cold campaigns from the app domain or the account-email subdomain.
 
-The current code can send outreach through Resend, but production cold outreach should move through Smartlead as described in `docs/architecture-v2.md`. `RESEND_SYSTEM_FROM` prevents account mail from automatically sharing the regular `RESEND_FROM` address; configure both explicitly until that migration is complete.
+Outreach dispatch does not use Resend. `RESEND_SYSTEM_FROM` keeps account mail on the transactional domain; configure it explicitly.
 
 ## 4. Configure the account-email domain
 
@@ -96,8 +96,9 @@ The current application can support an early launch, but the following work shou
 - [ ] Test password reset end to end with a non-owner recipient on the verified domain.
 - [ ] Send a signed Resend test webhook and confirm the endpoint accepts it.
 - [ ] Test bounce and complaint handling and confirm suppression is recorded.
-- [ ] Configure separate warmed Smartlead inboxes before enabling cold outreach.
-- [ ] Confirm outreach cannot send from the account-email domain.
+- [ ] Confirm outreach cannot send from the account-email domain (Gmail send-as only).
+- [ ] Configure Google OAuth (`APP_URL`, `GOOGLE_CLIENT_*`, `GMAIL_TOKEN_ENCRYPTION_KEY`) and complete a test connect + draft.
+- [ ] Confirm `/api/cron/scheduler` returns 401 without `CRON_SECRET` in production.
 - [ ] Monitor Redis usage and scheduled-job duration during the first user batches.
 - [ ] Plan the Supabase Auth migration before re-enabling email confirmation.
 
@@ -112,3 +113,37 @@ Email confirmation should be considered live only after the Supabase Auth migrat
 - Product copy and support documentation match the actual flow.
 
 Until then, password reset is the only active account-email flow; signup verification remains intentionally bypassed.
+
+## 8. Gmail outreach (Google OAuth)
+
+Gigaprowl account login stays email/password. Gmail connect is a separate Google OAuth 2.0 authorization-code grant with offline access. It is not Google Sign-In.
+
+### 8.1 Production variables
+
+| Variable | Purpose |
+|---|---|
+| `APP_URL` | Canonical public URL. Production OAuth callback is `{APP_URL}/api/connect/google/callback`. Defaults to `PRODUCTION_APP_URL` in `lib/constants.js`. Never derived from forwarded Host headers in production. |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | OAuth client from a dedicated production Google Cloud project |
+| `GMAIL_TOKEN_ENCRYPTION_KEY` | 32-byte AES-256-GCM key (64 hex characters). Refresh tokens are stored only in encrypted form |
+| `SESSION_SECRET` | Signs session cookies. Do not reuse the OAuth state for sessions |
+| `KV_REST_API_URL` / `KV_REST_API_TOKEN` | Stores the single-use OAuth nonce (10-minute TTL) and user state |
+| `CRON_SECRET` | Required for `/api/cron/scheduler` in production |
+
+Existing plaintext Gmail grants are rejected. Those users see "Reconnect Gmail" and must complete OAuth again.
+
+### 8.2 Google Cloud project
+
+1. Enable the Gmail API in a dedicated production project. Keep development users on a separate testing project.
+2. Configure the External consent screen with a verified domain, homepage, privacy policy, terms, and support contact.
+3. Register the exact callback `{PRODUCTION_APP_URL}/api/connect/google/callback` from `lib/constants.js`.
+4. Declare scopes `gmail.compose`, `openid`, and `email` (`gmail.compose` is restricted).
+5. Complete restricted-scope verification (and any required security assessment) before public rollout.
+6. Position the feature as low-volume, user-directed job outreach. Keep manual-by-default behavior and daily caps.
+
+### 8.3 Runtime behavior
+
+- Manual mode creates Gmail drafts only. Automated mode sends only after the user selects Automated.
+- Health: `GET /api/connect/google/health`. Disconnect: `POST /api/connect/google/disconnect` (revokes at Google when possible, always deletes the local grant).
+- `invalid_grant`, revocation, and missing compose scope mark the connection `reauth_required` and stop scheduled email for that user.
+- OAuth state is single-use, expires after ten minutes, and is bound to the exact signed-in session that started the connection.
+- If a Gmail mutation has an unknown outcome, the cadence stops on **Check Gmail** instead of retrying and risking a duplicate.
