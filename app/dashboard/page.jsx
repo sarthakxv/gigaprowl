@@ -5,12 +5,13 @@ import { toast } from "sonner";
 import { ExternalLink } from "lucide-react";
 import VoiceRecorder from "../onboarding/VoiceRecorder";
 import { cn } from "@/lib/cn";
+import { DAY_MS } from "@/lib/constants";
 
 const TABS = ["Matches", "Apply kits", "Contacts", "Cadences", "Activity", "Pitch pages", "Social posts"];
 
 // A cadence step's scheduled calendar date = cadence createdAt + step.day days.
 function stepDate(cadence, step) {
-  const d = new Date(new Date(cadence.createdAt).getTime() + (step.day || 0) * 86400000);
+  const d = new Date(new Date(cadence.createdAt).getTime() + (step.day || 0) * DAY_MS);
   return d;
 }
 function fmtDay(d) { return d.toLocaleDateString(undefined, { month: "short", day: "numeric" }); }

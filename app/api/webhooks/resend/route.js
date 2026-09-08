@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { addSuppression, kvSet } from "@/lib/db";
+import { kvKeys } from "@/lib/constants";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -43,7 +44,7 @@ export async function POST(req) {
     }
     // Lightweight per-event audit trail (last event per message id).
     if (evt?.data?.email_id) {
-      await kvSet(`prowl:mailevt:${evt.data.email_id}`, { type, at: new Date().toISOString(), to: recipients });
+      await kvSet(kvKeys.mailEvent(evt.data.email_id), { type, at: new Date().toISOString(), to: recipients });
     }
   } catch (e) {
     console.error("resend webhook handling failed:", e.message);

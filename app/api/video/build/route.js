@@ -4,6 +4,7 @@ import { renderPitchVideo, videoEnabled } from "@/lib/video";
 import { getRoleResearch } from "@/lib/research";
 import { generateMockupImage, mockupEnabled } from "@/lib/mockup";
 import { videoEligibility } from "@/lib/match";
+import { requestBase } from "@/lib/hunt";
 
 export const runtime = "nodejs";
 export const maxDuration = 60; // Hobby cap. Each stage below stays well under it.
@@ -58,9 +59,7 @@ export async function POST(req) {
     }
 
     // ---- Stage 2: mockup + render kickoff ----
-    const host = req.headers.get("x-forwarded-host") || req.headers.get("host");
-    const proto = req.headers.get("x-forwarded-proto") || "http";
-    const base = host ? `${proto}://${host}` : (process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000");
+    const base = requestBase(req);
     try {
       const research = pitch.research || null;
       // Mockup scene is OFF for now. The AI SVG mockups weren't good enough.

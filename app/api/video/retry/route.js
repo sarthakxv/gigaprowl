@@ -3,6 +3,7 @@ import { getPitch, savePitch, getUserState } from "@/lib/db";
 import { getUserId } from "@/lib/auth";
 import { renderPitchVideo, videoEnabled } from "@/lib/video";
 import { videoEligibility } from "@/lib/match";
+import { requestBase } from "@/lib/hunt";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -30,9 +31,7 @@ export async function POST(req) {
     if (!eligibility.eligible)
       return NextResponse.json({ error: `Video skipped: ${eligibility.reasons.join("; ")}` }, { status: 422 });
 
-    const host = req.headers.get("x-forwarded-host") || req.headers.get("host");
-    const proto = req.headers.get("x-forwarded-proto") || "http";
-    const base = host ? `${proto}://${host}` : (process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000");
+    const base = requestBase(req);
 
     const videoId = await renderPitchVideo({
       talkingPhotoId: state.media.talkingPhotoId,
