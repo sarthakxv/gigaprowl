@@ -1,9 +1,11 @@
+import { PRODUCTION_APP_URL } from "./constants.js";
+
 const $ = (id) => document.getElementById(id);
-const DEFAULT_BASE = "https://prowl-livid.vercel.app";
 
 function render() {
   chrome.storage.local.get(["base", "token", "lastPoll", "lastPending", "remainingToday", "checkpoint", "heldOffHours"], (s) => {
-    $("base").value = s.base || DEFAULT_BASE;
+    $("base").placeholder = PRODUCTION_APP_URL;
+    $("base").value = s.base || PRODUCTION_APP_URL;
     $("token").value = s.token || "";
     const parts = [];
     if (s.checkpoint) parts.push('<span style="color:#ff6b6b">⚠ LinkedIn needs a re-login. Open LinkedIn and sign in, then Run now.</span>');
@@ -18,7 +20,7 @@ function render() {
 }
 
 $("save").onclick = () => {
-  const base = ($("base").value || DEFAULT_BASE).trim().replace(/\/$/, "");
+  const base = ($("base").value || PRODUCTION_APP_URL).trim().replace(/\/$/, "");
   const token = $("token").value.trim();
   chrome.storage.local.set({ base, token }, () => {
     chrome.alarms.create("poll", { periodInMinutes: 2 });

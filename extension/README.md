@@ -14,12 +14,11 @@ is not connected).
 2. **Load unpacked** → select this `extension/` folder.
 3. Click the Gigaprowl toolbar icon.
 4. In Gigaprowl → dashboard → **Connect LinkedIn (browser extension)** → copy the pairing token.
-5. Paste the token into the popup, set the Gigaprowl URL (default
-   `https://prowl-livid.vercel.app`, or your local/preview host), hit **Save & pair**.
+5. Paste the token into the popup. The Gigaprowl URL defaults to production (`extension/constants.js`); use your local/preview host if needed, then **Save & pair**.
 6. Keep a LinkedIn tab open and stay logged in. Use **Run now** in the popup to
    poll immediately; otherwise it polls every ~2 minutes.
 
-`manifest.json` allows `linkedin.com`, `prowl-livid.vercel.app`, and `*.vercel.app`.
+`manifest.json` allows `linkedin.com` and `*.vercel.app`.
 For a custom domain or `localhost`, add that origin under `host_permissions` and reload.
 
 ## How it works

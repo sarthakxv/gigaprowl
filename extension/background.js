@@ -2,7 +2,7 @@
 // Every couple minutes: pull queued actions from Gigaprowl, hand each to a
 // linkedin.com tab's content script to execute (human-paced), then report back.
 
-const DEFAULT_BASE = "https://prowl-livid.vercel.app";
+import { PRODUCTION_APP_URL } from "./constants.js";
 
 chrome.runtime.onInstalled.addListener(() => chrome.alarms.create("poll", { periodInMinutes: 2 }));
 chrome.runtime.onStartup.addListener(() => chrome.alarms.create("poll", { periodInMinutes: 2 }));
@@ -32,7 +32,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 async function poll() {
   const { base, token } = await cfg();
   if (!token) return;
-  const B = base || DEFAULT_BASE;
+  const B = base || PRODUCTION_APP_URL;
 
   let data;
   try {
