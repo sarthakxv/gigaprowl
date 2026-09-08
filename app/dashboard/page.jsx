@@ -9,6 +9,32 @@ import { DAY_MS } from "@/lib/constants";
 
 const TABS = ["Matches", "Apply kits", "Contacts", "Cadences", "Activity", "Pitch pages", "Social posts"];
 
+function ChannelButton({ icon, name, connected, reconnect, title, onClick, disabled }) {
+  const action = reconnect ? "Reconnect" : connected ? "Disconnect" : "Connect";
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      onClick={onClick}
+      title={title || `${action} ${name}`}
+      aria-label={`${action} ${name}`}
+      className={cn(
+        "inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mint",
+        reconnect
+          ? "border-red-400/80 text-red-400 hover:bg-red-400/10"
+          : connected
+            ? "border-mint/50 text-white hover:border-mint"
+          : disabled
+            ? "border-edge hover:border-edge cursor-not-allowed opacity-50"
+              : "border-edge text-fog hover:border-mint hover:text-white"
+      )}
+    >
+      <img src={icon} alt="" width={20} height={20} className="size-5 shrink-0" />
+      {disabled ? "Coming soon" : action}
+    </button>
+  );
+}
+
 // A cadence step's scheduled calendar date = cadence createdAt + step.day days.
 function stepDate(cadence, step) {
   const d = new Date(new Date(cadence.createdAt).getTime() + (step.day || 0) * DAY_MS);
@@ -207,6 +233,13 @@ export default function Dashboard() {
     if (r.ok) refresh();
   }
   const [liPair, setLiPair] = useState(null); // { token, base }
+  async function disconnectLinkedIn() {
+    const r = await fetch("/api/connect/linkedin/disconnect", { method: "POST" });
+    const d = await r.json().catch(() => ({}));
+    if (r.ok) toast.success("LinkedIn disconnected");
+    else toast.error(d.error || "Couldn't disconnect LinkedIn");
+    if (r.ok) refresh();
+  }
   async function connectLinkedIn() {
     if (state?.integrations?.linkedinManaged) {
       const r = await fetch("/api/connect/linkedin");
@@ -323,17 +356,28 @@ export default function Dashboard() {
 
         <div className="bg-panel border border-edge rounded-2xl p-5 mb-6 flex flex-wrap items-center gap-4">
           <p className="font-semibold text-sm">Outreach channels</p>
-          <button onClick={connectGmail} className={cn("text-sm rounded-full px-4 py-2 border transition", gmailReady ? "border-mint text-mint" : gmail?.reconnectRequired ? "border-red-400 text-red-400" : "border-edge text-fog hover:text-white hover:border-mint")}>
-            {gmailReady ? `✓ Gmail: ${gmail.email}` : gmail?.reconnectRequired ? `Reconnect Gmail${gmail.email ? `: ${gmail.email}` : ""}` : "Connect Gmail (send as you)"}
-          </button>
-          {gmail && (
-            <button onClick={disconnectGmail} className="text-xs text-fog hover:text-white">Disconnect</button>
-          )}
-          <button onClick={connectLinkedIn} className={cn("text-sm rounded-full px-4 py-2 border transition", state.connections?.linkedin ? "border-mint text-mint" : "border-edge text-fog hover:text-white hover:border-mint")}>
-            {state.connections?.linkedin
-              ? `✓ LinkedIn connected${state.connections.linkedin.name ? ` · ${state.connections.linkedin.name}` : state.connections.linkedin.lastSeen ? ` · seen ${new Date(state.connections.linkedin.lastSeen).toLocaleTimeString()}` : ""}`
-              : integrations.linkedinManaged ? "Connect LinkedIn" : "Connect LinkedIn (browser extension)"}
-          </button>
+          <ChannelButton
+            icon="/assets/gmail-icon.svg"
+            name="Gmail"
+            connected={gmailReady}
+            reconnect={!!gmail?.reconnectRequired}
+            title={gmail?.email ? (gmailReady ? `Disconnect ${gmail.email}` : `Reconnect ${gmail.email}`) : undefined}
+            onClick={gmailReady ? disconnectGmail : connectGmail}
+          />
+          <ChannelButton
+            icon="/assets/linkedin-icon.svg"
+            name="LinkedIn"
+            disabled
+            connected={!!state.connections?.linkedin}
+            title={
+              state.connections?.linkedin?.name
+                ? `Disconnect ${state.connections.linkedin.name}`
+                : !state.connections?.linkedin && !integrations.linkedinManaged
+                  ? "Connect via the browser extension"
+                  : undefined
+            }
+            onClick={state.connections?.linkedin ? disconnectLinkedIn : connectLinkedIn}
+          />
           {state.liQueue?.pending > 0 && <span className="text-xs text-fog tabular-nums">{state.liQueue.pending} LinkedIn action(s) queued</span>}
           <div className="flex items-center gap-1 bg-ink border border-edge rounded-full p-1 ml-auto">
             {["manual", "automated"].map((m) => (
