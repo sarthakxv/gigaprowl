@@ -1,7 +1,7 @@
 # Gigaprowl — Final Ad: "stop applying, start getting hunted"
 
 **Format:** 9:16 vertical (~720×1280), 24fps, ~30s VO + matching B-roll.
-**CTA (live product):** 5 free hunts · Free / Plus $19 / Max $49 — `prowl-livid.vercel.app`
+**CTA (live product):** 5 free hunts · Free / Plus $19 / Max $49 — `gigaprowl.vercel.app`
 **Script source:** `ad_script_stop-applying.txt` (captions + VO beats).
 **Pipeline (current):** fal.ai Wan 2.2-5B text-to-video (5 clips) → ElevenLabs VO ("Liam") → `fal-ai/ffmpeg-api/compose` (auto-stitch). Alternate: Hugging Face Inference Providers → fal (`HF_TOKEN` / `lib/ugc.js`).
 
@@ -31,7 +31,7 @@ Align video beats to the VO in `ad_script_stop-applying.txt`:
 
 **Known tweak:** if you stitch full ~6.7s Wan clips end-to-end (~33.5s) against a 30s VO, you get a silent tail. Trim the compose to **30s** or drop a branded end-card over the last ~3.5s.
 
-**End card:** `gigaprowl. the smartest job hunter in the world. · 5 free hunts · prowl-livid.vercel.app`
+**End card:** `gigaprowl. the smartest job hunter in the world. · 5 free hunts · gigaprowl.vercel.app`
 
 ## Reproduce / make new ads (no CapCut required)
 

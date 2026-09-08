@@ -14,7 +14,7 @@ These are **B-roll / visual clips** (no dialogue) — drop them under a captione
 | `gigaprowl_ugc_05_receipts_inbox.mp4` | Receipts / replies | "I sent ONE thing this week. The VP replied in four hours." | TikTok / LinkedIn |
 | `gigaprowl_ugc_06_pov_hired.mp4` | POV got noticed | "POV: you stopped applying and started getting hunted." | Reels / TikTok |
 
-**End card for all:** `gigaprowl. stop applying, start getting noticed. 5 free hunts → prowl-livid.vercel.app`
+**End card for all:** `gigaprowl. stop applying, start getting noticed. 5 free hunts → gigaprowl.vercel.app`
 
 ## How to reproduce / extend the batch
 Run from the browser (no server needed) against:

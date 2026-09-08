@@ -2,7 +2,7 @@
 
 Agentic job-hunting SaaS. Upload a resume → AI profiles you → daily scanner pulls live jobs from top-company boards → matches are scored → one click ("Hunt this") finds the hiring manager, builds a personalized pitch page + AI avatar video, and runs a multi-step email/LinkedIn cadence. Credit-based plans via Stripe.
 
-Live: https://prowl-livid.vercel.app
+Live: https://gigaprowl.vercel.app
 
 ## Run it
 

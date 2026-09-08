@@ -1,6 +1,6 @@
 # Gigaprowl v2 — Architecture & Product Spec
 
-**Product:** Gigaprowl (prowl-livid.vercel.app) — B2C AI job-hunt autopilot.
+**Product:** Gigaprowl (gigaprowl.vercel.app) — B2C AI job-hunt autopilot.
 **Thesis:** Everyone else automates *applying*. Gigaprowl automates *getting noticed*.
 **Date:** 2026-08-06 · **Status:** Draft for build · **Current stack:** Next.js 14 on Vercel, Upstash Redis (per-user JSON blobs via `lib/db.js`, shared job pool ~1MB), cookie sessions (HMAC + scrypt), Stripe checkout live, email verification temporarily disabled.
 **Target stack:** Supabase (Auth + Postgres + Storage), Inngest for workflows, Upstash Redis demoted to rate-limit/cache only.

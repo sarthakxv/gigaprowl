@@ -23,7 +23,7 @@ ASSEMBLY (CapCut): audio track = voiceover; video track = 5 scenes in order belo
   VO: "Stop applying. Start getting hunted. Gigaprowl — five free hunts."
   CAPTION: stop applying. start getting hunted. → gigaprowl · 5 free hunts
 
-END CARD: gigaprowl. the smartest job hunter in the world. prowl-livid.vercel.app
+END CARD: gigaprowl. the smartest job hunter in the world. gigaprowl.vercel.app
 
 Notes:
 - Clips are ~5s each; trim/loop to fit each beat's window.

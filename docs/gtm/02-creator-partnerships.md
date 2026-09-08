@@ -123,7 +123,7 @@
 
 ### Template 1 — Casual DM (TikTok/IG, ≤100k)
 
-> Hey [Name] — your video on [specific video, e.g. "why recruiters ghost after final rounds"] was painfully accurate 😅 I'm building Gigaprowl (prowl-livid.vercel.app): you upload your resume and AI finds matching jobs, the actual hiring managers, and builds you a personalized pitch page + AI video intro. We're paying career creators $150–$300 per video plus $3 per signup with your code. Want me to send you a free Max account so you can break it / review it honestly? — [Your name], founder
+> Hey [Name] — your video on [specific video, e.g. "why recruiters ghost after final rounds"] was painfully accurate 😅 I'm building Gigaprowl (gigaprowl.vercel.app): you upload your resume and AI finds matching jobs, the actual hiring managers, and builds you a personalized pitch page + AI video intro. We're paying career creators $150–$300 per video plus $3 per signup with your code. Want me to send you a free Max account so you can break it / review it honestly? — [Your name], founder
 
 ### Template 2 — Email with product link
 
@@ -131,7 +131,7 @@
 >
 > Hi [Name],
 >
-> I'm [Your name], founder of Gigaprowl (https://prowl-livid.vercel.app). Job seekers upload a resume; our AI finds matched roles, identifies the hiring managers, and auto-builds a personalized pitch page with an AI avatar video and outreach copy — the whole "apply smarter, not 400 times" workflow in one tool.
+> I'm [Your name], founder of Gigaprowl (https://gigaprowl.vercel.app). Job seekers upload a resume; our AI finds matched roles, identifies the hiring managers, and auto-builds a personalized pitch page with an AI avatar video and outreach copy — the whole "apply smarter, not 400 times" workflow in one tool.
 >
 > I've followed your [platform] content — [one specific, genuine line about their content] — and your audience is exactly who we built this for.
 >

@@ -1,6 +1,6 @@
 # Gigaprowl — Paid Acquisition + Outbound Email Growth Plan
 
-**Doc:** 03-ads-email-growth.md · **Product:** Gigaprowl (prowl-livid.vercel.app) — AI job-hunting copilot (resume upload → AI job matching → hiring-manager discovery → personalized pitch pages + AI avatar videos + outreach cadences)
+**Doc:** 03-ads-email-growth.md · **Product:** Gigaprowl (gigaprowl.vercel.app) — AI job-hunting copilot (resume upload → AI job matching → hiring-manager discovery → personalized pitch pages + AI avatar videos + outreach cadences)
 **Pricing:** Free (5 hunts) · Plus $19/mo · Max $49/mo
 **ICP:** Job seekers 20–35, tech/white-collar, US-first
 **Goal:** 10,000 users → 100,000 users
