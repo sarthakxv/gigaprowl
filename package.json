@@ -8,7 +8,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "test": "node --import ./test/register.mjs --test lib/gmail.test.mjs lib/match.test.mjs lib/db.test.mjs lib/constants.test.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",

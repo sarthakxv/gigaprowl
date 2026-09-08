@@ -1,8 +1,18 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
+
+function pathAfterAuth(userState) {
+  return userState?.profile ? "/dashboard" : "/onboarding";
+}
+
+async function loadUserState() {
+  const r = await fetch("/api/state", { cache: "no-store" });
+  if (r.status === 401 || !r.ok) return null;
+  return r.json().catch(() => null);
+}
 
 function LoginForm() {
   const router = useRouter();
@@ -15,15 +25,20 @@ function LoginForm() {
   const [error, setError] = useState(null);
   const [forgot, setForgot] = useState(params.get("forgot") === "1");
   const [forgotMsg, setForgotMsg] = useState(null);
+  const skipAuthedRedirect = useRef(false);
 
   useEffect(() => {
-    fetch("/api/auth/me").then((r) => {
-      if (r.ok) router.replace("/dashboard");
+    let cancelled = false;
+    loadUserState().then((userState) => {
+      if (cancelled || skipAuthedRedirect.current || !userState) return;
+      router.replace(pathAfterAuth(userState));
     }).catch(() => {});
+    return () => { cancelled = true; };
   }, [router]);
 
   async function submit(e) {
     e.preventDefault();
+    skipAuthedRedirect.current = true;
     setBusy(true); setError(null);
     const r = await fetch(`/api/auth/${mode}`, {
       method: "POST",
@@ -31,9 +46,17 @@ function LoginForm() {
       body: JSON.stringify({ email, password, name }),
     });
     const d = await r.json();
+    if (!r.ok) {
+      setBusy(false);
+      return setError(d.error || "Something went wrong");
+    }
+    if (mode === "signup") {
+      router.replace("/onboarding");
+      return;
+    }
+    const userState = await loadUserState().catch(() => null);
     setBusy(false);
-    if (!r.ok) return setError(d.error || "Something went wrong");
-    router.replace(mode === "signup" ? "/onboarding" : "/dashboard");
+    router.replace(pathAfterAuth(userState));
   }
 
   async function sendForgot(e) {
