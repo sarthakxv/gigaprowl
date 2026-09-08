@@ -70,6 +70,23 @@ async function extractText(file) {
   return buf.toString("utf8"); // txt / md / anything plain-text
 }
 
+function asList(v) {
+  if (Array.isArray(v)) return v.map((x) => String(x ?? "").trim()).filter(Boolean);
+  if (typeof v === "string" && v.trim()) return v.split(/[,;\n]/).map((x) => x.trim()).filter(Boolean);
+  return [];
+}
+
+function normalizeProfile(profile) {
+  const p = profile && typeof profile === "object" ? { ...profile } : {};
+  p.skills = asList(p.skills);
+  p.topSkills = asList(p.topSkills);
+  if (!p.topSkills.length) p.topSkills = p.skills.slice(0, 6);
+  p.roles = asList(p.roles);
+  p.domains = asList(p.domains);
+  p.strengths = asList(p.strengths);
+  return p;
+}
+
 export async function POST(req) {
   try {
     const userId = getUserId(req);
@@ -152,12 +169,13 @@ export async function POST(req) {
     if (!text || text.trim().length < 50)
       return NextResponse.json({ error: "That was a little too short. We need at least a few sentences about you." }, { status: 422 });
 
-    const profile = await parseResume(text);
+    const parsed = await parseResume(text);
+    const profile = normalizeProfile(parsed);
 
     // Parse-quality gate: refuse to build a profile from genuine junk, but don't
     // punish a real resume just because the keyword fallback missed its skills.
     const badName = !profile?.name || /^candidate$/i.test(String(profile.name).trim());
-    const noSkills = !Array.isArray(profile?.skills) || profile.skills.length === 0;
+    const noSkills = profile.skills.length === 0;
     const tooShort = text.trim().length < 120;
     // Reject only when there's clearly nothing usable: too little text, or both
     // the name AND the skills came back empty.

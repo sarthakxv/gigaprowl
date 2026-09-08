@@ -6,27 +6,37 @@ import { creditsAreUnlimited } from "@/lib/credits";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+const noStore = { headers: { "Cache-Control": "no-store, must-revalidate" } };
 
 export async function GET(req) {
   const userId = getUserId(req);
-  if (!userId) return NextResponse.json({ error: "Not signed in" }, { status: 401 });
+  if (!userId) return NextResponse.json({ error: "Not signed in" }, { status: 401, ...noStore });
 
   const [state, pool, user] = await Promise.all([getUserState(userId), getJobPool(), getUserById(userId)]);
+  const jobs = Array.isArray(pool?.jobs) ? pool.jobs : [];
 
   // Matches computed live from the shared job pool against this user's profile.
-  const matches = state.profile
-    ? rankJobs(state.profile, pool.jobs).slice(0, 100).map((m) => ({
+  // Ranking must never 500 the whole payload — that used to look like "no profile".
+  let matches = [];
+  try {
+    if (state.profile) {
+      matches = rankJobs(state.profile, jobs).slice(0, 100).map((m) => ({
         ...m,
         id: m.job.sourceId,
-        status: state.statusById[m.job.sourceId] || "new",
-      }))
-    : [];
+        status: state.statusById?.[m.job.sourceId] || "new",
+      }));
+    }
+  } catch (e) {
+    console.error("match ranking failed:", e.message);
+  }
 
   return NextResponse.json({
     // Account email verification. `undefined` on legacy accounts → treat as verified.
     account: { email: user?.email || null, emailVerified: true },
     profile: state.profile,
-    media: { facePhoto: !!state.media.facePhoto, voiceSample: !!state.media.voiceSample },
+    media: { facePhoto: !!state.media?.facePhoto, voiceSample: !!state.media?.voiceSample },
     matches,
     contacts: state.contacts,
     cadences: state.cadences,
@@ -36,7 +46,11 @@ export async function GET(req) {
       if (typeof live?.score === "number") return { ...k, score: live.score };
       if (typeof k.score === "number") return k;
       if (!state.profile || !k.job) return k;
-      return { ...k, score: scoreJob(state.profile, { title: k.job.title, company: k.job.company, description: "", tags: [] }).score };
+      try {
+        return { ...k, score: scoreJob(state.profile, { title: k.job.title, company: k.job.company, description: "", tags: [] }).score };
+      } catch {
+        return k;
+      }
     }),
     socialPosts: state.socialPosts || [],
     credits: { ...state.credits, unlimited: creditsAreUnlimited() },
@@ -52,8 +66,8 @@ export async function GET(req) {
         ? { method: "extension", pairedAt: state.connections.linkedin.pairedAt, lastSeen: state.connections.linkedin.lastSeen || null, status: state.connections.linkedin.status || "ok" }
         : null,
     },
-    lastSync: pool.lastSync,
-    jobCount: pool.jobs.length,
+    lastSync: pool?.lastSync || null,
+    jobCount: jobs.length,
     integrations: {
       ai: !!process.env.ANTHROPIC_API_KEY,
       apollo: !!process.env.APOLLO_API_KEY,
@@ -67,5 +81,5 @@ export async function GET(req) {
       linkedinManaged: !!(process.env.UNIPILE_DSN && process.env.UNIPILE_API_KEY),
       resend: !!process.env.RESEND_API_KEY,
     },
-  });
+  }, noStore);
 }
