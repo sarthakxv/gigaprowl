@@ -54,7 +54,7 @@ Note: Meta consolidated/removed many detailed interests in June 2025 and killed 
 
 | Stack | Interests (OR within stack) | Layer |
 |---|---|---|
-| Active job seekers | Job hunting, Résumé, Employment website, Indeed, LinkedIn, Glassdoor, ZipRecruiter | Age 20–35, US |
+| Active job seekers | Job hunting, Resume, Employment website, Indeed, LinkedIn, Glassdoor, ZipRecruiter | Age 20–35, US |
 | Career changers / upskillers | Career development, Professional development, Coursera, Udemy, General Assembly, Bootcamps | Age 22–35 |
 | Tech workers | Software engineering, Product management, Information technology, Computer science, GitHub, Stack Overflow | Age 22–35 |
 | New grads | Recently moved, College graduate behaviors, university interests | Age 20–27 |

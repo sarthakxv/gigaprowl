@@ -7,6 +7,7 @@
   ],
   "scripts": {
     "dev": "next dev",
+    "prototype": "next dev",
     "build": "next build",
     "start": "next start",
     "test": "node --import ./test/register.mjs --test lib/gmail.test.mjs lib/match.test.mjs lib/db.test.mjs lib/constants.test.mjs"

@@ -5,3 +5,5 @@
 3. Inngest/queued hunt workflows, auto-apply band, reply tracking
 4. Smarter creative/GTM loop (UGC factory + paid) — `docs/gtm/`
 5. Recruiter side: paid listings + placement referral
+
+Agenda: people should be able to conenct linkedin using extension or tokens and automate dm and workflow.
