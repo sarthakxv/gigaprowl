@@ -1,6 +1,6 @@
 "use client";
 
-// Three variants of the v1 end-to-end product flow, switchable via ?variant=.
+// Chosen v1 prototype direction: Variant A plus the complete onboarding flow.
 // PROTOTYPE ONLY: every value and interaction on this route is held in memory.
 
 import {
@@ -9,23 +9,21 @@ import {
   ArrowLeft,
   ArrowRight,
   BriefcaseBusiness,
-  CalendarClock,
   Check,
   CheckCircle2,
   ChevronDown,
   Circle,
-  Clock3,
   Command,
   ExternalLink,
+  FileUp,
   FileCheck2,
   FileText,
   Gauge,
-  Inbox,
   LayoutDashboard,
   Mail,
   MapPin,
-  Menu,
   MessageSquareText,
+  Moon,
   MoreHorizontal,
   Pause,
   PenLine,
@@ -37,6 +35,7 @@ import {
   Settings,
   ShieldCheck,
   Sparkles,
+  Sun,
   Target,
   UserRoundCheck,
   Video,
@@ -44,15 +43,8 @@ import {
   X,
   Zap,
 } from "lucide-react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import styles from "./prototype.module.css";
-
-const VARIANTS = [
-  { key: "A", name: "Focus queue" },
-  { key: "B", name: "Editorial workspace" },
-  { key: "C", name: "Progress cockpit" },
-];
 
 const NAV = [
   { id: "today", label: "Today", icon: LayoutDashboard },
@@ -141,16 +133,31 @@ const campaignSteps = [
 
 const requiredCampaignSteps = ["contact", "kit", "pitch", "outreach"];
 
+const initialOnboarding = {
+  complete: false,
+  step: "source",
+  source: null,
+  sourceLabel: null,
+  profile: {
+    name: "Sarthak Sharma",
+    title: "Senior Product Engineer",
+    seniority: "Senior",
+    skills: ["React", "TypeScript", "Product systems", "Design systems"],
+    experience: "7 years building B2B products, frontend platforms, and design systems across product and engineering teams.",
+    positioning: "Product engineer with experience turning ambiguous workflows into dependable B2B software.",
+  },
+  targetRoles: ["Senior Product Engineer", "Design Engineer"],
+  locationMode: "remote",
+  location: "India",
+  authorization: "",
+  scanStatus: "idle",
+};
+
 function classNames(...values) {
   return values.filter(Boolean).join(" ");
 }
 
 export default function PrototypeApp() {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const rawVariant = (searchParams.get("variant") || "A").toUpperCase();
-  const variant = VARIANTS.some((item) => item.key === rawVariant) ? rawVariant : "A";
   const [view, setView] = useState("today");
   const [selectedOpportunity, setSelectedOpportunity] = useState(null);
   const [campaign, setCampaign] = useState(initialCampaign);
@@ -160,7 +167,9 @@ export default function PrototypeApp() {
   const [dialog, setDialog] = useState(null);
   const [toast, setToast] = useState("");
   const [stateOpen, setStateOpen] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [onboarding, setOnboarding] = useState(initialOnboarding);
+  const [firstScanRunning, setFirstScanRunning] = useState(false);
+  const [theme, setTheme] = useState("light");
 
   const currentOpportunity = selectedOpportunity
     ? opportunities.find((item) => item.id === selectedOpportunity)
@@ -168,39 +177,16 @@ export default function PrototypeApp() {
 
   const mockState = useMemo(
     () => ({
-      variant,
+      onboarding,
+      theme,
       view: currentOpportunity ? `opportunity:${currentOpportunity.id}` : view,
       huntCredits: credits,
       savedOpportunityIds: saved,
       dismissedOpportunityIds: dismissed,
       campaign,
     }),
-    [campaign, credits, currentOpportunity, dismissed, saved, variant, view],
+    [campaign, credits, currentOpportunity, dismissed, onboarding, saved, theme, view],
   );
-
-  function setVariant(next) {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("variant", next);
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-    setStateOpen(true);
-  }
-
-  function cycleVariant(direction) {
-    const index = VARIANTS.findIndex((item) => item.key === variant);
-    const next = VARIANTS[(index + direction + VARIANTS.length) % VARIANTS.length];
-    setVariant(next.key);
-  }
-
-  useEffect(() => {
-    function handleKeyDown(event) {
-      const tag = event.target?.tagName?.toLowerCase();
-      if (tag === "input" || tag === "textarea" || event.target?.isContentEditable) return;
-      if (event.key === "ArrowLeft") cycleVariant(-1);
-      if (event.key === "ArrowRight") cycleVariant(1);
-    }
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  });
 
   useEffect(() => {
     if (!toast) return undefined;
@@ -211,7 +197,14 @@ export default function PrototypeApp() {
   function navigate(next) {
     setSelectedOpportunity(null);
     setView(next);
-    setMenuOpen(false);
+  }
+
+  function restartOnboarding() {
+    setOnboarding(initialOnboarding);
+    setFirstScanRunning(false);
+    setSelectedOpportunity(null);
+    setView("today");
+    setStateOpen(false);
   }
 
   function showMock(message) {
@@ -230,7 +223,7 @@ export default function PrototypeApp() {
 
   function dismissOpportunity(id) {
     setDismissed((items) => [...items, id]);
-    setToast("Opportunity dismissed · Undo available in this mock session");
+    setToast("Opportunity dismissed · Undo available");
   }
 
   function undoDismiss() {
@@ -248,7 +241,7 @@ export default function PrototypeApp() {
     setSelectedOpportunity(null);
     setView("campaigns");
     setDialog(null);
-    setToast("Campaign created — nothing published or sent");
+    setToast("Campaign created · No content sent or published");
   }
 
   function reviewSection(section) {
@@ -268,13 +261,11 @@ export default function PrototypeApp() {
   function createDraft() {
     setCampaign((value) => ({ ...value, delivery: "Gmail draft created", reviewed: [...new Set([...value.reviewed, "outreach"])] }));
     setDialog(null);
-    setToast("Mock Gmail draft created — no provider was contacted");
+    setToast("Mock Gmail draft created · Gmail was not contacted");
   }
 
   const sharedProps = {
     view,
-    menuOpen,
-    setMenuOpen,
     navigate,
     currentOpportunity,
     openOpportunity,
@@ -292,16 +283,24 @@ export default function PrototypeApp() {
     setDialog,
     reviewSection,
     showMock,
+    firstScanRunning,
   };
 
   return (
-    <div className={classNames(styles.prototype, styles[`variant${variant}`])}>
+    <div className={classNames(styles.prototype, theme === "dark" && styles.darkTheme)}>
       <a className={styles.skipLink} href="#prototype-main">Skip to main content</a>
       <div className={styles.prototypeFlag}><Sparkles size={14} /> UX prototype · Mock data only</div>
 
-      {variant === "A" && <VariantA {...sharedProps} />}
-      {variant === "B" && <VariantB {...sharedProps} />}
-      {variant === "C" && <VariantC {...sharedProps} />}
+      {onboarding.complete ? (
+        <ProductShell {...sharedProps} />
+      ) : (
+        <Onboarding
+          onboarding={onboarding}
+          setOnboarding={setOnboarding}
+          setFirstScanRunning={setFirstScanRunning}
+          showMock={showMock}
+        />
+      )}
 
       {dialog?.type === "campaign" && (
         <Modal title="Create outreach campaign?" eyebrow="1 Hunt credit" onClose={() => setDialog(null)}>
@@ -317,7 +316,7 @@ export default function PrototypeApp() {
           </div>
           <div className={styles.safetyNote}>
             <ShieldCheck size={19} />
-            <span>This only generates drafts. Nothing will be published, scheduled, or sent.</span>
+            <span>Creating this campaign generates drafts. It does not publish, schedule, or send them.</span>
           </div>
           <div className={styles.modalActions}>
             <Button tone="secondary" onClick={() => setDialog(null)}>Keep reviewing</Button>
@@ -331,9 +330,9 @@ export default function PrototypeApp() {
           <div className={styles.pitchPreview}>
             <span>Private preview</span>
             <h3>Sarthak × Linear</h3>
-            <p>A concise case for why this product-engineering match is worth a conversation.</p>
+            <p>A short case for this product-engineering match.</p>
           </div>
-          <p className={styles.modalLead}>Anyone with the generated link will be able to view the page. You can unpublish it at any time.</p>
+          <p className={styles.modalLead}>Anyone with the link can view this page. You can unpublish it from the campaign workspace.</p>
           <div className={styles.modalActions}>
             <Button tone="secondary" onClick={() => setDialog(null)}>Keep private</Button>
             <Button onClick={publishPitch}>Publish pitch by link</Button>
@@ -351,11 +350,11 @@ export default function PrototypeApp() {
           </div>
           <div className={styles.messagePreview}>
             <span>Subject · Product engineering at Linear</span>
-            <p>Hi Maya — I’ve spent the last few years turning ambiguous product problems into fast, careful software...</p>
+            <p>Hi Maya, I’ve spent the last few years turning ambiguous product problems into fast, careful software...</p>
           </div>
           <div className={styles.safetyNote}>
             <ShieldCheck size={19} />
-            <span>Approval applies only to this draft. Editing it will require a new approval.</span>
+            <span>You approved this draft. Editing it will require a new approval.</span>
           </div>
           <div className={styles.modalActions}>
             <Button tone="secondary" onClick={() => setDialog(null)}>Edit message</Button>
@@ -374,7 +373,7 @@ export default function PrototypeApp() {
           </div>
           <div className={styles.safetyNote}>
             <ShieldCheck size={19} />
-            <span>This is a prototype receipt. No provider was contacted and no email was sent.</span>
+            <span>The prototype created this receipt without contacting Gmail or sending email.</span>
           </div>
           <div className={styles.modalActions}>
             <Button onClick={() => setDialog(null)}>Done</Button>
@@ -384,74 +383,281 @@ export default function PrototypeApp() {
 
       {toast && <div className={styles.toast} role="status"><CheckCircle2 size={18} /> {toast}</div>}
 
+      {onboarding.complete && (
+        <button className={styles.restartButton} type="button" onClick={restartOnboarding} aria-label="Restart onboarding">
+          <RotateCcw size={15} /> <span>Restart onboarding</span>
+        </button>
+      )}
+      <button
+        className={styles.themeButton}
+        type="button"
+        onClick={() => setTheme((value) => (value === "light" ? "dark" : "light"))}
+        aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
+        aria-pressed={theme === "dark"}
+      >
+        {theme === "light" ? <Moon size={15} /> : <Sun size={15} />}
+        <span>{theme === "light" ? "Dark mode" : "Light mode"}</span>
+      </button>
       <button className={styles.stateButton} type="button" onClick={() => setStateOpen((value) => !value)}>
         <Command size={15} /> Mock state
       </button>
       {stateOpen && (
         <aside className={styles.statePanel} aria-label="Current prototype state">
-          <div><strong>Current in-memory state</strong><button type="button" onClick={() => setStateOpen(false)}><X size={16} /></button></div>
+          <div><strong>Current in-memory state</strong><button type="button" onClick={() => setStateOpen(false)} aria-label="Close mock state"><X size={16} /></button></div>
           <pre>{JSON.stringify(mockState, null, 2)}</pre>
         </aside>
       )}
 
-      {process.env.NODE_ENV !== "production" && (
-        <PrototypeSwitcher current={variant} onCycle={cycleVariant} />
-      )}
     </div>
   );
 }
 
-function VariantA(props) {
+const onboardingStepOrder = ["source", "profile", "roles", "location", "authorization", "review"];
+
+function Onboarding({ onboarding, setOnboarding, setFirstScanRunning, showMock }) {
+  const [pasteOpen, setPasteOpen] = useState(false);
+  const [experienceText, setExperienceText] = useState("Senior product engineer with 7 years building B2B software, frontend systems, and design systems.");
+  const [customRole, setCustomRole] = useState("");
+  const [customSkill, setCustomSkill] = useState("");
+  const stepIndex = onboardingStepOrder.indexOf(onboarding.step);
+  const profileReady = Boolean(
+    onboarding.profile.name.trim()
+    && onboarding.profile.title.trim()
+    && onboarding.profile.experience.trim()
+    && onboarding.profile.positioning.trim(),
+  );
+
+  function update(patch) {
+    setOnboarding((value) => ({ ...value, ...patch }));
+  }
+
+  function chooseSource(source, sourceLabel) {
+    update({ source, sourceLabel, step: "profile" });
+    showMock(`Profile created from ${sourceLabel}`);
+  }
+
+  function updateProfile(field, value) {
+    setOnboarding((current) => ({
+      ...current,
+      profile: { ...current.profile, [field]: value },
+    }));
+  }
+
+  function toggleRole(role) {
+    setOnboarding((current) => ({
+      ...current,
+      targetRoles: current.targetRoles.includes(role)
+        ? current.targetRoles.filter((item) => item !== role)
+        : [...current.targetRoles, role],
+    }));
+  }
+
+  function addCustomRole() {
+    const role = customRole.trim();
+    if (!role) return;
+    setOnboarding((current) => ({
+      ...current,
+      targetRoles: [...new Set([...current.targetRoles, role])],
+    }));
+    setCustomRole("");
+  }
+
+  function addCustomSkill() {
+    const skill = customSkill.trim();
+    if (!skill) return;
+    updateProfile("skills", [...new Set([...onboarding.profile.skills, skill])]);
+    setCustomSkill("");
+  }
+
+  function goBack() {
+    const previous = onboardingStepOrder[Math.max(0, stepIndex - 1)];
+    update({ step: previous });
+  }
+
+  function startScan() {
+    update({ step: "scanning", scanStatus: "running" });
+  }
+
+  function openToday() {
+    update({ complete: true, scanStatus: "running" });
+    setFirstScanRunning(true);
+  }
+
+  return (
+    <div className={styles.onboardingShell}>
+      <header className={styles.onboardingTopbar}>
+        <Brand />
+        <span><CheckCircle2 size={15} /> Saved for this mock session</span>
+      </header>
+      <main id="prototype-main" className={styles.onboardingLayout}>
+        <aside className={styles.onboardingRail}>
+          <span className={styles.eyebrow}>Set up your search</span>
+          <h1>Build your candidate profile</h1>
+          <p>Check the details Gigaprowl extracted and set the constraints for your search.</p>
+          <ol>
+            {onboardingStepOrder.map((step, index) => {
+              const complete = onboarding.step === "scanning" || index < stepIndex;
+              const active = onboarding.step === step;
+              return (
+                <li key={step} className={classNames(active && styles.onboardingStepActive, complete && styles.onboardingStepComplete)}>
+                  <span>{complete ? <Check size={14} /> : index + 1}</span>
+                  <div><strong>{["Profile source", "Review profile", "Target roles", "Location", "Work authorization", "Confirm search"][index]}</strong><small>{active ? "Current step" : complete ? "Complete" : "Not started"}</small></div>
+                </li>
+              );
+            })}
+          </ol>
+          <div className={styles.onboardingPromise}><ShieldCheck size={19} /><span><strong>Finish the required setup</strong>You can connect email and LinkedIn when you create outreach. Photo, voice, and message style stay optional.</span></div>
+        </aside>
+
+        <section className={styles.onboardingCard} aria-live="polite">
+          {onboarding.step === "source" && (
+            <>
+              <OnboardingHeader step="Step 1 of 6" title="Choose your profile source" description="Import your work history. You can review the extracted profile before you confirm it." />
+              <div className={styles.sourceChoices}>
+                <button type="button" onClick={() => chooseSource("resume", "Mock resume PDF")}>
+                  <span><FileUp size={21} /></span><div><strong>Upload resume or LinkedIn PDF</strong><p>Use PDF, DOCX, or TXT. This prototype loads a safe mock resume.</p></div><ArrowRight size={18} />
+                </button>
+                <button type="button" onClick={() => setPasteOpen((value) => !value)} aria-expanded={pasteOpen}>
+                  <span><FileText size={21} /></span><div><strong>Paste experience text</strong><p>Paste a summary if you do not have a current resume.</p></div><ChevronDown size={18} />
+                </button>
+                <button type="button" onClick={() => chooseSource("scout", "Scout preview")}>
+                  <span><Radar size={21} /></span><div><strong>Continue from Scout</strong><p>Use the profile from your Scout report.</p></div><ArrowRight size={18} />
+                </button>
+              </div>
+              {pasteOpen && (
+                <div className={styles.pastePanel}>
+                  <label htmlFor="experience-text">Experience summary</label>
+                  <textarea id="experience-text" value={experienceText} onChange={(event) => setExperienceText(event.target.value)} />
+                  <Button onClick={() => chooseSource("pasted", "Pasted experience")} disabled={!experienceText.trim()}>Analyze this experience</Button>
+                </div>
+              )}
+              <p className={styles.onboardingFootnote}><ShieldCheck size={15} /> You will enter work authorization in step 5. Gigaprowl does not infer it from your resume.</p>
+            </>
+          )}
+
+          {onboarding.step === "profile" && (
+            <>
+              <OnboardingHeader step="Step 2 of 6" title="Review your profile" description={`Gigaprowl extracted these details from ${onboarding.sourceLabel}. Edit anything that could affect a match or generated claim.`} />
+              <div className={styles.formGrid}>
+                <Field label="Name" value={onboarding.profile.name} onChange={(value) => updateProfile("name", value)} />
+                <Field label="Current title" value={onboarding.profile.title} onChange={(value) => updateProfile("title", value)} />
+                <label className={styles.field}><span>Seniority</span><select value={onboarding.profile.seniority} onChange={(event) => updateProfile("seniority", event.target.value)}><option>Mid-level</option><option>Senior</option><option>Staff</option><option>Lead</option></select></label>
+                <div className={styles.field}><span>Core skills</span><div className={styles.skillList}>{onboarding.profile.skills.map((skill) => <button key={skill} type="button" onClick={() => updateProfile("skills", onboarding.profile.skills.filter((item) => item !== skill))}>{skill}<X size={13} /></button>)}</div><div className={styles.skillEditor}><input aria-label="Add a core skill" value={customSkill} onChange={(event) => setCustomSkill(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); addCustomSkill(); } }} placeholder="Add a skill" /><Button tone="secondary" onClick={addCustomSkill} disabled={!customSkill.trim()}>Add</Button></div></div>
+                <label className={classNames(styles.field, styles.fieldFull)}><span>Experience</span><textarea value={onboarding.profile.experience} onChange={(event) => updateProfile("experience", event.target.value)} /></label>
+                <label className={classNames(styles.field, styles.fieldFull)}><span>Professional positioning</span><textarea value={onboarding.profile.positioning} onChange={(event) => updateProfile("positioning", event.target.value)} /></label>
+              </div>
+              <OnboardingActions onBack={goBack} onNext={() => update({ step: "roles" })} nextLabel="Confirm profile" disabled={!profileReady} />
+            </>
+          )}
+
+          {onboarding.step === "roles" && (
+            <>
+              <OnboardingHeader step="Step 3 of 6" title="Choose your target roles" description="Select the roles you want Gigaprowl to find." />
+              <div className={styles.choiceGrid}>
+                {["Senior Product Engineer", "Design Engineer", "Frontend Engineer", "Founding Engineer", "Engineering Lead", "Product Engineer"].map((role) => (
+                  <button key={role} type="button" className={onboarding.targetRoles.includes(role) ? styles.choiceSelected : ""} aria-pressed={onboarding.targetRoles.includes(role)} onClick={() => toggleRole(role)}>{onboarding.targetRoles.includes(role) && <Check size={16} />}{role}</button>
+                ))}
+              </div>
+              <div className={styles.inlineField}><label htmlFor="custom-role">Add another role</label><div><input id="custom-role" value={customRole} onChange={(event) => setCustomRole(event.target.value)} placeholder="e.g. Staff Frontend Engineer" /><Button tone="secondary" onClick={addCustomRole}>Add role</Button></div></div>
+              <p className={styles.selectionCount}>{onboarding.targetRoles.length} selected · At least one role is required.</p>
+              <OnboardingActions onBack={goBack} onNext={() => update({ step: "location" })} nextLabel="Set location" disabled={onboarding.targetRoles.length === 0} />
+            </>
+          )}
+
+          {onboarding.step === "location" && (
+            <>
+              <OnboardingHeader step="Step 4 of 6" title="Set your location preferences" description="Choose where you can work." />
+              <RadioCards
+                name="location-mode"
+                value={onboarding.locationMode}
+                onChange={(locationMode) => update({ locationMode })}
+                options={[
+                  { value: "remote", title: "Remote only", description: "Show roles that support remote work from my location." },
+                  { value: "either", title: "Remote or local", description: "Include remote roles and roles near my chosen location." },
+                  { value: "specific", title: "Specific location", description: "Show roles based in one city or region." },
+                ]}
+              />
+              <Field label="Your location" value={onboarding.location} onChange={(location) => update({ location })} description="Used to evaluate remote eligibility and local roles." />
+              <OnboardingActions onBack={goBack} onNext={() => update({ step: "authorization" })} nextLabel="Set work authorization" disabled={!onboarding.location.trim()} />
+            </>
+          )}
+
+          {onboarding.step === "authorization" && (
+            <>
+              <OnboardingHeader step="Step 5 of 6" title="Set your work authorization" description="Your answer filters roles that require sponsorship. Gigaprowl does not infer it from your resume." />
+              <RadioCards
+                name="authorization"
+                value={onboarding.authorization}
+                onChange={(authorization) => update({ authorization })}
+                options={[
+                  { value: "authorized", title: "Authorized for my target locations", description: "I do not need employer sponsorship for the roles I want." },
+                  { value: "sponsorship", title: "I need sponsorship", description: "Show sponsorship evidence when available and label uncertainty." },
+                  { value: "unknown", title: "Prefer not to say", description: "Gigaprowl will mark sponsorship compatibility as unknown." },
+                ]}
+              />
+              <div className={styles.safetyNote}><ShieldCheck size={19} /><span>Gigaprowl uses this answer to check job requirements in this prototype.</span></div>
+              <OnboardingActions onBack={goBack} onNext={() => update({ step: "review" })} nextLabel="Review search" disabled={!onboarding.authorization} />
+            </>
+          )}
+
+          {onboarding.step === "review" && (
+            <>
+              <OnboardingHeader step="Step 6 of 6" title="Review your search settings" description="Confirm these inputs before you run the mock scan. The scan does not connect accounts or contact anyone." />
+              <div className={styles.reviewSummary}>
+                <ReviewSection label="Profile" value={`${onboarding.profile.name} · ${onboarding.profile.title} · ${onboarding.profile.seniority}`} onEdit={() => update({ step: "profile" })} />
+                <ReviewSection label="Target roles" value={onboarding.targetRoles.join(" · ")} onEdit={() => update({ step: "roles" })} />
+                <ReviewSection label="Location" value={`${onboarding.locationMode === "remote" ? "Remote only" : onboarding.locationMode === "either" ? "Remote or local" : "Specific location"} · ${onboarding.location}`} onEdit={() => update({ step: "location" })} />
+                <ReviewSection label="Work authorization" value={onboarding.authorization === "authorized" ? "Authorized for target locations" : onboarding.authorization === "sponsorship" ? "Sponsorship required" : "Prefer not to say · compatibility remains unknown"} onEdit={() => update({ step: "authorization" })} />
+              </div>
+              <div className={styles.onboardingPromise}><Sparkles size={19} /><span><strong>Your first scan</strong>Gigaprowl will rank a short list of roles and show the evidence and gaps for each match. Results appear on Today.</span></div>
+              <OnboardingActions onBack={goBack} onNext={startScan} nextLabel="Start first scan" />
+            </>
+          )}
+
+          {onboarding.step === "scanning" && (
+            <div className={styles.scanningState}>
+              <span className={styles.scanRadar}><Radar size={32} /></span>
+              <span className={styles.eyebrow}>First scan running</span>
+              <h2>Your profile is ready</h2>
+              <p>The mock scan is ranking roles. Open Today to review the starter matches and track progress.</p>
+              <div className={styles.scanSteps}><span><CheckCircle2 size={17} /> Profile and constraints confirmed</span><span><CheckCircle2 size={17} /> Sources selected</span><span className={styles.scanActive}><RotateCcw size={17} /> Ranking credible matches</span></div>
+              <Button onClick={openToday}>Open Today <ArrowRight size={17} /></Button>
+            </div>
+          )}
+        </section>
+      </main>
+    </div>
+  );
+}
+
+function OnboardingHeader({ step, title, description }) {
+  return <header className={styles.onboardingHeader}><span className={styles.eyebrow}>{step}</span><h2>{title}</h2><p>{description}</p></header>;
+}
+
+function OnboardingActions({ onBack, onNext, nextLabel, disabled = false }) {
+  return <div className={styles.onboardingActions}><Button tone="ghost" onClick={onBack}><ArrowLeft size={17} /> Back</Button><Button onClick={onNext} disabled={disabled}>{nextLabel} <ArrowRight size={17} /></Button></div>;
+}
+
+function Field({ label, value, onChange, description }) {
+  const id = `field-${label.toLowerCase().replaceAll(" ", "-")}`;
+  return <label className={styles.field} htmlFor={id}><span>{label}</span><input id={id} value={value} onChange={(event) => onChange(event.target.value)} />{description && <small>{description}</small>}</label>;
+}
+
+function RadioCards({ name, value, onChange, options }) {
+  return <fieldset className={styles.radioCards}><legend className={styles.srOnly}>{name}</legend>{options.map((option) => <label key={option.value} className={value === option.value ? styles.radioSelected : ""}><input type="radio" name={name} value={option.value} checked={value === option.value} onChange={() => onChange(option.value)} /><span><Circle size={18} /></span><div><strong>{option.title}</strong><p>{option.description}</p></div></label>)}</fieldset>;
+}
+
+function ReviewSection({ label, value, onEdit }) {
+  return <section><div><span>{label}</span><p>{value}</p></div><button type="button" onClick={onEdit}>Edit</button></section>;
+}
+
+function ProductShell(props) {
   return (
     <div className={styles.shellA}>
       <SideNav {...props} />
       <main id="prototype-main" className={styles.mainA}>
         <TopContext credits={props.credits} compact />
-        <RouteContent {...props} variant="A" />
-      </main>
-      <MobileNav {...props} />
-    </div>
-  );
-}
-
-function VariantB(props) {
-  return (
-    <div className={styles.shellB}>
-      <header className={styles.topNavB}>
-        <Brand />
-        <nav aria-label="Primary navigation">
-          {NAV.map((item) => <NavButton key={item.id} item={item} active={props.view === item.id} onClick={() => props.navigate(item.id)} />)}
-        </nav>
-        <TopContext credits={props.credits} compact />
-      </header>
-      <main id="prototype-main" className={styles.mainB}>
-        <RouteContent {...props} variant="B" />
-      </main>
-      <MobileNav {...props} />
-    </div>
-  );
-}
-
-function VariantC(props) {
-  return (
-    <div className={styles.shellC}>
-      <header className={styles.mobileHeaderC}>
-        <Brand />
-        <button type="button" onClick={() => props.setMenuOpen(!props.menuOpen)}><Menu /></button>
-      </header>
-      <aside className={classNames(styles.railC, props.menuOpen && styles.railOpen)}>
-        <Brand compact />
-        <nav aria-label="Primary navigation">
-          {NAV.map((item) => <NavButton key={item.id} item={item} active={props.view === item.id} onClick={() => props.navigate(item.id)} iconOnly />)}
-        </nav>
-        <div className={styles.avatar}>SX</div>
-      </aside>
-      <main id="prototype-main" className={styles.mainC}>
-        <div className={styles.cockpitHeader}>
-          <div><span>September 10 · Wednesday</span><strong>Your search is moving</strong></div>
-          <TopContext credits={props.credits} />
-        </div>
-        <RouteContent {...props} variant="C" />
+        <RouteContent {...props} />
       </main>
       <MobileNav {...props} />
     </div>
@@ -485,7 +691,7 @@ function SideNav({ view, navigate, credits }) {
 }
 
 function Brand({ compact = false }) {
-  return <div className={styles.brand}><span><Radar size={compact ? 20 : 22} /></span>{!compact && <strong>gigaprowl</strong>}</div>;
+  return <div className={classNames(styles.brand, compact && styles.brandCompact)}><span><img src="/prototype/v1/logo-vector.svg" alt="" width="44" height="44" /></span>{!compact && <strong>gigaprowl</strong>}</div>;
 }
 
 function NavButton({ item, active, onClick, iconOnly = false }) {
@@ -523,12 +729,20 @@ function Today(props) {
   const visibleOpportunities = opportunities.filter((item) => !props.dismissed.includes(item.id));
   return (
     <section className={styles.route}>
-      <PageHeader eyebrow="Wednesday · September 10" title="Good afternoon, Sarthak" description="Four things need your attention. Start with the decision that blocks everything else." />
+      <PageHeader eyebrow="Wednesday · September 10" title="Good afternoon, Sarthak" description="You have four items to review. The LinkedIn delivery check blocks the next outreach step." />
+
+      {props.firstScanRunning && (
+        <div className={styles.scanStatus} role="status">
+          <span><Radar size={21} /></span>
+          <div><strong>Your first scan is running</strong><p>Gigaprowl is ranking product and frontend roles. You can review the starter matches now.</p></div>
+          <small><RotateCcw size={14} /> Comparing fit evidence</small>
+        </div>
+      )}
 
       <div className={styles.priorityAlert}>
         <div className={styles.alertIcon}><AlertTriangle size={21} /></div>
-        <div><span>Safety check</span><strong>LinkedIn delivery needs confirmation</strong><p>A connection request to Notion has an uncertain provider status. Check it before retrying.</p></div>
-        <Button tone="warning" onClick={() => props.showMock("Mock recovery opened · no provider contacted")}>Reconcile delivery</Button>
+        <div><span>Safety check</span><strong>LinkedIn delivery needs confirmation</strong><p>Gigaprowl has not confirmed whether LinkedIn sent the Notion connection request. Check its status before you retry.</p></div>
+        <Button tone="warning" onClick={() => props.showMock("Opened mock recovery · LinkedIn was not contacted")}>Check delivery</Button>
       </div>
 
       <div className={styles.todayGrid}>
@@ -556,7 +770,7 @@ function Today(props) {
 
         <aside className={styles.todayAside}>
           <section>
-            <SectionHeading kicker="New since yesterday" title="Fresh matches" count="3" />
+            <SectionHeading kicker="Added since yesterday" title="New matches" count="3" />
             {visibleOpportunities.slice(0, 3).map((item) => (
               <CompactOpportunity key={item.id} item={item} onClick={() => props.openOpportunity(item.id)} />
             ))}
@@ -579,7 +793,7 @@ function PageHeader({ eyebrow, title, description, action }) {
 }
 
 function SectionHeading({ kicker, title, count }) {
-  return <header className={styles.sectionHeading}><div>{kicker && <span>{kicker}</span>}<h2>{title}</h2></div>{count && <strong>{count}</strong>}</header>;
+  return <header className={styles.sectionHeading}><div>{kicker && <span>{kicker}</span>}<h2>{title}</h2></div>{count !== undefined && <strong>{count}</strong>}</header>;
 }
 
 function ActionCard({ marker, label, title, company, meta, action, onClick }) {
@@ -606,7 +820,7 @@ function ProgressCard() {
   return (
     <section className={styles.progressCard}>
       <div className={styles.progressRing}><span>6</span><small>active</small></div>
-      <div><span>This month</span><h3>Momentum, not volume</h3><p>3 applications · 2 replies · 1 interview</p><div className={styles.sparkBars}>{[30, 45, 36, 64, 54, 78, 92].map((height, index) => <i key={index} style={{ height: `${height}%` }} />)}</div></div>
+      <div><span>This month</span><h3>Search activity</h3><p>3 applications · 2 replies · 1 interview</p><div className={styles.sparkBars}>{[30, 45, 36, 64, 54, 78, 92].map((height, index) => <i key={index} style={{ height: `${height}%` }} />)}</div></div>
     </section>
   );
 }
@@ -618,13 +832,13 @@ function Opportunities(props) {
       <PageHeader
         eyebrow="18 credible matches"
         title="Opportunities"
-        description="Decide which roles deserve your time. Fit recommendations show their evidence."
-        action={<Button onClick={() => props.showMock("Mock refresh queued · existing matches preserved")}><RotateCcw size={17} /> Refresh opportunities</Button>}
+        description="Review the evidence for each fit score, then save or dismiss the role."
+        action={<Button onClick={() => props.showMock("Queued mock refresh · Kept current matches")}><RotateCcw size={17} /> Refresh opportunities</Button>}
       />
       <div className={styles.filters}>
         <label className={styles.searchField}><Search size={18} /><span className={styles.srOnly}>Search opportunities</span><input placeholder="Search role or company" /></label>
         {["Freshness", "Location", "Fit", "State"].map((label) => <button className={styles.desktopFilter} key={label} type="button" onClick={() => props.showMock(`${label} filter menu opened`)}>{label}<ChevronDown size={15} /></button>)}
-        <button className={styles.mobileFilter} type="button" onClick={() => props.showMock("All filters sheet opened · 4 groups available")}>Filters 4 <ChevronDown size={15} /></button>
+        <button className={styles.mobileFilter} type="button" onClick={() => props.showMock("Opened 4 filter groups")}>Filters 4 <ChevronDown size={15} /></button>
         <span>Last scan 2h ago</span>
       </div>
       <div className={styles.opportunityList}>
@@ -675,25 +889,25 @@ function OpportunityDetail(props) {
       <div className={styles.detailLayout}>
         <div className={styles.detailMain}>
           <section className={styles.fitPanel}>
-            <span className={styles.eyebrow}>Why this is worth your time</span>
-            <h2>Your product instincts and frontend depth line up unusually well.</h2>
+            <span className={styles.eyebrow}>Match summary</span>
+            <h2>Your profile matches the role’s product ownership and frontend requirements.</h2>
             <div className={styles.evidenceGrid}>
               <div><strong>Aligned evidence</strong>{opportunity.evidence.map((item) => <p key={item}><CheckCircle2 size={17} />{item}</p>)}</div>
-              <div><strong>Worth checking</strong><p><AlertTriangle size={17} />{opportunity.gap}</p><p><Circle size={17} />Compensation fit is still unknown</p></div>
+              <div><strong>Open questions</strong><p><AlertTriangle size={17} />{opportunity.gap}</p><p><Circle size={17} />Compensation fit is unknown</p></div>
             </div>
           </section>
           <section className={styles.detailSection}><h2>Required constraints</h2><div className={styles.constraintRows}><span><MapPin size={17} />Remote preference<strong>Aligned</strong></span><span><ShieldCheck size={17} />Work authorization<strong>Aligned</strong></span><span><Gauge size={17} />Seniority<strong>Aligned</strong></span></div></section>
-          <section className={styles.detailSection}><h2>About the role</h2><p>Own meaningful product areas from first sketch to reliable implementation. Work closely with design, write clear technical plans, and improve the systems that let a small team move quickly.</p><button className={styles.textLink} type="button">Read full job description <ExternalLink size={15} /></button></section>
+          <section className={styles.detailSection}><h2>About the role</h2><p>You would own product areas from the first sketch through implementation. You would work with design, write technical plans, and improve the team’s development systems.</p><button className={styles.textLink} type="button">Read full job description <ExternalLink size={15} /></button></section>
         </div>
         <aside className={styles.decisionRail}>
           <span className={styles.eyebrow}>Recommended next step</span>
-          <h2>Make this one personal.</h2>
-          <p>The fit and likely contact path justify focused outreach.</p>
+          <h2>Start a focused outreach campaign</h2>
+          <p>The role fits your profile, and Maya Chen leads the product team.</p>
           <Button onClick={props.startCampaign}><Target size={17} /> Start outreach campaign</Button>
           <small>Uses 1 Hunt credit after confirmation.</small>
           <div className={styles.or}><span />or<span /></div>
           <Button tone="secondary" onClick={() => props.showMock("Application kit generation preview opened")}><FileCheck2 size={17} /> Create application kit</Button>
-          <small>Editable material only. Gigaprowl never submits.</small>
+          <small>Gigaprowl creates editable material. You submit the application.</small>
           <div className={styles.railLinks}><button type="button" onClick={() => props.toggleSave(opportunity.id)}>Save for later</button><button type="button" onClick={() => props.dismissOpportunity(opportunity.id)}>Dismiss role</button></div>
         </aside>
       </div>
@@ -706,7 +920,7 @@ function CampaignWorkspace(props) {
   const reviewedRequiredCount = requiredCampaignSteps.filter((step) => props.campaign.reviewed.includes(step)).length;
   const nextStep = requiredCampaignSteps.find((step) => !props.campaign.reviewed.includes(step));
   const nextAction = nextStep
-    ? `Review ${campaignSteps.find((step) => step.id === nextStep).label.toLowerCase()}`
+    ? `Review ${campaignSteps.find((step) => step.id === nextStep)?.label.toLowerCase() || "next asset"}`
     : "All required assets reviewed";
   const campaignStatus = props.campaign.paused
     ? "Paused"
@@ -762,21 +976,21 @@ function CampaignWorkspace(props) {
 
 function AssetEditor({ step, campaign, setCampaign, setDialog, onReview }) {
   if (step.id === "contact") {
-    return <EditorFrame title="Confirm your contact" description="This person appears close enough to the role to make the message relevant."><div className={styles.contactHero}><span className={styles.avatar}>MC</span><div><h3>Maya Chen</h3><p>VP Product · Linear</p><span><ShieldCheck size={15} /> Verified work email · High confidence</span></div></div><div className={styles.sourceBox}><strong>Why Maya</strong><p>Owns the product organization this role joins and has posted about hiring senior product engineers.</p><small>Sources: company leadership page · public LinkedIn profile</small></div><div className={styles.editorActions}><Button tone="secondary">Replace contact</Button><Button onClick={onReview}>Confirm contact</Button></div></EditorFrame>;
+    return <EditorFrame title="Confirm your contact" description="Maya leads the product team hiring for this role."><div className={styles.contactHero}><span className={styles.avatar}>MC</span><div><h3>Maya Chen</h3><p>VP Product · Linear</p><span><ShieldCheck size={15} /> Verified work email · High confidence</span></div></div><div className={styles.sourceBox}><strong>Contact evidence</strong><p>Maya leads the product organization for this role and has posted about hiring senior product engineers.</p><small>Sources: company leadership page · public LinkedIn profile</small></div><div className={styles.editorActions}><Button tone="secondary">Replace contact</Button><Button onClick={onReview}>Confirm contact</Button></div></EditorFrame>;
   }
   if (step.id === "pitch") {
-    return <EditorFrame title="Shape the pitch page" description={campaign.pitchPublished ? "Published by link · anyone with the URL can view it." : "Private draft · only you can view it."}><div className={styles.pitchPreviewLarge}><span>SARTHAK × LINEAR</span><h3>Building calm, fast products for teams with high standards.</h3><p>Three relevant projects, one short case study, and a personal note for the Linear team.</p><button type="button">Preview full page <ExternalLink size={15} /></button></div><div className={styles.editorActions}><Button tone="secondary"><PenLine size={16} /> Edit pitch</Button>{campaign.pitchPublished ? <Button tone="secondary" onClick={() => setCampaign((value) => ({ ...value, pitchPublished: false }))}>Unpublish</Button> : <Button onClick={() => setDialog({ type: "publish" })}>Publish pitch by link</Button>}</div></EditorFrame>;
+    return <EditorFrame title="Edit the pitch page" description={campaign.pitchPublished ? "Anyone with the link can view this page." : "Only you can view this draft."}><div className={styles.pitchPreviewLarge}><span>SARTHAK × LINEAR</span><h3>I build fast, calm tools for demanding teams.</h3><p>Two relevant projects and a short case study for the Linear team.</p><button type="button">Preview full page <ExternalLink size={15} /></button></div><div className={styles.editorActions}><Button tone="secondary"><PenLine size={16} /> Edit pitch</Button>{campaign.pitchPublished ? <Button tone="secondary" onClick={() => setCampaign((value) => ({ ...value, pitchPublished: false }))}>Unpublish</Button> : <Button onClick={() => setDialog({ type: "publish" })}>Publish pitch by link</Button>}</div></EditorFrame>;
   }
   if (step.id === "outreach") {
-    return <EditorFrame title="Review outreach steps" description="Each action needs its own approval. Defaults never authorize a future send."><div className={styles.deliveryCard}><div><span className={styles.stepNumber}>1</span><span><strong>Intro email to Maya</strong><small>Gmail draft · Due today</small></span><span className={styles.statusBadge}>{campaign.delivery}</span></div><p>Hi Maya — I’ve spent the last few years turning ambiguous product problems into fast, careful software...</p><Button onClick={() => setDialog({ type: campaign.delivery === "draft" ? "delivery" : "deliveryReceipt" })}>{campaign.delivery === "draft" ? "Review and approve" : "Open draft receipt"}</Button></div><div className={styles.deliveryCard}><div><span className={styles.stepNumber}>2</span><span><strong>LinkedIn follow-up</strong><small>Suggested 3 days after email</small></span><span className={styles.statusBadge}>Prepared</span></div><p>Short follow-up referencing the same approved pitch.</p><Button tone="secondary">Review step</Button></div></EditorFrame>;
+    return <EditorFrame title="Review outreach steps" description="Approve each action. An approval covers one draft."><div className={styles.deliveryCard}><div><span className={styles.stepNumber}>1</span><span><strong>Intro email to Maya</strong><small>Gmail draft · Due today</small></span><span className={styles.statusBadge}>{campaign.delivery}</span></div><p>Hi Maya, I’ve spent the last few years turning ambiguous product problems into fast, careful software...</p><Button onClick={() => setDialog({ type: campaign.delivery === "draft" ? "delivery" : "deliveryReceipt" })}>{campaign.delivery === "draft" ? "Review and approve" : "Open draft receipt"}</Button></div><div className={styles.deliveryCard}><div><span className={styles.stepNumber}>2</span><span><strong>LinkedIn follow-up</strong><small>Suggested 3 days after email</small></span><span className={styles.statusBadge}>Prepared</span></div><p>Short follow-up referencing the approved pitch.</p><Button tone="secondary">Review step</Button></div></EditorFrame>;
   }
   if (step.id === "video") {
-    return <EditorFrame title="Video is optional" description="The campaign works without it. Keep the script, record later, or skip it."><div className={styles.videoPlaceholder}><Play size={28} /><span>00:42 personal intro</span></div><div className={styles.sourceBox}><strong>Draft script</strong><p>“Hi Maya — I’m Sarthak. I care a lot about the invisible product details that make complex tools feel calm...”</p></div><div className={styles.editorActions}><Button tone="ghost">Skip video</Button><Button onClick={onReview}>Approve script</Button></div></EditorFrame>;
+    return <EditorFrame title="Video is optional" description="Record from the draft script or skip this step."><div className={styles.videoPlaceholder}><Play size={28} /><span>00:42 personal intro</span></div><div className={styles.sourceBox}><strong>Draft script</strong><p>“Hi Maya, I’m Sarthak. I focus on the product details that make complex tools feel calm...”</p></div><div className={styles.editorActions}><Button tone="ghost">Skip video</Button><Button onClick={onReview}>Approve script</Button></div></EditorFrame>;
   }
   if (step.id === "social") {
-    return <EditorFrame title="Add a social draft?" description="This is optional and is never generated or published without asking."><div className={styles.emptyAsset}><MessageSquareText size={28} /><h3>No social draft</h3><p>Generate one only if sharing your thinking publicly helps this campaign.</p><Button><Plus size={16} /> Generate optional draft</Button></div></EditorFrame>;
+    return <EditorFrame title="Add a social draft?" description="Gigaprowl creates a draft after you request one. Publishing requires your approval."><div className={styles.emptyAsset}><MessageSquareText size={28} /><h3>No social draft</h3><p>Create one if a public post supports this campaign.</p><Button><Plus size={16} /> Generate optional draft</Button></div></EditorFrame>;
   }
-  return <EditorFrame title="Review application kit" description="Every suggestion maps back to a confirmed profile fact."><div className={styles.documentMock}><div className={styles.documentTitle}><div><strong>Sarthak</strong><span>Senior product engineer</span></div><span>Tailored for Linear</span></div><h4>Suggested profile</h4><p>Product-minded engineer with 7 years of experience turning ambiguous B2B workflows into fast, dependable software.</p><span className={styles.sourceTag}><Sparkles size={14} /> Based on resume: product ownership + B2B systems</span><h4>Experience emphasis</h4><p>Lead with the design-system migration and the zero-to-one collaboration platform work. Keep the performance result; remove the less relevant infrastructure bullet.</p><span className={styles.sourceTag}><ShieldCheck size={14} /> No unsupported claims detected</span></div><div className={styles.editorActions}><Button tone="secondary"><RotateCcw size={16} /> Regenerate section</Button><Button onClick={onReview}>Mark kit reviewed</Button></div></EditorFrame>;
+  return <EditorFrame title="Review application kit" description="Each suggestion cites a confirmed profile fact."><div className={styles.documentMock}><div className={styles.documentTitle}><div><strong>Sarthak</strong><span>Senior product engineer</span></div><span>Tailored for Linear</span></div><h4>Suggested profile</h4><p>Product engineer with 7 years of experience turning ambiguous B2B workflows into dependable software.</p><span className={styles.sourceTag}><Sparkles size={14} /> Based on resume: product ownership + B2B systems</span><h4>Experience emphasis</h4><p>Lead with the design-system migration and collaboration platform work. Keep the performance result and remove the infrastructure bullet.</p><span className={styles.sourceTag}><ShieldCheck size={14} /> No unsupported claims detected</span></div><div className={styles.editorActions}><Button tone="secondary"><RotateCcw size={16} /> Regenerate section</Button><Button onClick={onReview}>Mark kit reviewed</Button></div></EditorFrame>;
 }
 
 function EditorFrame({ title, description, children }) {
@@ -792,7 +1006,7 @@ function ActivityView({ showMock }) {
   ];
   return (
     <section className={styles.route}>
-      <PageHeader eyebrow="Audit trail and outcomes" title="Activity" description="See what was prepared, what you approved, what providers confirmed, and what happened next." action={<Button onClick={() => showMock("Record outcome dialog opened")}><Plus size={16} /> Record outcome</Button>} />
+      <PageHeader eyebrow="Audit trail and outcomes" title="Activity" description="Review prepared work, approvals, provider receipts, and outcomes." action={<Button onClick={() => showMock("Opened record outcome dialog")}><Plus size={16} /> Record outcome</Button>} />
       <div className={styles.outcomeStrip}>{[{ n: 6, l: "Applied" }, { n: 2, l: "Replied" }, { n: 1, l: "Interviewing" }, { n: 0, l: "Offers" }].map((item) => <div key={item.l}><strong>{item.n}</strong><span>{item.l}</span></div>)}</div>
       <div className={styles.filters}><button type="button" onClick={() => showMock("Activity search opened")}><Search size={16} /> Search</button>{["Opportunity", "Event type", "Status", "Date"].map((label) => <button key={label} type="button" onClick={() => showMock(`${label} filter opened`)}>{label}<ChevronDown size={14} /></button>)}</div>
       <div className={styles.timeline}>{events.map((event) => { const Icon = event.icon; return <article key={`${event.time}-${event.title}`}><time>{event.time}</time><span className={classNames(styles.timelineIcon, styles[event.tone])}><Icon size={17} /></span><div><strong>{event.title}</strong><p>{event.role}</p><small>{event.source}</small></div><Button tone="ghost" onClick={() => showMock(`${event.title} details opened`)}>Open <ArrowRight size={15} /></Button></article>; })}</div>
@@ -812,10 +1026,10 @@ function SettingsView({ showMock }) {
           <SectionHeading kicker="Named accounts and delivery health" title="Integrations" />
           <ConnectionCard icon={Mail} name="Gmail" identity="sarthak@gmail.com" method="Draft creation" health="Healthy" detail="Last checked 2 minutes ago · 2 active campaigns" onAction={() => showMock("Gmail connection details opened")} />
           <ConnectionCard icon={MessageSquareText} name="LinkedIn" identity="Sarthak Sharma" method="Managed delivery" health="Action needed" detail="One uncertain action · extension fallback available" warning onAction={() => showMock("LinkedIn recovery details opened")} />
-          <div className={styles.safetyNote}><ShieldCheck size={19} /><span>Connections enable a channel. They never authorize an outbound action.</span></div>
+          <div className={styles.safetyNote}><ShieldCheck size={19} /><span>Connecting a channel does not approve sends. Approve each outbound action.</span></div>
         </div>
       ) : (
-        <div className={styles.settingsContent}><SectionHeading kicker="Prototype section" title={section} /><div className={styles.settingMock}><WandSparkles size={28} /><h3>{section} is represented in the design flow</h3><p>This compact mock keeps the prototype focused on the opportunity-to-outreach loop. The full design contract for this section remains in <code>design/screens/settings.md</code>.</p><Button onClick={() => showMock(`${section} mock change previewed`)}>Try a mock change</Button></div></div>
+        <div className={styles.settingsContent}><SectionHeading kicker="Prototype section" title={section} /><div className={styles.settingMock}><WandSparkles size={28} /><h3>{section} design reference</h3><p>Open <code>design/screens/settings.md</code> for the complete design contract. This prototype covers the opportunity and outreach flow.</p><Button onClick={() => showMock(`Previewed ${section} change`)}>Try a mock change</Button></div></div>
       )}
     </section>
   );
@@ -825,8 +1039,8 @@ function ConnectionCard({ icon: Icon, name, identity, method, health, detail, wa
   return <article className={styles.connectionCard}><span className={styles.connectionIcon}><Icon size={22} /></span><div><h3>{name}</h3><p>{identity}</p><small>{method} · {detail}</small></div><span className={classNames(styles.healthBadge, warning && styles.healthWarning)}>{warning ? <AlertTriangle size={14} /> : <Check size={14} />}{health}</span><Button tone="secondary" onClick={onAction}>{warning ? "Review status" : "Manage"}</Button></article>;
 }
 
-function Button({ children, tone = "primary", onClick, type = "button" }) {
-  return <button type={type} className={classNames(styles.button, styles[`button${tone[0].toUpperCase()}${tone.slice(1)}`])} onClick={onClick}>{children}</button>;
+function Button({ children, disabled = false, tone = "primary", onClick, type = "button" }) {
+  return <button type={type} disabled={disabled} className={classNames(styles.button, styles[`button${tone[0].toUpperCase()}${tone.slice(1)}`])} onClick={onClick}>{children}</button>;
 }
 
 function Modal({ title, eyebrow, children, onClose }) {
@@ -871,15 +1085,4 @@ function Modal({ title, eyebrow, children, onClose }) {
 
 function ReceiptRow({ label, value, strong = false }) {
   return <div className={strong ? styles.receiptStrong : ""}><span>{label}</span><strong>{value}</strong></div>;
-}
-
-function PrototypeSwitcher({ current, onCycle }) {
-  const selected = VARIANTS.find((item) => item.key === current);
-  return (
-    <div className={styles.switcher} aria-label="Prototype variant switcher">
-      <button type="button" onClick={() => onCycle(-1)} aria-label="Previous variant"><ArrowLeft size={17} /></button>
-      <span><small>Variant {selected.key}</small><strong>{selected.name}</strong></span>
-      <button type="button" onClick={() => onCycle(1)} aria-label="Next variant"><ArrowRight size={17} /></button>
-    </div>
-  );
 }

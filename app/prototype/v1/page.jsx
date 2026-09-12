@@ -1,5 +1,4 @@
 import PrototypeApp from "./PrototypeApp";
-import { Suspense } from "react";
 
 export const metadata = {
   title: "Gigaprowl v1 UX prototype",
@@ -7,9 +6,5 @@ export const metadata = {
 };
 
 export default function PrototypePage() {
-  return (
-    <Suspense fallback={<div style={{ minHeight: "100vh", background: "#08110E" }} />}>
-      <PrototypeApp />
-    </Suspense>
-  );
+  return <PrototypeApp />;
 }
