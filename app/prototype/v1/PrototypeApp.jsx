@@ -8,6 +8,7 @@ import {
   AlertTriangle,
   ArrowLeft,
   ArrowRight,
+  Bell,
   BriefcaseBusiness,
   Check,
   CheckCircle2,
@@ -15,6 +16,7 @@ import {
   Circle,
   Command,
   ExternalLink,
+  Download,
   FileUp,
   FileCheck2,
   FileText,
@@ -23,6 +25,7 @@ import {
   Mail,
   MapPin,
   MessageSquareText,
+  MonitorSmartphone,
   Moon,
   MoreHorizontal,
   Pause,
@@ -37,9 +40,9 @@ import {
   Sparkles,
   Sun,
   Target,
+  Trash2,
   UserRoundCheck,
   Video,
-  WandSparkles,
   X,
   Zap,
 } from "lucide-react";
@@ -170,6 +173,7 @@ export default function PrototypeApp() {
   const [onboarding, setOnboarding] = useState(initialOnboarding);
   const [firstScanRunning, setFirstScanRunning] = useState(false);
   const [theme, setTheme] = useState("light");
+  const [settingsSection, setSettingsSection] = useState("Integrations");
 
   const currentOpportunity = selectedOpportunity
     ? opportunities.find((item) => item.id === selectedOpportunity)
@@ -194,9 +198,10 @@ export default function PrototypeApp() {
     return () => window.clearTimeout(timeout);
   }, [toast]);
 
-  function navigate(next) {
+  function navigate(next, nextSettingsSection) {
     setSelectedOpportunity(null);
     setView(next);
+    if (next === "settings" && nextSettingsSection) setSettingsSection(nextSettingsSection);
   }
 
   function restartOnboarding() {
@@ -284,6 +289,8 @@ export default function PrototypeApp() {
     reviewSection,
     showMock,
     firstScanRunning,
+    settingsSection,
+    setSettingsSection,
   };
 
   return (
@@ -656,7 +663,7 @@ function ProductShell(props) {
     <div className={styles.shellA}>
       <SideNav {...props} />
       <main id="prototype-main" className={styles.mainA}>
-        <TopContext credits={props.credits} compact />
+        <TopContext credits={props.credits} navigate={props.navigate} compact />
         <RouteContent {...props} />
       </main>
       <MobileNav {...props} />
@@ -685,7 +692,19 @@ function SideNav({ view, navigate, credits }) {
         <strong>{credits}</strong>
         <small>Renews October 1</small>
       </div>
-      <button className={styles.accountButton} type="button"><span className={styles.avatar}>SX</span><span>Sarthak<br /><small>View account</small></span><MoreHorizontal size={18} /></button>
+      <div className={styles.accountArea}>
+        <button className={styles.accountButton} type="button" onClick={() => navigate("settings", "Profile")}>
+          <span className={styles.avatar}>SX</span><span>Sarthak<br /><small>View profile</small></span>
+        </button>
+        <details className={styles.accountMenu}>
+          <summary aria-label="Open account menu"><MoreHorizontal size={18} /></summary>
+          <div role="menu">
+            <button type="button" role="menuitem" onClick={(event) => { event.currentTarget.closest("details")?.removeAttribute("open"); navigate("settings", "Profile"); }}><UserRoundCheck size={16} /> Profile</button>
+            <button type="button" role="menuitem" onClick={(event) => { event.currentTarget.closest("details")?.removeAttribute("open"); navigate("settings", "Billing"); }}><Zap size={16} /> Plan and billing</button>
+            <button type="button" role="menuitem" onClick={(event) => { event.currentTarget.closest("details")?.removeAttribute("open"); navigate("settings", "Privacy"); }}><ShieldCheck size={16} /> Privacy and data</button>
+          </div>
+        </details>
+      </div>
     </aside>
   );
 }
@@ -715,12 +734,12 @@ function MobileNav({ view, navigate }) {
   );
 }
 
-function TopContext({ credits, compact = false }) {
+function TopContext({ credits, navigate, compact = false }) {
   return (
     <div className={classNames(styles.topContext, compact && styles.topContextCompact)}>
       <span className={styles.syncState}><span /> Synced 2m ago</span>
       <span className={styles.topCredits}><Zap size={15} /> {credits} credits</span>
-      <button className={styles.avatar} type="button" aria-label="Open account menu">SX</button>
+      <button className={styles.avatar} type="button" aria-label="Open profile settings" onClick={() => navigate("settings", "Profile")}>SX</button>
     </div>
   );
 }
@@ -1014,25 +1033,146 @@ function ActivityView({ showMock }) {
   );
 }
 
-function SettingsView({ showMock }) {
-  const [section, setSection] = useState("Integrations");
+function SettingsView({ showMock, settingsSection: section, setSettingsSection: setSection, credits }) {
+  const [profile, setProfile] = useState({ name: "Sarthak Sharma", title: "Senior Product Engineer", positioning: "Product engineer turning ambiguous B2B workflows into dependable software." });
+  const [roles, setRoles] = useState(["Senior Product Engineer", "Design Engineer"]);
+  const [remoteMode, setRemoteMode] = useState("Remote first");
+  const [notifications, setNotifications] = useState(true);
   const sections = ["Profile", "Job preferences", "Integrations", "Outreach defaults", "Billing", "Privacy"];
+
+  function updateProfile(field, value) {
+    setProfile((current) => ({ ...current, [field]: value }));
+  }
+
+  function toggleRole(role) {
+    setRoles((current) => current.includes(role) ? current.filter((item) => item !== role) : [...current, role]);
+  }
+
   return (
     <section className={styles.route}>
       <PageHeader eyebrow="Account and controls" title="Settings" description="Change the inputs behind your search, repair connections, and manage data." />
       <nav className={styles.settingsNav} aria-label="Settings sections">{sections.map((item) => <button key={item} type="button" className={section === item ? styles.settingsActive : ""} aria-current={section === item ? "page" : undefined} onClick={() => setSection(item)}>{item}</button>)}</nav>
-      {section === "Integrations" ? (
+
+      {section === "Profile" && (
         <div className={styles.settingsContent}>
-          <SectionHeading kicker="Named accounts and delivery health" title="Integrations" />
+          <SettingsSectionHeader kicker="Profile version 4" title="Profile and resume" description="The verified facts Gigaprowl uses to score roles and support generated claims." status="Up to date" />
+          <article className={styles.settingsCard}>
+            <header><div><h3>Resume source</h3><p>Review a replacement before it changes your active profile.</p></div><FileCheck2 size={20} /></header>
+            <div className={styles.resumeRow}><span className={styles.fileMark}><FileText size={20} /></span><div><strong>Sarthak-Sharma-Resume.pdf</strong><small>Active source · uploaded Aug 28 · version 4</small></div><Button tone="secondary" onClick={() => showMock("Resume replacement review opened")}><FileUp size={16} /> Replace</Button></div>
+          </article>
+          <article className={styles.settingsCard}>
+            <header><div><h3>Candidate facts</h3><p>Edit the concise profile used across matches and application assets.</p></div><span className={styles.savedState}><Check size={14} /> Saved</span></header>
+            <div className={styles.settingsFormGrid}>
+              <SettingsField label="Full name" value={profile.name} onChange={(value) => updateProfile("name", value)} />
+              <SettingsField label="Current title" value={profile.title} onChange={(value) => updateProfile("title", value)} />
+              <SettingsField full label="Professional positioning" value={profile.positioning} onChange={(value) => updateProfile("positioning", value)} multiline description="Only confirmed facts should appear here." />
+            </div>
+            <ImpactNote icon={Radar} title="Before this changes matches" text="Gigaprowl will show a fact-by-fact diff, re-score 14 opportunities, and mark 3 generated assets stale. Nothing is deleted." />
+            <div className={styles.settingsActions}><Button onClick={() => showMock("Profile changes saved · opportunity impact queued")}>Review and save changes</Button></div>
+          </article>
+        </div>
+      )}
+
+      {section === "Job preferences" && (
+        <div className={styles.settingsContent}>
+          <SettingsSectionHeader kicker="Matching constraints" title="Job preferences" description="Set the boundaries every opportunity must be checked against." status="3 required fields complete" />
+          <article className={styles.settingsCard}>
+            <header><div><h3>Target roles</h3><p>Choose the titles that should anchor ranking. Add adjacent titles only when they reflect work you want.</p></div><BriefcaseBusiness size={20} /></header>
+            <div className={styles.choiceChips}>{["Senior Product Engineer", "Design Engineer", "Staff Frontend Engineer", "Founding Engineer"].map((role) => <button key={role} type="button" aria-pressed={roles.includes(role)} className={roles.includes(role) ? styles.choiceChipActive : ""} onClick={() => toggleRole(role)}>{roles.includes(role) && <Check size={14} />}{role}</button>)}</div>
+            <div className={styles.settingsFormGrid}>
+              <label className={styles.settingsField}><span>Location preference</span><select value={remoteMode} onChange={(event) => setRemoteMode(event.target.value)}><option>Remote first</option><option>Remote only</option><option>Hybrid</option><option>On-site</option></select><small>Based in India; open to APAC and global teams.</small></label>
+              <label className={styles.settingsField}><span>Work authorization</span><select defaultValue="Requires sponsorship outside India"><option>Requires sponsorship outside India</option><option>Authorized for selected locations</option><option>Do not filter by authorization</option></select><small>Gigaprowl never infers authorization.</small></label>
+              <label className={styles.settingsField}><span>Minimum compensation</span><input defaultValue="$130,000 USD" /><small>Optional; hidden from employers.</small></label>
+              <label className={styles.settingsField}><span>Employment type</span><select defaultValue="Full-time"><option>Full-time</option><option>Contract</option><option>Either</option></select></label>
+              <label className={classNames(styles.settingsField, styles.settingsFieldFull)}><span>Exclude</span><input defaultValue="Agencies, gambling, mandatory relocation" /><small>Comma-separated companies, industries, or conditions.</small></label>
+            </div>
+            <ImpactNote icon={Gauge} title="Preview: 6 opportunities would change" text="Two inactive matches would be hidden and four would move in rank. Active campaigns remain accessible." />
+            <div className={styles.settingsActions}><Button onClick={() => showMock("Preference impact preview opened")}>Preview and save preferences</Button></div>
+          </article>
+        </div>
+      )}
+
+      {section === "Integrations" && (
+        <div className={styles.settingsContent}>
+          <SettingsSectionHeader kicker="Named accounts" title="Integrations" description="See the identity, delivery method, and recovery status for every connected channel." status="1 needs attention" warning />
           <ConnectionCard icon={Mail} name="Gmail" identity="sarthak@gmail.com" method="Draft creation" health="Healthy" detail="Last checked 2 minutes ago · 2 active campaigns" onAction={() => showMock("Gmail connection details opened")} />
           <ConnectionCard icon={MessageSquareText} name="LinkedIn" identity="Sarthak Sharma" method="Managed delivery" health="Action needed" detail="One uncertain action · extension fallback available" warning onAction={() => showMock("LinkedIn recovery details opened")} />
           <div className={styles.safetyNote}><ShieldCheck size={19} /><span>Connecting a channel does not approve sends. Approve each outbound action.</span></div>
         </div>
-      ) : (
-        <div className={styles.settingsContent}><SectionHeading kicker="Prototype section" title={section} /><div className={styles.settingMock}><WandSparkles size={28} /><h3>{section} design reference</h3><p>Open <code>design/screens/settings.md</code> for the complete design contract. This prototype covers the opportunity and outreach flow.</p><Button onClick={() => showMock(`Previewed ${section} change`)}>Try a mock change</Button></div></div>
+      )}
+
+      {section === "Outreach defaults" && (
+        <div className={styles.settingsContent}>
+          <SettingsSectionHeader kicker="Draft preferences" title="Outreach defaults" description="Prefill reviewable drafts and delivery times without granting send approval." status="Manual approval on" />
+          <article className={styles.settingsCard}>
+            <header><div><h3>Message style</h3><p>These choices guide new sequences. Every message remains editable.</p></div><PenLine size={20} /></header>
+            <div className={styles.settingsFormGrid}>
+              <label className={styles.settingsField}><span>Default tone</span><select defaultValue="Direct and thoughtful"><option>Direct and thoughtful</option><option>Warm and conversational</option><option>Concise and technical</option></select></label>
+              <label className={styles.settingsField}><span>Preferred channel</span><select defaultValue="Email first"><option>Email first</option><option>LinkedIn first</option><option>Best available channel</option></select></label>
+              <label className={styles.settingsField}><span>Working hours</span><input defaultValue="09:30–17:30" /><small>Asia/Kolkata</small></label>
+              <label className={styles.settingsField}><span>Minimum spacing</span><select defaultValue="3 business days"><option>2 business days</option><option>3 business days</option><option>5 business days</option></select></label>
+            </div>
+            <ToggleRow icon={Bell} title="Due-action notifications" description="Notify me when a reviewed message is due or a channel needs recovery." checked={notifications} onChange={setNotifications} />
+            <ImpactNote icon={ShieldCheck} title="Approval stays per action" text="Defaults can prefill tone, channel, and timing. They never publish a page, create a draft, queue a message, or send on your behalf." />
+            <div className={styles.settingsActions}><Button onClick={() => showMock("Outreach defaults saved")}>Save defaults</Button></div>
+          </article>
+        </div>
+      )}
+
+      {section === "Billing" && (
+        <div className={styles.settingsContent}>
+          <SettingsSectionHeader kicker="Plan and usage" title="Billing" description="Track Hunt credits, renewal details, and invoices in one place." status="Pro plan active" />
+          <article className={classNames(styles.settingsCard, styles.planCard)}>
+            <header><div><span className={styles.planEyebrow}>Gigaprowl Pro</span><h3>{credits} Hunt credits available</h3><p>Renews with 10 credits on October 1, 2026.</p></div><strong>$29<span>/month</span></strong></header>
+            <div className={styles.usageTrack} aria-label={`${credits} of 10 Hunt credits remaining`}><span style={{ width: `${credits * 10}%` }} /></div>
+            <div className={styles.planFacts}><span><strong>{10 - credits}</strong> used this cycle</span><span><strong>{credits}</strong> remaining</span><span><strong>Oct 1</strong> renewal</span></div>
+            <div className={styles.settingsActions}><Button tone="secondary" onClick={() => showMock("Billing portal opened")}>Manage plan</Button><Button onClick={() => showMock("Credit upgrade options opened")}>Get more credits</Button></div>
+          </article>
+          <article className={styles.settingsCard}>
+            <header><div><h3>Recent credit activity</h3><p>One credit is charged only when a full campaign is created.</p></div><Zap size={20} /></header>
+            <div className={styles.ledger}><div><span>Linear · Senior Product Engineer</span><small>September 10, 2:14 PM</small><strong>−1</strong></div><div><span>Monthly renewal</span><small>September 1, 9:00 AM</small><strong className={styles.positive}>+10</strong></div></div>
+            <button className={styles.inlineAction} type="button" onClick={() => showMock("Invoice downloaded")}><Download size={16} /> Download September invoice</button>
+          </article>
+        </div>
+      )}
+
+      {section === "Privacy" && (
+        <div className={styles.settingsContent}>
+          <SettingsSectionHeader kicker="Privacy lifecycle" title="Privacy and data" description="Inspect, unpublish, export, or delete anything Gigaprowl stores or makes public." status="No public pages" />
+          <article className={styles.settingsCard}>
+            <header><div><h3>Public pitch pages</h3><p>Published pages can be revoked independently of the campaign that created them.</p></div><ExternalLink size={20} /></header>
+            <div className={styles.assetRow}><span className={styles.fileMark}><FileText size={20} /></span><div><strong>Linear campaign pitch</strong><small>Private draft · never published</small></div><Button tone="secondary" onClick={() => showMock("Pitch usage details opened")}>Inspect</Button></div>
+          </article>
+          <article className={styles.settingsCard}>
+            <header><div><h3>Photo and voice media</h3><p>Used only to generate approved campaign media. No media is retained after deletion completes.</p></div><MonitorSmartphone size={20} /></header>
+            <div className={styles.mediaRows}><div><span>Profile photo</span><small>1 source image · used by no published pitch</small><button type="button" onClick={() => showMock("Photo replacement opened")}>Replace</button></div><div><span>Voice sample</span><small>No voice sample stored</small><button type="button" onClick={() => showMock("Voice consent details opened")}>Review consent</button></div></div>
+            <ImpactNote icon={ShieldCheck} title="Deletion includes a completion receipt" text="Before deletion, Gigaprowl lists affected drafts and published uses. Removed media invalidates any message that still references it." />
+          </article>
+          <article className={styles.settingsCard}>
+            <header><div><h3>Account data</h3><p>Export a portable copy, or begin a dedicated account-deletion review.</p></div><ShieldCheck size={20} /></header>
+            <div className={styles.dangerActions}><Button tone="secondary" onClick={() => showMock("Data export requested")}><Download size={16} /> Export my data</Button><button type="button" onClick={() => showMock("Account deletion impact review opened")}><Trash2 size={16} /> Review account deletion</button></div>
+          </article>
+        </div>
       )}
     </section>
   );
+}
+
+function SettingsSectionHeader({ kicker, title, description, status, warning = false }) {
+  return <header className={styles.settingsSectionHeader}><div><span>{kicker}</span><h2>{title}</h2><p>{description}</p></div><strong className={warning ? styles.statusWarning : ""}>{warning ? <AlertTriangle size={14} /> : <CheckCircle2 size={14} />}{status}</strong></header>;
+}
+
+function SettingsField({ label, value, onChange, description, multiline = false, full = false }) {
+  const id = `settings-${label.toLowerCase().replaceAll(" ", "-")}`;
+  return <label className={classNames(styles.settingsField, full && styles.settingsFieldFull)} htmlFor={id}><span>{label}</span>{multiline ? <textarea id={id} value={value} onChange={(event) => onChange(event.target.value)} /> : <input id={id} value={value} onChange={(event) => onChange(event.target.value)} />}{description && <small>{description}</small>}</label>;
+}
+
+function ImpactNote({ icon: Icon, title, text }) {
+  return <div className={styles.impactNote}><Icon size={18} /><div><strong>{title}</strong><p>{text}</p></div></div>;
+}
+
+function ToggleRow({ icon: Icon, title, description, checked, onChange }) {
+  return <label className={styles.toggleRow}><Icon size={19} /><span><strong>{title}</strong><small>{description}</small></span><input type="checkbox" checked={checked} onChange={(event) => onChange(event.target.checked)} /><i aria-hidden="true" /></label>;
 }
 
 function ConnectionCard({ icon: Icon, name, identity, method, health, detail, warning, onAction }) {

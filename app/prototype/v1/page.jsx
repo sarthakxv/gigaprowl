@@ -6,5 +6,10 @@ export const metadata = {
 };
 
 export default function PrototypePage() {
-  return <PrototypeApp />;
+  return (
+    <>
+      <link rel="preload" href="/fonts/Greed.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+      <PrototypeApp />
+    </>
+  );
 }
