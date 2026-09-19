@@ -22,6 +22,8 @@ next-env.d.ts
 /data
 /tmp
 .firecrawl/
+.playwright-cli/
+.playwright
 *.log
 MISSION.md
 NOTES.md
