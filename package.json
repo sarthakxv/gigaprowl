@@ -7,9 +7,10 @@
   ],
   "scripts": {
     "dev": "next dev",
+    "prototype": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "node --import ./test/register.mjs --test lib/gmail.test.mjs lib/match.test.mjs lib/db.test.mjs lib/constants.test.mjs"
+    "test": "node --import ./test/register.mjs --test src/lib/gmail.test.mjs src/lib/match.test.mjs src/lib/db.test.mjs src/lib/constants.test.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",
@@ -17,6 +18,7 @@
     "clsx": "^2.1.1",
     "lucide-react": "^1.39.0",
     "mammoth": "^1.8.0",
+    "motion": "^13.3.0",
     "next": "14.2.15",
     "pdf-parse": "^1.1.1",
     "react": "^18.3.1",

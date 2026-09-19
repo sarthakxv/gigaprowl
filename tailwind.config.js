@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./app/**/*.{js,jsx}", "./components/**/*.{js,jsx}"],
+  content: ["./src/app/**/*.{js,jsx}", "./src/components/**/*.{js,jsx}"],
   theme: {
     extend: {
       colors: {
@@ -10,10 +10,34 @@ module.exports = {
         mint: "#3DFFA2",
         mintdim: "#2BCB80",
         fog: "#9DB4AC",
+        canvas: "#F4F7FA",
+        surface: "#FFFFFF",
+        raised: "#E8F0F6",
+        nav: "#EDF3F8",
+        copy: "#14212B",
+        muted: "#536674",
+        line: "#8DA1AF",
+        soft: "#D5E0E8",
+        brand: "#1D63A9",
+        branddark: "#154D85",
+        brandon: "#FFFFFF",
+        success: "#187A55",
+        warning: "#946000",
+        danger: "#B43A3A",
+        info: "#6552B8",
+        preview: {
+          canvas: "#07111B",
+          surface: "#132433",
+          border: "#294A63",
+          text: "#F3F7FA",
+          muted: "#AABAC6",
+          accent: "#62B4FF",
+        },
       },
       fontFamily: {
-        display: ["'Space Grotesk'", "system-ui", "sans-serif"],
+        display: ["'Greed'", "sans-serif"],
         body: ["'Inter'", "system-ui", "sans-serif"],
+        brand: ["'Space Grotesk'", "sans-serif"],
       },
     },
   },

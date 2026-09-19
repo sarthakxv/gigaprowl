@@ -1,0 +1,60 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "Greed";
+  src: url("/fonts/Greed.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 300 900;
+  font-display: swap;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 6rem;
+}
+
+body { background: #08111A; }
+::selection { background: #1D63A9; color: #FFFFFF; }
+
+[data-preview-step] {
+  opacity: 0;
+  transform: translateY(0.75rem);
+  transition-duration: 220ms;
+  transition-property: opacity, transform;
+  transition-timing-function: ease-out;
+  transition-delay: var(--preview-delay, 0ms);
+}
+
+[data-preview-active="true"] [data-preview-step] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+[data-sonner-toaster] {
+  --border-radius: 0.75rem;
+  font-family: "Inter", system-ui, sans-serif;
+  transition-duration: 200ms !important;
+}
+
+[data-sonner-toast],
+[data-sonner-toast] > * {
+  transition-duration: 200ms !important;
+}
+
+[data-sonner-toast] {
+  transition-property: transform, opacity, box-shadow !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
