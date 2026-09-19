@@ -20,6 +20,8 @@ next-env.d.ts
 
 # local data / uploads / scratch
 /data
+/design/
+/docs/
 /tmp
 .firecrawl/
 .playwright-cli/
