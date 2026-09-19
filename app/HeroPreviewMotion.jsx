@@ -15,7 +15,7 @@ export default function HeroPreviewMotion({ children, className }) {
       ref={previewRef}
       initial={reduceMotion ? false : { opacity: 0, y: 18 }}
       animate={isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 18 }}
-      transition={{ duration: reduceMotion ? 0 : 0.45, ease: "easeOut" }}
+      transition={{ duration: reduceMotion ? 0 : 0.22, ease: "easeOut" }}
       className={cn("relative", className)}
       data-preview-active={isActive ? "true" : "false"}
       aria-label="Gigaprowl product preview"

@@ -3,18 +3,26 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: "Greed";
+  src: url("/fonts/Greed.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 300 900;
+  font-display: swap;
+}
+
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 6rem;
 }
 
-body { background: #0A0E0D; }
-::selection { background: #3DFFA2; color: #0A0E0D; }
+body { background: #08111A; }
+::selection { background: #1D63A9; color: #FFFFFF; }
 
 [data-preview-step] {
   opacity: 0;
   transform: translateY(0.75rem);
-  transition-duration: 420ms;
+  transition-duration: 220ms;
   transition-property: opacity, transform;
   transition-timing-function: ease-out;
   transition-delay: var(--preview-delay, 0ms);
