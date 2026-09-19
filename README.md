@@ -19,7 +19,7 @@ npm run dev             # http://localhost:3000
 | Auth (signup / login / reset) | **Real** — cookie sessions (HMAC + scrypt). Email verification routes exist; gate is temporarily disabled (`emailVerified: true` on signup) |
 | Resume parsing (PDF/DOCX/TXT) | **Real** — heuristic parser works keyless; `ANTHROPIC_API_KEY` for full AI parsing |
 | Job ingestion | **Real, keyless** — Remotive + Greenhouse / Lever / Ashby (+ more) top-company boards; `ADZUNA_APP_*` adds an aggregator. Seeds demo jobs if offline |
-| Matching | **Real** — skills, seniority, product/services fit, ranked scores (`lib/match.js`) |
+| Matching | **Real** — skills, seniority, product/services fit, ranked scores (`src/lib/match.js`) |
 | Hiring-manager discovery | Keyed — `APOLLO_API_KEY` (+ optional `LEADMAGIC_API_KEY`); demo contacts otherwise |
 | Pitch pages + cadences | **Real** — AI-generated with key, templates without. Live at `/p/<slug>` |
 | Avatar video | Keyed — face/voice upload → HeyGen clone/render (`HEYGEN_API_KEY`; optional `ELEVENLABS_API_KEY`) |
@@ -39,7 +39,7 @@ Gate both with `CRON_SECRET` in production. The scheduler rejects missing or inv
 
 ## Architecture
 
-- **App:** Next.js 14 App Router, Tailwind — routes in `app/`, APIs in `app/api/<feature>/route.js`
-- **Core:** `lib/sources.js` ingestion · `lib/match.js` scoring · `lib/hunt.js` hunt engine · `lib/apollo.js` / `lib/leadmagic.js` contacts · `lib/ai.js` generation · `lib/dispatch.js` send · `lib/video.js` HeyGen · `lib/db.js` multi-tenant KV
+- **App:** Next.js 14 App Router, Tailwind — routes in `src/app/`, APIs in `src/app/api/<feature>/route.js`
+- **Core:** `src/lib/sources.js` ingestion · `src/lib/match.js` scoring · `src/lib/hunt.js` hunt engine · `src/lib/apollo.js` / `src/lib/leadmagic.js` contacts · `src/lib/ai.js` generation · `src/lib/dispatch.js` send · `src/lib/video.js` HeyGen · `src/lib/db.js` multi-tenant KV
 - **Companion:** `extension/` — Gigaprowl LinkedIn Engine (MV3); see `extension/README.md`
 - **Docs:** product/architecture + GTM under `docs/`

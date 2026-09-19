@@ -5,7 +5,7 @@ const nextConfig = {
     // binary with the video-build function so SVG→PNG rasterization has fonts.
     serverComponentsExternalPackages: ["pdf-parse", "mammoth", "@resvg/resvg-js", "unpdf"],
     outputFileTracingIncludes: {
-      "/api/video/build": ["./lib/fonts/**"],
+      "/api/video/build": ["./src/lib/fonts/**"],
     },
   },
 };

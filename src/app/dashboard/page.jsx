@@ -3,7 +3,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { ExternalLink } from "lucide-react";
-import VoiceRecorder from "../onboarding/VoiceRecorder";
+import VoiceRecorder from "@/components/VoiceRecorder";
 import { cn } from "@/lib/cn";
 import { DAY_MS } from "@/lib/constants";
 

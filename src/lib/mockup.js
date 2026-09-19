@@ -14,12 +14,12 @@ import { hasAI } from "./ai.js";
 const MODEL = "claude-sonnet-4-5";
 export const mockupEnabled = () => hasAI();
 
-// Vendored Inter TTFs (lib/fonts), bundled with the function so text renders
+// Vendored Inter TTFs (src/lib/fonts), bundled with the function so text renders
 // even though serverless hosts ship no system fonts.
 let FONTS = null;
 function fonts() {
   if (FONTS) return FONTS;
-  const dir = path.join(process.cwd(), "lib", "fonts");
+  const dir = path.join(process.cwd(), "src", "lib", "fonts");
   FONTS = ["Inter-Regular.ttf", "Inter-SemiBold.ttf", "Inter-Bold.ttf"]
     .map((f) => { try { return fs.readFileSync(path.join(dir, f)); } catch { return null; } })
     .filter(Boolean);

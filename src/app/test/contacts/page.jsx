@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import cases from "../../../scripts/contact-cases.json";
+import cases from "../../../../scripts/contact-cases.json";
 import { cn } from "@/lib/cn";
 
 const REASONS = {

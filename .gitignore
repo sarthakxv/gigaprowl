@@ -23,6 +23,7 @@ next-env.d.ts
 /design/
 /docs/
 /tmp
+/output
 .firecrawl/
 .playwright-cli/
 .playwright

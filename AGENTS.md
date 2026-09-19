@@ -12,30 +12,33 @@ in GitHub (`sarthakxv/gigaprowl`).
 
 ## Where changes belong
 
-- Pages and UI live in `app/`; API handlers use `app/api/<feature>/route.js`.
-  Keep handlers to validation, authorization, and response shaping; put
-  reusable domain and integration code in `lib/`.
-- Import shared URLs, TTLs, caps, and KV key shapes from `lib/constants.js`.
+- Pages and UI live in `src/app/`; API handlers use
+  `src/app/api/<feature>/route.js`. Keep handlers to validation,
+  authorization, and response shaping; put reusable domain and integration
+  code in `src/lib/`. Shared cross-route UI lives in `src/components/`;
+  route-local files stay next to their pages.
+- Import shared URLs, TTLs, caps, and KV key shapes from `src/lib/constants.js`.
 - The Manifest V3 companion is self-contained in `extension/`; read
   `extension/README.md` before changing pairing, polling, or LinkedIn
   execution.
-- `app/prototype/` is a sandbox UI, not the production product surface.
+- `src/app/prototype/` is a sandbox UI, not the production product surface.
 - Product, launch, and GTM material lives in `docs/`. Treat generated media
   and local `data/` as disposable artifacts.
 
 ## Application invariants
 
 - Multi-tenant. Session routes derive the user with `getUserId(req)` from
-  `lib/auth.js`. Extension pull/ack authenticates with header `x-prowl-token`
+  `src/lib/auth.js`. Extension pull/ack authenticates with header `x-prowl-token`
   (a signed session token from `/api/li/pair`). Cron and admin routes keep
-  their existing secret checks (`lib/cron-auth.js` for the scheduler). Stripe
-  and Resend webhooks verify provider signatures.
-- Read and mutate per-user state through `lib/db.js`, using `updateUserState`
-  for writes. Production uses Upstash/Vercel KV; local dev writes ignored JSON
-  under `data/`. Keep uploads and secrets out of the repository.
+  their existing secret checks (`src/lib/cron-auth.js` for the scheduler).
+  Stripe and Resend webhooks verify provider signatures.
+- Read and mutate per-user state through `src/lib/db.js`, using
+  `updateUserState` for writes. Production uses Upstash/Vercel KV; local
+  dev writes ignored JSON under `data/`. Keep uploads and secrets out of
+  the repository.
 - Node runtime is the default for APIs (`fs`, crypto, PDF/DOCX, rasterization).
   Keep Edge only where the dependency boundary already supports it
-  (`app/api/slide` is the public OG-image exception).
+  (`src/app/api/slide` is the public OG-image exception).
 - Outreach stays manual-by-default (`settings.outreachMode`). Email goes
   through Gmail only: drafts in manual mode, send in automated. LinkedIn
   prefers a connected Unipile account, otherwise the browser-extension queue.
@@ -47,13 +50,13 @@ in GitHub (`sarthakxv/gigaprowl`).
 
 Use JavaScript/JSX, ES modules, two-space indentation, semicolons, and double
 quotes. Use PascalCase for React components, camelCase for functions and
-variables, and the `@/` import alias for repository-root modules. Prefer
+variables, and the `@/` import alias for `src/` modules. Prefer
 Tailwind utilities and the tokens in `tailwind.config.js`; keep
-`app/globals.css` genuinely global. Use `lucide-react` for UI icons rather
-than inline SVG or a second icon library.
+`src/app/globals.css` genuinely global. Use `lucide-react` for UI icons
+rather than inline SVG or a second icon library.
 
-There is no lint script. For `lib/` modules that have a sibling `*.test.mjs`,
-run `npm test`. For every code change, run `npm run build` and exercise the
+There is no lint script. For `src/lib/` modules that have a sibling
+`*.test.mjs`, run `npm test`. For every code change, run `npm run build` and exercise the
 changed UI or API path, including authorization, invalid input, and
 keyless/fallback behavior. Add new environment variables to `.env.example`
 without putting credentials in documentation, logs, or commits.

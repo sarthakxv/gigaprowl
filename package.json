@@ -10,7 +10,7 @@
     "prototype": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "node --import ./test/register.mjs --test lib/gmail.test.mjs lib/match.test.mjs lib/db.test.mjs lib/constants.test.mjs"
+    "test": "node --import ./test/register.mjs --test src/lib/gmail.test.mjs src/lib/match.test.mjs src/lib/db.test.mjs src/lib/constants.test.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",

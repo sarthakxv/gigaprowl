@@ -8,6 +8,6 @@ export function resolve(specifier, context, nextResolve) {
   }
   if (!specifier.startsWith("@/")) return nextResolve(specifier, context);
   const path = specifier.slice(2);
-  const target = new URL(`../${path}${path.endsWith(".js") ? "" : ".js"}`, import.meta.url);
+  const target = new URL(`../src/${path}${path.endsWith(".js") ? "" : ".js"}`, import.meta.url);
   return { url: target.href, format: "module", shortCircuit: true };
 }
