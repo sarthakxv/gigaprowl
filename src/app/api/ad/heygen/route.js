@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { heygenList, heygenSpokesperson, getVideoStatus } from "@/lib/video";
+import { VIDEO_GENERATION_ENABLED } from "@/lib/constants";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -14,6 +15,7 @@ function authed(req) {
 
 export async function GET(req) {
   if (!authed(req)) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  if (!VIDEO_GENERATION_ENABLED) return NextResponse.json({ error: "Video generation is turned off" }, { status: 501 });
   if (!process.env.HEYGEN_API_KEY) return NextResponse.json({ error: "HEYGEN_API_KEY not set in this environment" }, { status: 501 });
   const u = new URL(req.url);
   const action = u.searchParams.get("action");
@@ -29,6 +31,7 @@ export async function GET(req) {
 
 export async function POST(req) {
   if (!authed(req)) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  if (!VIDEO_GENERATION_ENABLED) return NextResponse.json({ error: "Video generation is turned off" }, { status: 501 });
   if (!process.env.HEYGEN_API_KEY) return NextResponse.json({ error: "HEYGEN_API_KEY not set in this environment" }, { status: 501 });
   try {
     const { script, avatarId, voiceId, width, height } = await req.json();

@@ -8,11 +8,13 @@
 //   HF_PROVIDER: default "fal-ai"
 //   HF_VIDEO_URL: optional full override for the router endpoint (set after probing)
 
+import { VIDEO_GENERATION_ENABLED } from "@/lib/constants";
+
 const TOKEN = process.env.HF_TOKEN;
 const MODEL = process.env.HF_VIDEO_MODEL || "Lightricks/LTX-Video-0.9.8-13B-distilled";
 const PROVIDER = process.env.HF_PROVIDER || "fal-ai";
 
-export const ugcEnabled = () => !!TOKEN;
+export const ugcEnabled = () => VIDEO_GENERATION_ENABLED && !!TOKEN;
 export const ugcModel = () => MODEL;
 
 function endpoint() {

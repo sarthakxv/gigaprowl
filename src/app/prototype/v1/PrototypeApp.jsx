@@ -47,6 +47,7 @@ import {
   Zap,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { VIDEO_GENERATION_ENABLED } from "@/lib/constants";
 import styles from "./prototype.module.css";
 
 const NAV = [
@@ -129,7 +130,7 @@ const campaignSteps = [
   { id: "contact", label: "Contact", detail: "Maya Chen · VP Product", icon: UserRoundCheck },
   { id: "kit", label: "Application kit", detail: "Needs review", icon: FileCheck2 },
   { id: "pitch", label: "Pitch page", detail: "Private draft", icon: FileText },
-  { id: "video", label: "Video / script", detail: "Optional", icon: Video },
+  ...(VIDEO_GENERATION_ENABLED ? [{ id: "video", label: "Video / script", detail: "Optional", icon: Video }] : []),
   { id: "outreach", label: "Outreach steps", detail: "0 of 3 approved", icon: Mail },
   { id: "social", label: "Social draft", detail: "Not added", icon: MessageSquareText },
 ];
@@ -513,7 +514,7 @@ function Onboarding({ onboarding, setOnboarding, setFirstScanRunning, showMock }
               );
             })}
           </ol>
-          <div className={styles.onboardingPromise}><ShieldCheck size={19} /><span><strong>Finish the required setup</strong>You can connect email and LinkedIn when you create outreach. Photo, voice, and message style stay optional.</span></div>
+          <div className={styles.onboardingPromise}><ShieldCheck size={19} /><span><strong>Finish the required setup</strong>You can connect email and LinkedIn when you create outreach. {VIDEO_GENERATION_ENABLED ? "Photo, voice, and message style stay optional." : "Message style stays optional."}</span></div>
         </aside>
 
         <section className={styles.onboardingCard} aria-live="polite">
@@ -1003,7 +1004,7 @@ function AssetEditor({ step, campaign, setCampaign, setDialog, onReview }) {
   if (step.id === "outreach") {
     return <EditorFrame title="Review outreach steps" description="Approve each action. An approval covers one draft."><div className={styles.deliveryCard}><div><span className={styles.stepNumber}>1</span><span><strong>Intro email to Maya</strong><small>Gmail draft · Due today</small></span><span className={styles.statusBadge}>{campaign.delivery}</span></div><p>Hi Maya, I’ve spent the last few years turning ambiguous product problems into fast, careful software...</p><Button onClick={() => setDialog({ type: campaign.delivery === "draft" ? "delivery" : "deliveryReceipt" })}>{campaign.delivery === "draft" ? "Review and approve" : "Open draft receipt"}</Button></div><div className={styles.deliveryCard}><div><span className={styles.stepNumber}>2</span><span><strong>LinkedIn follow-up</strong><small>Suggested 3 days after email</small></span><span className={styles.statusBadge}>Prepared</span></div><p>Short follow-up referencing the approved pitch.</p><Button tone="secondary">Review step</Button></div></EditorFrame>;
   }
-  if (step.id === "video") {
+  if (VIDEO_GENERATION_ENABLED && step.id === "video") {
     return <EditorFrame title="Video is optional" description="Record from the draft script or skip this step."><div className={styles.videoPlaceholder}><Play size={28} /><span>00:42 personal intro</span></div><div className={styles.sourceBox}><strong>Draft script</strong><p>“Hi Maya, I’m Sarthak. I focus on the product details that make complex tools feel calm...”</p></div><div className={styles.editorActions}><Button tone="ghost">Skip video</Button><Button onClick={onReview}>Approve script</Button></div></EditorFrame>;
   }
   if (step.id === "social") {
@@ -1143,11 +1144,13 @@ function SettingsView({ showMock, settingsSection: section, setSettingsSection: 
             <header><div><h3>Public pitch pages</h3><p>Published pages can be revoked independently of the campaign that created them.</p></div><ExternalLink size={20} /></header>
             <div className={styles.assetRow}><span className={styles.fileMark}><FileText size={20} /></span><div><strong>Linear campaign pitch</strong><small>Private draft · never published</small></div><Button tone="secondary" onClick={() => showMock("Pitch usage details opened")}>Inspect</Button></div>
           </article>
-          <article className={styles.settingsCard}>
-            <header><div><h3>Photo and voice media</h3><p>Used only to generate approved campaign media. No media is retained after deletion completes.</p></div><MonitorSmartphone size={20} /></header>
-            <div className={styles.mediaRows}><div><span>Profile photo</span><small>1 source image · used by no published pitch</small><button type="button" onClick={() => showMock("Photo replacement opened")}>Replace</button></div><div><span>Voice sample</span><small>No voice sample stored</small><button type="button" onClick={() => showMock("Voice consent details opened")}>Review consent</button></div></div>
-            <ImpactNote icon={ShieldCheck} title="Deletion includes a completion receipt" text="Before deletion, Gigaprowl lists affected drafts and published uses. Removed media invalidates any message that still references it." />
-          </article>
+          {VIDEO_GENERATION_ENABLED && (
+            <article className={styles.settingsCard}>
+              <header><div><h3>Photo and voice media</h3><p>Used only to generate approved campaign media. No media is retained after deletion completes.</p></div><MonitorSmartphone size={20} /></header>
+              <div className={styles.mediaRows}><div><span>Profile photo</span><small>1 source image · used by no published pitch</small><button type="button" onClick={() => showMock("Photo replacement opened")}>Replace</button></div><div><span>Voice sample</span><small>No voice sample stored</small><button type="button" onClick={() => showMock("Voice consent details opened")}>Review consent</button></div></div>
+              <ImpactNote icon={ShieldCheck} title="Deletion includes a completion receipt" text="Before deletion, Gigaprowl lists affected drafts and published uses. Removed media invalidates any message that still references it." />
+            </article>
+          )}
           <article className={styles.settingsCard}>
             <header><div><h3>Account data</h3><p>Export a portable copy, or begin a dedicated account-deletion review.</p></div><ShieldCheck size={20} /></header>
             <div className={styles.dangerActions}><Button tone="secondary" onClick={() => showMock("Data export requested")}><Download size={16} /> Export my data</Button><button type="button" onClick={() => showMock("Account deletion impact review opened")}><Trash2 size={16} /> Review account deletion</button></div>

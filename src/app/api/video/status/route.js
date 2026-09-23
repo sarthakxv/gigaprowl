@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getPitch, savePitch } from "@/lib/db";
-import { getVideoStatus } from "@/lib/video";
+import { getVideoStatus, videoEnabled } from "@/lib/video";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -11,6 +11,8 @@ export async function GET(req) {
     const slug = new URL(req.url).searchParams.get("slug");
     const pitch = slug && (await getPitch(slug));
     if (!pitch) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    if (!videoEnabled())
+      return NextResponse.json({ status: "disabled", videoUrl: null });
 
     if (pitch.videoStatus === "ready" || pitch.videoStatus === "failed" || !pitch.videoId)
       return NextResponse.json({ status: pitch.videoStatus, videoUrl: pitch.videoUrl || null });

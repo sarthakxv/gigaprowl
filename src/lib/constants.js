@@ -1,4 +1,10 @@
 // Shared app constants. Import these instead of hardcoding URLs, TTLs, or KV keys.
+
+// Avatar, voice-clone, and UGC video generation is parked. The pipeline
+// (src/lib/video.js, src/lib/ugc.js, /api/video, /api/media, pitch VideoBlock)
+// stays in the tree. Flip this to restore it.
+export const VIDEO_GENERATION_ENABLED = false;
+
 export const PRODUCTION_APP_URL = "https://gigaprowl.vercel.app";
 export const LOCAL_APP_URL = "http://localhost:3000";
 

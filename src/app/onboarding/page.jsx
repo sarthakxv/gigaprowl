@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/cn";
+import { VIDEO_GENERATION_ENABLED } from "@/lib/constants";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -130,7 +131,7 @@ export default function Onboarding() {
                   {profile.topSkills.map((s) => <span key={s} className="text-xs bg-edge rounded-full px-3 py-1 text-mint">{s}</span>)}
                 </div>
                 <button onClick={() => setStep(1)} className="bg-mint text-ink font-bold px-8 py-3 rounded-full hover:bg-mintdim transition">Looks right →</button>
-                <p className="text-pretty text-fog/60 text-xs mt-4">You can connect email and LinkedIn, add a photo, or record your voice later from the dashboard.</p>
+                <p className="text-pretty text-fog/60 text-xs mt-4">You can connect email and LinkedIn{VIDEO_GENERATION_ENABLED ? ", add a photo, or record your voice" : ""} later from the dashboard.</p>
               </div>
             )}
             {error && <p className="text-red-400 mt-4 text-sm">{error}</p>}
@@ -145,7 +146,7 @@ export default function Onboarding() {
               {[
                 ["1", "Review your matches", "See why each role fits before generating anything."],
                 ["2", "Choose where to hunt", "Generate a pitch page and outreach drafts only for matches you approve."],
-                ["3", "Connect and send when ready", "Add email, LinkedIn, a face photo, or a voice recording later from the dashboard."],
+                ["3", "Connect and send when ready", VIDEO_GENERATION_ENABLED ? "Add email, LinkedIn, a face photo, or a voice recording later from the dashboard." : "Add email or LinkedIn later from the dashboard."],
               ].map(([n, title, detail]) => (
                 <div key={n} className="bg-panel border border-edge rounded-2xl p-5 flex gap-4">
                   <span className="size-8 shrink-0 rounded-full bg-mint text-ink font-bold flex items-center justify-center">{n}</span>

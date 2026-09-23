@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/cn";
+import { VIDEO_GENERATION_ENABLED } from "@/lib/constants";
 
 const SCANNING_LINES = [
   "reading your profile…",
@@ -293,7 +294,7 @@ export default function Scout() {
             <div className="mt-6 bg-panel border border-edge rounded-3xl p-8 text-center">
               <h3 className="font-display text-2xl font-bold text-balance mb-2">want gigaprowl to actually do the outreach?</h3>
               <p className="text-pretty text-fog mb-6 max-w-md mx-auto">
-                the full product finds the hiring manager, builds a personal pitch page + video of you, and drafts the emails. this scan was just a taste.
+                the full product finds the hiring manager, builds a personal pitch page{VIDEO_GENERATION_ENABLED ? " + video of you" : ""}, and drafts the emails. this scan was just a taste.
               </p>
               <Link href="/" className="inline-block bg-mint text-ink font-bold px-8 py-4 rounded-full hover:bg-mintdim hover:scale-105 transition">
                 see the full gigaprowl →

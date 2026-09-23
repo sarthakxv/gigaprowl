@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { VIDEO_GENERATION_ENABLED } from "@/lib/constants";
 
 // Shown while a pitch is still being generated. Instead of a hard "not found"
 // error, we open the page and poll until the pitch is ready, then refresh.
@@ -29,7 +30,7 @@ export default function PitchLoader({ slug }) {
           <>
             <div className="size-10 border-2 border-edge border-t-mint rounded-full animate-spin mx-auto mb-6" />
             <h1 className="font-display text-2xl font-bold text-balance mb-2">Building your pitch page…</h1>
-            <p className="text-pretty text-fog">Personalizing the page and video for this role. This can take a minute. It will load when it's ready.</p>
+            <p className="text-pretty text-fog">Personalizing the page{VIDEO_GENERATION_ENABLED ? " and video" : ""} for this role. This can take a minute. It will load when it's ready.</p>
           </>
         ) : (
           <>

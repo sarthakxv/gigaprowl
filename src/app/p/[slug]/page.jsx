@@ -1,4 +1,5 @@
 import { getPitch } from "@/lib/db";
+import { VIDEO_GENERATION_ENABLED } from "@/lib/constants";
 import VideoBlock from "./VideoBlock";
 import PitchLoader from "./PitchLoader";
 
@@ -20,10 +21,12 @@ export default async function PitchPage({ params }) {
         <h1 className="font-display text-4xl md:text-5xl font-bold leading-tight text-balance mb-4">{content.headline}</h1>
         <p className="text-pretty text-fog text-lg mb-10">{content.subhead}</p>
 
-        <div className="bg-panel border border-edge rounded-2xl p-6 mb-10">
-          <p className="text-sm text-fog uppercase mb-3">Personalized video pitch</p>
-          <VideoBlock slug={pitch.slug} initialStatus={pitch.videoStatus} initialUrl={pitch.videoUrl || null} script={content.videoScript} />
-        </div>
+        {VIDEO_GENERATION_ENABLED && (
+          <div className="bg-panel border border-edge rounded-2xl p-6 mb-10">
+            <p className="text-sm text-fog uppercase mb-3">Personalized video pitch</p>
+            <VideoBlock slug={pitch.slug} initialStatus={pitch.videoStatus} initialUrl={pitch.videoUrl || null} script={content.videoScript} />
+          </div>
+        )}
 
         <div className="grid md:grid-cols-3 gap-4 mb-10">
           {content.valueProps.map((v, i) => (

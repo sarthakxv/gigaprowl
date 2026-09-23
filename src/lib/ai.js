@@ -1,6 +1,7 @@
 // Claude wrapper with graceful heuristic fallbacks when no key present.
 import Anthropic from "@anthropic-ai/sdk";
 import { unslopJSON, stripSlopDeep } from "./unslop.js";
+import { VIDEO_GENERATION_ENABLED } from "@/lib/constants";
 
 const MODEL = "claude-sonnet-4-5";
 
@@ -155,14 +156,14 @@ export async function generateCadence(profile, job, contact, signal = null, styl
   const standardFallback = {
     steps: [
       { day: 1, channel: "linkedin_connect", subject: null, body: `Hi ${contact.firstName}, ${hookLower}, and the ${job.title} role stood out. I've built exactly this kind of thing (${profile.topSkills.slice(0, 2).join(", ")}). Would love to connect.` },
-      { day: 2, channel: "email", subject: `${job.title} @ ${job.company}: a shortcut`, body: `Hi ${contact.firstName},\n\n${hook}, and the ${job.title} opening caught my eye. Quick pitch: ${profile.summary}\n\nI put together a 1-page breakdown, with a 30-second intro video: {{pitch_url}}\n\nWorth 15 minutes?\n\n${profile.name}` },
-      { day: 5, channel: "email", subject: `Re: ${job.title} @ ${job.company}`, body: `Hi ${contact.firstName},\n\nFloating this back up. The page has a short video walking through my thinking on ${job.company}'s stack: {{pitch_url}}\n\n${profile.name}` },
+      { day: 2, channel: "email", subject: `${job.title} @ ${job.company}: a shortcut`, body: `Hi ${contact.firstName},\n\n${hook}, and the ${job.title} opening caught my eye. Quick pitch: ${profile.summary}\n\nI put together a 1-page breakdown${VIDEO_GENERATION_ENABLED ? ", with a 30-second intro video" : ""}: {{pitch_url}}\n\nWorth 15 minutes?\n\n${profile.name}` },
+      { day: 5, channel: "email", subject: `Re: ${job.title} @ ${job.company}`, body: `Hi ${contact.firstName},\n\nFloating this back up. The page has ${VIDEO_GENERATION_ENABLED ? "a short video walking through" : "a short writeup of"} my thinking on ${job.company}'s stack: {{pitch_url}}\n\n${profile.name}` },
       { day: 8, channel: "linkedin_inmail", subject: `Idea for your ${job.title} search`, body: `${contact.firstName}, one more nudge. Happy to do a paid trial project to prove fit. Details here: {{pitch_url}}` },
     ],
   };
   const founderFallback = {
     steps: [
-      { day: 1, channel: "email", subject: `quick one: ${job.title} at ${job.company}`, body: `Hi ${contact.firstName},\n\n${hookLower}. I'd like to help you build it.\n\nTwo things that might be relevant:\n• ${win}\n• ${(profile.strengths || [])[1] || profile.summary}\n\nMore on a quick page (30s video): {{pitch_url}}\n\nWorth a 15-min chat next week?\n\n${profile.name}` },
+      { day: 1, channel: "email", subject: `quick one: ${job.title} at ${job.company}`, body: `Hi ${contact.firstName},\n\n${hookLower}. I'd like to help you build it.\n\nTwo things that might be relevant:\n• ${win}\n• ${(profile.strengths || [])[1] || profile.summary}\n\nMore on a quick page${VIDEO_GENERATION_ENABLED ? " (30s video)" : ""}: {{pitch_url}}\n\nWorth a 15-min chat next week?\n\n${profile.name}` },
       { day: 4, channel: "email", subject: `re: ${job.title} at ${job.company}`, body: `Hi ${contact.firstName}, floating this back up in case it got buried. Still happy to show how I'd help: {{pitch_url}}\n\n${profile.name}` },
       { day: 7, channel: "linkedin_connect", subject: null, body: `Hi ${contact.firstName}, emailed you about the ${job.title} role. ${win}. Would love to connect.` },
     ],
@@ -178,7 +179,7 @@ export async function generateCadence(profile, job, contact, signal = null, styl
     : "You write concise, non-cringe candidate outreach cadences to hiring managers. Never lie or invent experience. Open every message with a SPECIFIC, personalized hook. Reference the hiring signal or a concrete detail from the job description, never a generic 'I came across your company'." + FACT_RULES;
 
   const user = founder
-    ? `Write a 3-step founder-direct cadence: day 1 cold email (<130 words), day 4 short follow-up email (<50 words), day 7 LinkedIn connect note (<=280 chars). {{pitch_url}} = the candidate's optional 1-page pitch (has a 30s video). Every line specific to THIS founder + company.
+    ? `Write a 3-step founder-direct cadence: day 1 cold email (<130 words), day 4 short follow-up email (<50 words), day 7 LinkedIn connect note (<=280 chars). {{pitch_url}} = the candidate's optional 1-page pitch${VIDEO_GENERATION_ENABLED ? " (has a 30s video)" : ""}. Every line specific to THIS founder + company.
 Return JSON: {"steps":[{"day":n,"channel":"email"|"linkedin_connect","subject":string|null,"body":string}]}
 
 CANDIDATE: ${JSON.stringify({ name: profile.name, title: profile.title, topSkills: profile.topSkills, summary: profile.summary, strengths: profile.strengths })}
@@ -186,7 +187,7 @@ JOB: ${JSON.stringify({ title: job.title, company: job.company, description: (jo
 CONTACT: ${JSON.stringify({ firstName: contact.firstName, title: contact.title })}
 ${resumeBlock(profile)}
 HIRING_SIGNAL: ${signal ? JSON.stringify({ hiring: signal.hiring, openRoles: signal.openRoles, event: signal.event, summary: signal.summary }) : "none"}`
-    : `Write a 4-step outreach cadence (day 1 LinkedIn connect note <=280 chars, day 2 email, day 5 follow-up email, day 8 LinkedIn InMail). Use {{pitch_url}} as placeholder for the candidate's personalized landing page (it contains a 30-second intro video). Every message must feel written for THIS person at THIS company. Lead with the hiring signal when one is present.
+    : `Write a 4-step outreach cadence (day 1 LinkedIn connect note <=280 chars, day 2 email, day 5 follow-up email, day 8 LinkedIn InMail). Use {{pitch_url}} as placeholder for the candidate's personalized landing page${VIDEO_GENERATION_ENABLED ? " (it contains a 30-second intro video)" : ""}. Every message must feel written for THIS person at THIS company. Lead with the hiring signal when one is present.
 Return JSON: {"steps":[{"day":n,"channel":"linkedin_connect"|"email"|"linkedin_inmail","subject":string|null,"body":string}]}
 
 CANDIDATE: ${JSON.stringify({ name: profile.name, title: profile.title, topSkills: profile.topSkills, summary: profile.summary, strengths: profile.strengths })}
@@ -245,13 +246,13 @@ ${resumeBlock(profile)}`,
 // tracked pitch-page link. Copy-to-clipboard only. The user posts it.
 export async function generateSocialPosts(profile, job, pitch) {
   const fallback = {
-    linkedinPost: `${profile.summary}\n\nI've been thinking about ${(job.title || "").toLowerCase()} work the way ${job.company} has to think about it. ${(profile.strengths || [])[0] || "I ship, then I iterate."}\n\nNotes and a short video: {{pitch_url}}\n\nIf you're working on the same problems, tell me how you're approaching them.`,
+    linkedinPost: `${profile.summary}\n\nI've been thinking about ${(job.title || "").toLowerCase()} work the way ${job.company} has to think about it. ${(profile.strengths || [])[0] || "I ship, then I iterate."}\n\n${VIDEO_GENERATION_ENABLED ? "Notes and a short video" : "Notes"}: {{pitch_url}}\n\nIf you're working on the same problems, tell me how you're approaching them.`,
     twitterThread: [
       `the fastest way to get hired isn't 500 applications. it's doing the job in public before anyone asks you to. a short thread 🧵`,
       `${profile.summary}`.slice(0, 270),
       `right now the most interesting problems in my corner of the field look a lot like what ${job.company} is building. so i started working through them anyway.`,
       `${(profile.strengths || [])[0] || `my rule: ship something real every week`}`.slice(0, 270),
-      `i put the pitch, the receipts, and a 30-second video on one page: {{pitch_url}}`,
+      `i put the pitch and the receipts on one page${VIDEO_GENERATION_ENABLED ? ", plus a 30-second video" : ""}: {{pitch_url}}`,
       `if you're building ${(job.title || "this kind of role").toLowerCase()} work, or working in the same space, my DMs are open.`,
     ],
     postAngle: `Public proof-of-work aimed at ${job.company}'s feed. Shows the craft instead of asking for the job.`,

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getUserState, updateUserState } from "@/lib/db";
 import { getUserId } from "@/lib/auth";
 import { uploadTalkingPhoto, cloneVoiceHeyGen } from "@/lib/video";
+import { VIDEO_GENERATION_ENABLED } from "@/lib/constants";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -14,6 +15,8 @@ export async function POST(req) {
   try {
     const userId = getUserId(req);
     if (!userId) return NextResponse.json({ error: "Not signed in" }, { status: 401 });
+    if (!VIDEO_GENERATION_ENABLED)
+      return NextResponse.json({ error: "Video generation is turned off" }, { status: 501 });
 
     const form = await req.formData();
     const kind = form.get("kind"); // "face" | "voice"

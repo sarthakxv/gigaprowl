@@ -1,11 +1,12 @@
 // Personalized avatar video pipeline: HeyGen (talking photo) + ElevenLabs (voice clone).
 // All functions throw on failure. Callers degrade to script-only pitches.
 import { guessCompanyDomain } from "@/lib/domain";
+import { VIDEO_GENERATION_ENABLED } from "@/lib/constants";
 
 const HEYGEN = process.env.HEYGEN_API_KEY;
 const ELEVEN = process.env.ELEVENLABS_API_KEY;
 
-export const videoEnabled = () => !!HEYGEN;
+export const videoEnabled = () => VIDEO_GENERATION_ENABLED && !!HEYGEN;
 
 // ---- HeyGen: create a talking-photo avatar from the user's face photo ----
 export async function uploadTalkingPhoto(buffer, mime = "image/jpeg") {

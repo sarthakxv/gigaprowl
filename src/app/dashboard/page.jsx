@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { ExternalLink } from "lucide-react";
 import VoiceRecorder from "@/components/VoiceRecorder";
 import { cn } from "@/lib/cn";
-import { DAY_MS } from "@/lib/constants";
+import { DAY_MS, VIDEO_GENERATION_ENABLED } from "@/lib/constants";
 
 const TABS = ["Matches", "Apply kits", "Contacts", "Cadences", "Activity", "Pitch pages", "Social posts"];
 
@@ -427,7 +427,7 @@ export default function Dashboard() {
           </div>
         )}
 
-        {media && (!media.facePhoto || !media.voiceSample) && !mediaHidden && (
+        {VIDEO_GENERATION_ENABLED && media && (!media.facePhoto || !media.voiceSample) && !mediaHidden && (
           <div className="bg-panel border border-edge rounded-2xl p-6 mb-6">
             <div className="flex items-start justify-between gap-4 mb-4">
               <div>
@@ -483,7 +483,7 @@ export default function Dashboard() {
         {autopilot === "done" && (
           <div className="bg-panel border border-mint rounded-2xl p-5 mb-6">
             <p className="text-mint font-semibold">✓ Autopilot done. First hunts are ready.</p>
-            <p className="text-pretty text-fog text-sm mt-1">Pitch pages and Cadences for hunts. Apply kits for the rest. Videos take a couple of minutes.</p>
+            <p className="text-pretty text-fog text-sm mt-1">Pitch pages and Cadences for hunts. Apply kits for the rest.{VIDEO_GENERATION_ENABLED ? " Videos take a couple of minutes." : ""}</p>
           </div>
         )}
         <div className="flex gap-2 mb-6">
@@ -720,12 +720,12 @@ export default function Dashboard() {
 
         {tab === "Pitch pages" && (
           <div className="space-y-3">
-            {pitches.length === 0 && <p className="text-fog">Hunt a match to generate its personalized pitch page + video script.</p>}
+            {pitches.length === 0 && <p className="text-fog">Hunt a match to generate its personalized pitch page{VIDEO_GENERATION_ENABLED ? " + video script" : ""}.</p>}
             {pitches.map((p) => (
               <div key={p.slug} className="bg-panel border border-edge rounded-2xl p-5 flex flex-wrap items-center gap-4">
                 <div className="flex-1 min-w-[220px]">
                   <p className="font-semibold">{p.headline || `Pitch for ${p.job?.company || "…"}`}</p>
-                  <p className="text-fog text-sm">{p.job?.title} @ {p.job?.company} · video: {(p.videoStatus || "pending").replace("_", " ")}</p>
+                  <p className="text-fog text-sm">{p.job?.title} @ {p.job?.company}{VIDEO_GENERATION_ENABLED ? ` · video: ${(p.videoStatus || "pending").replace("_", " ")}` : ""}</p>
                 </div>
                 <a href={`/p/${p.slug}`} target="_blank" className="bg-mint text-ink text-sm font-bold px-5 py-2.5 rounded-full hover:bg-mintdim transition">View live page →</a>
               </div>

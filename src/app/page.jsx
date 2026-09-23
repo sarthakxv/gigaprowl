@@ -20,6 +20,7 @@ import {
   Video,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { VIDEO_GENERATION_ENABLED } from "@/lib/constants";
 import HeroPreviewMotion from "./HeroPreviewMotion";
 
 export const metadata = {
@@ -403,19 +404,21 @@ export default function Landing() {
           </div>
         </section>
 
-        <section className="border-y border-soft bg-surface px-4 py-12 sm:px-6 lg:px-10">
-          <div className="mx-auto grid max-w-[1200px] gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
-            <div className="flex max-w-3xl items-start gap-5">
-              <span className="hidden size-14 shrink-0 place-items-center rounded-2xl bg-raised text-brand sm:grid"><Video size={25} aria-hidden="true" /></span>
-              <div>
-                <p className="text-sm font-bold text-brand">Optional video</p>
-                <h2 className="mt-2 text-balance font-display text-3xl font-medium leading-[1.1] tracking-[-0.025em]">Add video to a personal pitch when it helps your case.</h2>
-                <p className="mt-3 text-pretty text-sm leading-6 text-muted">You choose whether to set up your face and voice after Gigaprowl finds your opportunities. Consent stays separate from profile setup.</p>
+        {VIDEO_GENERATION_ENABLED && (
+          <section className="border-y border-soft bg-surface px-4 py-12 sm:px-6 lg:px-10">
+            <div className="mx-auto grid max-w-[1200px] gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
+              <div className="flex max-w-3xl items-start gap-5">
+                <span className="hidden size-14 shrink-0 place-items-center rounded-2xl bg-raised text-brand sm:grid"><Video size={25} aria-hidden="true" /></span>
+                <div>
+                  <p className="text-sm font-bold text-brand">Optional video</p>
+                  <h2 className="mt-2 text-balance font-display text-3xl font-medium leading-[1.1] tracking-[-0.025em]">Add video to a personal pitch when it helps your case.</h2>
+                  <p className="mt-3 text-pretty text-sm leading-6 text-muted">You choose whether to set up your face and voice after Gigaprowl finds your opportunities. Consent stays separate from profile setup.</p>
+                </div>
               </div>
+              <SecondaryLink href="/login">Start with my profile <ArrowRight size={16} aria-hidden="true" /></SecondaryLink>
             </div>
-            <SecondaryLink href="/login">Start with my profile <ArrowRight size={16} aria-hidden="true" /></SecondaryLink>
-          </div>
-        </section>
+          </section>
+        )}
 
         <section className="px-4 py-16 sm:px-6 lg:px-10">
           <div className="mx-auto max-w-[1000px] rounded-xl bg-brand px-6 py-12 text-center text-brandon sm:px-12 sm:py-16">
