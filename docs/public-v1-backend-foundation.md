@@ -139,7 +139,10 @@ This is not a production sign-off. An empty staging Supabase project must still
 run the migration, provision role passwords and pooler URLs, configure Auth
 Google plus Resend SMTP, and verify cookie refresh and both sign-in methods.
 Run real multi-connection credit-spend, webhook-replay, Unipile-correlation,
-extension-revocation, and outage tests against that project. Verify provider
+extension-revocation, and outage tests against that project. Include a
+concurrent step claim racing a state write on the same cadence and a Stripe
+grant racing a hunt; each takes the tenant account lock, which the
+single-connection local test cannot exercise. Verify provider
 callback payloads and inspect Supabase security/performance advisors. The
 per-user state compatibility facade currently reads a tenant's full history
 before mutation; replace hot paths with targeted repository operations before

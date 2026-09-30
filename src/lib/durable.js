@@ -102,6 +102,10 @@ export async function readUserState(userId) {
 
 export async function claimCadenceStep(userId, cadenceId, stepIndex) {
   return withUser(userId, async (sql) => {
+    // Take the same tenant lock as mutateUserState so a concurrent state write
+    // cannot overwrite this claim from a stale snapshot.
+    const [account] = await sql`select id from app.accounts where id = ${userId} for update`;
+    if (!account) return null;
     const [row] = await sql`
       update app.cadence_steps as step
       set status = 'dispatching',
@@ -174,6 +178,10 @@ export async function mutateUserState(userId, fn, options = {}) {
     ]) {
       snapshot[name] = new Map((state[name] || []).map((item) => [id(item), JSON.stringify(item)]));
     }
+    snapshot.steps = new Map(state.cadences.map((item) => [item.id, {
+      schedule: JSON.stringify([item.approvalStatus, item.approvedAt]),
+      steps: (item.steps || []).map((step) => JSON.stringify(step)),
+    }]));
     const unchanged = (name, id, item) => snapshot[name].get(id) === JSON.stringify(item);
     const oldCredits = { ...state.credits };
     const result = fn(state);
@@ -223,7 +231,12 @@ export async function mutateUserState(userId, fn, options = {}) {
         on conflict (id) do update set approval_status = excluded.approval_status, data = excluded.data, approved_at = excluded.approved_at
         where app.cadences.user_id = ${userId}
       `;
+      // Write only steps that changed. Rewriting untouched steps from this
+      // snapshot could undo a step claim or outcome recorded meanwhile.
+      const before = snapshot.steps.get(item.id);
+      const rescheduled = !before || before.schedule !== JSON.stringify([approvalStatus, item.approvedAt]);
       for (const [index, step] of (steps || []).entries()) {
+        if (!rescheduled && before?.steps[index] === JSON.stringify(step)) continue;
         const dueAt = item.createdAt && Number.isFinite(Number(step.day))
           ? new Date(new Date(item.createdAt).getTime() + Number(step.day) * 86400000)
           : null;
@@ -392,6 +405,10 @@ export async function grantStripeEvent(event, plan) {
       values ('stripe', ${event.id}, ${event.type}) on conflict do nothing returning event_id
     `;
     if (!rows.length) return false;
+    // mutateUserState writes credits from a snapshot under this lock; taking it
+    // here keeps a concurrent hunt from overwriting the granted balance.
+    const [owner] = await sql`select id from app.accounts where id = ${event.userId} for update`;
+    if (!owner) throw new Error("Account not found");
     const [account] = await sql`
       update app.credit_accounts set plan = ${plan.key}, balance = balance + ${plan.credits}
       where user_id = ${event.userId} returning user_id
