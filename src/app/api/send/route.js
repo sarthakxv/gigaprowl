@@ -13,10 +13,15 @@ export async function POST(req) {
   try {
     const userId = await getUserId(req);
     if (!userId) return NextResponse.json({ error: "Not signed in" }, { status: 401 });
-    const { cadenceId, stepIndex } = await req.json();
+    const { cadenceId, stepIndex } = await req.json().catch(() => ({}));
+    if (typeof cadenceId !== "string" || !cadenceId || cadenceId.length > 100 || !Number.isInteger(stepIndex) || stepIndex < 0 || stepIndex > 50) {
+      return NextResponse.json({ error: "Invalid cadence step" }, { status: 400 });
+    }
 
     const result = await dispatchStep(userId, cadenceId, stepIndex);
-    if (result.skipped) return NextResponse.json({ error: `Already ${result.status}` }, { status: 409 });
+    if (result.skipped) {
+      return NextResponse.json({ error: "Approve the cadence first, or this step was already actioned" }, { status: 409 });
+    }
     return NextResponse.json({ ok: true, ...result });
   } catch (e) {
     const msg = e.message || "Send failed";
