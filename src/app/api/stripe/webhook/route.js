@@ -35,7 +35,10 @@ export async function POST(req) {
     metadata = event.data?.object?.metadata;
   }
   if (event.type === "invoice.paid" && event.data?.object?.billing_reason === "subscription_cycle") {
-    metadata = event.data.object.subscription_details?.metadata || event.data.object.lines?.data?.[0]?.metadata;
+    const invoice = event.data.object;
+    metadata = invoice.parent?.subscription_details?.metadata
+      || invoice.subscription_details?.metadata
+      || invoice.lines?.data?.[0]?.metadata;
   }
   if (!metadata) return NextResponse.json({ received: true, ignored: true });
   const plan = PLANS[metadata.plan];
