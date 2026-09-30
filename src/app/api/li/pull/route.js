@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { verifyExtensionToken } from "@/lib/extension-auth";
 import { getUserState, updateUserState } from "@/lib/db";
+import { capLinkedInPerDay } from "@/lib/constants";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -22,8 +23,8 @@ export async function GET(req) {
   const state = await getUserState(userId);
   const today = new Date().toISOString().slice(0, 10);
   const sentToday = (state.sends || []).filter((s) => /linkedin|invite|dm/i.test(s.channel || "") && s.status === "sent" && (s.at || "").slice(0, 10) === today).length;
-  const DAILY_CAP = 20; // keep invites human-paced to protect the account
-  const remaining = Math.max(0, DAILY_CAP - sentToday);
+  // Keep invites human-paced to protect the account.
+  const remaining = Math.max(0, capLinkedInPerDay() - sentToday);
 
   const pending = (state.linkedinQueue || []).filter((a) => a.status === "pending").slice(0, remaining);
 
