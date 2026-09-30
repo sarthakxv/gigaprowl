@@ -78,3 +78,26 @@ test("a Unipile account can be reconnected with a fresh correlation", async () =
     await db.close();
   }
 });
+
+test("surplus cadence steps can be removed without losing dispatch attempts", async () => {
+  const db = new PGlite();
+  try {
+    await applyMigrations(db);
+    await db.query("insert into auth.users (id) values ($1)", [USER_A]);
+    await db.exec("set role gigaprowl_app");
+    await db.exec("begin");
+    await db.query("select set_config('app.user_id', $1, true)", [USER_A]);
+    await db.query("insert into app.accounts (id, email) values ($1, 'a@example.com')", [USER_A]);
+    await db.query("insert into app.cadences (id, user_id, data) values ('cad_1', $1, '{}')", [USER_A]);
+    for (const index of [0, 1, 2, 3]) {
+      await db.query("insert into app.cadence_steps (cadence_id, user_id, step_index, data) values ('cad_1', $1, $2, '{}')", [USER_A, index]);
+    }
+    await db.query("insert into app.dispatch_attempts (user_id, cadence_id, step_index, status) values ($1, 'cad_1', 3, 'failed')", [USER_A]);
+    const removed = await db.query("delete from app.cadence_steps where cadence_id = 'cad_1' and step_index >= 3 and status in ('draft', 'pending')");
+    assert.equal(removed.affectedRows, 1);
+    assert.equal((await db.query("select count(*)::integer as n from app.dispatch_attempts")).rows[0].n, 1);
+    await db.exec("commit");
+  } finally {
+    await db.close();
+  }
+});

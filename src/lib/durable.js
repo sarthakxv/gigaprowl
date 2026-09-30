@@ -246,6 +246,15 @@ export async function mutateUserState(userId, fn, options = {}) {
       // snapshot could undo a step claim or outcome recorded meanwhile.
       const before = snapshot.steps.get(item.id);
       const rescheduled = !before || before.schedule !== JSON.stringify([approvalStatus, item.approvedAt]);
+      const count = (steps || []).length;
+      if (before && before.steps.length > count) {
+        // A rewrite can produce fewer steps. Only never-actioned rows may go.
+        await sql`
+          delete from app.cadence_steps
+          where cadence_id = ${item.id} and user_id = ${userId}
+            and step_index >= ${count} and status in ('draft', 'pending')
+        `;
+      }
       for (const [index, step] of (steps || []).entries()) {
         if (!rescheduled && before?.steps[index] === JSON.stringify(step)) continue;
         const dueAt = stepDueAt(item, step);

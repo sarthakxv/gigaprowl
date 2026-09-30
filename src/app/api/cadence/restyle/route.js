@@ -53,6 +53,8 @@ export async function POST(req) {
 
     return NextResponse.json({ ok: true, style, steps: fresh.steps.length });
   } catch (e) {
+    // A step can be actioned between the pre-check and the locked rewrite.
+    if (/actioned steps/.test(e.message)) return NextResponse.json({ error: e.message }, { status: 409 });
     console.error(e);
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
