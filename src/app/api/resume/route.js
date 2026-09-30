@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { parseResume } from "@/lib/ai";
-import { updateUserState, uid } from "@/lib/db";
+import { updateUserState, uid, rateLimit } from "@/lib/db";
 import { getUserId } from "@/lib/auth";
 
 export const runtime = "nodejs";
@@ -91,6 +91,8 @@ export async function POST(req) {
   try {
     const userId = await getUserId(req);
     if (!userId) return NextResponse.json({ error: "Not signed in" }, { status: 401 });
+    const { allowed } = await rateLimit("resume", userId, 10, 3600);
+    if (!allowed) return NextResponse.json({ error: "Too many uploads. Try again later." }, { status: 429 });
 
     const form = await req.formData();
     const file = form.get("resume");

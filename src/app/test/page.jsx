@@ -118,7 +118,7 @@ export default function TestBench() {
         {/* 3. Email test */}
         <div className="bg-panel border border-edge rounded-2xl p-6">
           <p className="font-semibold mb-1">3 · Send a test email (Resend)</p>
-          <p className="text-pretty text-fog text-sm mb-4">With the test sender, send to your own account email. For arbitrary recipients, verify a domain in Resend and set RESEND_FROM.</p>
+          <p className="text-pretty text-fog text-sm mb-4">Test emails go to your own account email only.</p>
           <input value={emTo} onChange={(e) => setEmTo(e.target.value)} placeholder="your@email.com" className="w-full bg-ink border border-edge focus:border-mint rounded-xl px-4 py-2.5 text-sm mb-3 outline-none" />
           <input value={emSub} onChange={(e) => setEmSub(e.target.value)} className="w-full bg-ink border border-edge focus:border-mint rounded-xl px-4 py-2.5 text-sm mb-3 outline-none" />
           <textarea value={emBody} onChange={(e) => setEmBody(e.target.value)} rows={3} className="w-full bg-ink border border-edge focus:border-mint rounded-xl px-4 py-2.5 text-sm mb-3 outline-none resize-none" />

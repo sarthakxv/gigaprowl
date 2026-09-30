@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getUserId } from "@/lib/auth";
-import { getUserState } from "@/lib/db";
+import { getUserState, bumpDailyCounter } from "@/lib/db";
+import { capLinkedInPerDay } from "@/lib/constants";
 import { unipileEnabled, resolveProfile, sendInvitation, sendMessage, identifierFromUrl } from "@/lib/unipile";
 
 export const runtime = "nodejs";
@@ -15,7 +16,10 @@ export async function POST(req) {
     if (!userId) return NextResponse.json({ error: "Not signed in" }, { status: 401 });
     if (!unipileEnabled()) return NextResponse.json({ error: "LinkedIn connection isn't available right now" }, { status: 501 });
 
-    const { profileUrl, message, dm } = await req.json();
+    const { profileUrl, message, dm } = await req.json().catch(() => ({}));
+    if ((profileUrl != null && typeof profileUrl !== "string") || (message != null && typeof message !== "string")) {
+      return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+    }
     const state = await getUserState(userId);
     const accountId = state.connections?.linkedin?.accountId;
     if (!accountId) return NextResponse.json({ error: "Connect your LinkedIn first" }, { status: 400 });
@@ -25,6 +29,9 @@ export async function POST(req) {
 
     const providerId = await resolveProfile({ accountId, identifier });
     if (!providerId) return NextResponse.json({ error: "Couldn't resolve that profile" }, { status: 404 });
+    // Test sends are real sends and share the account's daily LinkedIn budget.
+    const { allowed } = await bumpDailyCounter(userId, "linkedin", capLinkedInPerDay());
+    if (!allowed) return NextResponse.json({ error: `Daily LinkedIn limit reached (${capLinkedInPerDay()}/day)` }, { status: 429 });
 
     const result = dm
       ? await sendMessage({ accountId, providerId, text: message || "Hi!" })

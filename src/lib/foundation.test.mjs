@@ -8,6 +8,7 @@ const { GET: scheduler } = await import("@/app/api/cron/scheduler/route");
 const { GET: jobScan, POST: manualJobScan } = await import("@/app/api/jobs/sync/route");
 const { POST: approveCadence } = await import("@/app/api/cadence/approve/route");
 const { POST: scout } = await import("@/app/api/scout/route");
+const { POST: testEmail } = await import("@/app/api/test/email/route");
 const { getUserId } = await import("@/lib/auth");
 const { stepDueAt } = await import("@/lib/durable");
 const { claimOutcome } = await import("@/lib/dispatch");
@@ -22,6 +23,10 @@ describe("public v1 fail-closed paths", { concurrency: false }, () => {
       assert.equal(await getUserId(), null);
       const response = await approveCadence(new Request("https://example.com/api/cadence/approve", { method: "POST" }));
       assert.equal(response.status, 401);
+      const email = await testEmail(new Request("https://example.com/api/test/email", {
+        method: "POST", body: JSON.stringify({ to: "stranger@example.com" }),
+      }));
+      assert.equal(email.status, 401);
     } finally {
       if (url == null) delete process.env.NEXT_PUBLIC_SUPABASE_URL; else process.env.NEXT_PUBLIC_SUPABASE_URL = url;
       if (key == null) delete process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY; else process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = key;
