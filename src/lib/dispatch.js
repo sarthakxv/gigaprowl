@@ -21,27 +21,43 @@ export const isLinkedIn = (ch) => /linkedin|connect|invite|dm/i.test(ch || "");
 const isInvite = (ch) => /invite|connect|request/i.test(ch || "");
 const ACTIONED = new Set(["sent", "drafted", "queued", "dispatching", "uncertain"]);
 
+// A claimed step that failed before any mutating provider call is safe to
+// release for a later run. Once a provider call has started, its outcome is
+// unknown and the step is left for manual reconciliation.
+export function claimOutcome(error, providerCalled) {
+  return providerCalled || error?.code === "delivery_uncertain" ? "uncertain" : "pending";
+}
+
 export async function dispatchStep(userId, cadenceId, stepIndex) {
   let attemptId;
+  const progress = { providerCalled: false };
   try {
     attemptId = await claimCadenceStep(userId, cadenceId, stepIndex);
     if (!attemptId) return { skipped: true, status: "not_approved_or_already_actioned" };
-    const result = await runStep(userId, cadenceId, stepIndex);
+    const result = await runStep(userId, cadenceId, stepIndex, progress);
     await finishDispatchAttempt(userId, attemptId, result.sent ? "sent" : result.drafted ? "drafted" : result.queued ? "queued" : "uncertain");
     return result;
   } catch (error) {
-    // A provider may have accepted a request before a worker died or the DB
-    // failed. Leave any unresolved claim for manual reconciliation.
+    if (!attemptId) throw error;
+    let outcome = claimOutcome(error, progress.providerCalled);
+    // Only resolve a claim still marked dispatching; markAttempt may already
+    // have recorded a definite outcome such as a suppression or Gmail error.
     await updateUserState(userId, (state) => {
       const step = state.cadences.find((cadence) => cadence.id === cadenceId)?.steps?.[stepIndex];
-      if (step?.status === "dispatching") step.status = "uncertain";
+      if (step?.status !== "dispatching") {
+        outcome = step?.status || outcome;
+        return;
+      }
+      step.status = outcome;
+      step.lastAttemptAt = new Date().toISOString();
+      step.lastErrorCode = error.code || "error";
     }).catch(() => {});
-    if (attemptId) await finishDispatchAttempt(userId, attemptId, error.code === "delivery_uncertain" ? "uncertain" : "failed", error.code || "error").catch(() => {});
+    await finishDispatchAttempt(userId, attemptId, outcome === "uncertain" ? "uncertain" : "failed", error.code || "error").catch(() => {});
     throw error;
   }
 }
 
-async function runStep(userId, cadenceId, stepIndex) {
+async function runStep(userId, cadenceId, stepIndex, progress) {
   const state = await getUserState(userId);
   const cadence = state.cadences.find((c) => c.id === cadenceId);
   if (!cadence) throw new Error("Cadence not found");
@@ -53,13 +69,13 @@ async function runStep(userId, cadenceId, stepIndex) {
   const mode = state.settings?.outreachMode === "automated" ? "automated" : "manual";
 
   if (isLinkedIn(step.channel)) {
-    return dispatchLinkedIn({ userId, cadenceId, stepIndex, cadence, step, contact, state });
+    return dispatchLinkedIn({ userId, cadenceId, stepIndex, cadence, step, contact, state, progress });
   }
 
-  return dispatchEmail({ userId, cadenceId, stepIndex, cadence, step, contact, state, mode });
+  return dispatchEmail({ userId, cadenceId, stepIndex, cadence, step, contact, state, mode, progress });
 }
 
-async function dispatchLinkedIn({ userId, cadenceId, stepIndex, cadence, step, contact, state }) {
+async function dispatchLinkedIn({ userId, cadenceId, stepIndex, cadence, step, contact, state, progress }) {
   const identifier = identifierFromUrl(contact.linkedinUrl);
   if (!identifier) throw new Error("No LinkedIn profile URL for this contact");
   const li = state.connections?.linkedin;
@@ -69,6 +85,7 @@ async function dispatchLinkedIn({ userId, cadenceId, stepIndex, cadence, step, c
     if (!allowed) throw new Error(`Daily LinkedIn limit reached (${capLinkedInPerDay()}/day). Resumes tomorrow`);
     const providerId = await resolveProfile({ accountId: li.accountId, identifier });
     if (!providerId) throw new Error("Couldn't resolve that LinkedIn profile via Unipile");
+    progress.providerCalled = true;
     const result = isInvite(step.channel)
       ? await sendInvitation({ accountId: li.accountId, providerId, message: (step.body || "").slice(0, 290) })
       : await sendMessage({ accountId: li.accountId, providerId, text: step.body || "" });
@@ -89,7 +106,7 @@ async function dispatchLinkedIn({ userId, cadenceId, stepIndex, cadence, step, c
   return { channel: step.channel, queued: true, via: "extension" };
 }
 
-async function dispatchEmail({ userId, cadenceId, stepIndex, cadence, step, contact, state, mode }) {
+async function dispatchEmail({ userId, cadenceId, stepIndex, cadence, step, contact, state, mode, progress }) {
   if (!contact.email) throw new Error("No email for this contact (try enriching via LeadMagic)");
   if (await isSuppressed(contact.email)) {
     await markAttempt(userId, cadenceId, stepIndex, "suppressed", false);
@@ -134,6 +151,7 @@ async function dispatchEmail({ userId, cadenceId, stepIndex, cadence, step, cont
   await markDispatching(userId, cadenceId, stepIndex);
 
   let result;
+  progress.providerCalled = true;
   try {
     result = mode === "automated"
       ? { messageId: await sendGmail(payload), sent: true }

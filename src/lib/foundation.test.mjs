@@ -10,6 +10,7 @@ const { POST: approveCadence } = await import("@/app/api/cadence/approve/route")
 const { POST: scout } = await import("@/app/api/scout/route");
 const { getUserId } = await import("@/lib/auth");
 const { stepDueAt } = await import("@/lib/durable");
+const { claimOutcome } = await import("@/lib/dispatch");
 
 describe("public v1 fail-closed paths", { concurrency: false }, () => {
   test("no Auth configuration never authenticates a request", async () => {
@@ -117,5 +118,12 @@ describe("outreach scheduling and claim outcomes", () => {
     assert.equal(stepDueAt({ approvalStatus: "approved", approvedAt: null }, step), null);
     assert.equal(stepDueAt({ approvalStatus: "approved", approvedAt }, step).toISOString(), "2026-09-12T12:00:00.000Z");
     assert.equal(stepDueAt({ approvalStatus: "approved", approvedAt }, { day: "soon" }), null);
+  });
+
+  test("only a started provider call leaves a claimed step uncertain", () => {
+    assert.equal(claimOutcome(new Error("No email for this contact"), false), "pending");
+    assert.equal(claimOutcome(Object.assign(new Error("cap"), { code: "daily_cap" }), false), "pending");
+    assert.equal(claimOutcome(new Error("socket hang up"), true), "uncertain");
+    assert.equal(claimOutcome(Object.assign(new Error("unrecorded"), { code: "delivery_uncertain" }), false), "uncertain");
   });
 });
