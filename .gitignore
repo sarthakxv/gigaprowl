@@ -21,8 +21,6 @@ next-env.d.ts
 # local data / uploads / scratch
 /data
 /design/
-/docs/
-!/docs/
 /docs/*
 !/docs/public-v1-backend-foundation.md
 /tmp
