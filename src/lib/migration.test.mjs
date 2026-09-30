@@ -1,18 +1,25 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { test } from "node:test";
 import { PGlite } from "@electric-sql/pglite";
 
 const USER_A = "11111111-1111-4111-8111-111111111111";
 const USER_B = "22222222-2222-4222-8222-222222222222";
+const MIGRATIONS = new URL("../../supabase/migrations/", import.meta.url);
+
+// Local stand-ins for the pre-existing Supabase Auth schema and API roles,
+// followed by every migration in version order.
+async function applyMigrations(db) {
+  await db.exec("create role anon; create role authenticated; create schema auth; create table auth.users (id uuid primary key);");
+  for (const file of readdirSync(MIGRATIONS).filter((name) => name.endsWith(".sql")).sort()) {
+    await db.exec(readFileSync(new URL(file, MIGRATIONS), "utf8"));
+  }
+}
 
 test("public-v1 migration enforces tenant RLS and provider deduplication", async () => {
   const db = new PGlite();
   try {
-    // Local stand-ins for the pre-existing Supabase Auth schema and API roles.
-    await db.exec("create role anon; create role authenticated; create schema auth; create table auth.users (id uuid primary key);");
-    const migration = readFileSync(new URL("../../supabase/migrations/20260924142722_public_v1_backend_foundation.sql", import.meta.url), "utf8");
-    await db.exec(migration);
+    await applyMigrations(db);
     await db.query("insert into auth.users (id) values ($1), ($2)", [USER_A, USER_B]);
     await db.exec("set role gigaprowl_app");
 
@@ -44,6 +51,28 @@ test("public-v1 migration enforces tenant RLS and provider deduplication", async
     await assert.rejects(
       () => db.query("update app.credit_accounts set balance = -1 where user_id = $1", [USER_A]),
       /check constraint/,
+    );
+  } finally {
+    await db.close();
+  }
+});
+
+test("a Unipile account can be reconnected with a fresh correlation", async () => {
+  const db = new PGlite();
+  try {
+    await applyMigrations(db);
+    await db.query("insert into auth.users (id) values ($1)", [USER_A]);
+    await db.exec("set role gigaprowl_worker");
+    await db.query("insert into app.accounts (id, email) values ($1, 'a@example.com')", [USER_A]);
+    for (const nonce of [new Uint8Array([1]), new Uint8Array([2])]) {
+      await db.query("insert into app.unipile_correlations (nonce_hash, user_id, expires_at) values ($1, $2, now() + interval '1 hour')", [nonce, USER_A]);
+      const consumed = await db.query("update app.unipile_correlations set consumed_at = now(), account_id = 'acc_1' where nonce_hash = $1 and consumed_at is null", [nonce]);
+      assert.equal(consumed.affectedRows, 1);
+    }
+    await db.query("insert into app.unipile_accounts (account_id, user_id) values ('acc_1', $1)", [USER_A]);
+    await assert.rejects(
+      () => db.query("insert into app.unipile_accounts (account_id, user_id) values ('acc_1', $1)", [USER_A]),
+      /duplicate key/,
     );
   } finally {
     await db.close();
