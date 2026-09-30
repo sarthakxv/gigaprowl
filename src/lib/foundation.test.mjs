@@ -9,6 +9,7 @@ const { GET: jobScan, POST: manualJobScan } = await import("@/app/api/jobs/sync/
 const { POST: approveCadence } = await import("@/app/api/cadence/approve/route");
 const { POST: scout } = await import("@/app/api/scout/route");
 const { getUserId } = await import("@/lib/auth");
+const { stepDueAt } = await import("@/lib/durable");
 
 describe("public v1 fail-closed paths", { concurrency: false }, () => {
   test("no Auth configuration never authenticates a request", async () => {
@@ -105,5 +106,16 @@ describe("public v1 fail-closed paths", { concurrency: false }, () => {
       body: JSON.stringify({ linkedinUrl: "https://example.com/not-linkedin" }),
     }));
     assert.equal(response.status, 400);
+  });
+});
+
+describe("outreach scheduling and claim outcomes", () => {
+  test("steps are due relative to approval, never to generation", () => {
+    const approvedAt = "2026-09-10T12:00:00.000Z";
+    const step = { day: 2 };
+    assert.equal(stepDueAt({ approvalStatus: "draft", createdAt: "2026-09-01T00:00:00.000Z" }, step), null);
+    assert.equal(stepDueAt({ approvalStatus: "approved", approvedAt: null }, step), null);
+    assert.equal(stepDueAt({ approvalStatus: "approved", approvedAt }, step).toISOString(), "2026-09-12T12:00:00.000Z");
+    assert.equal(stepDueAt({ approvalStatus: "approved", approvedAt }, { day: "soon" }), null);
   });
 });

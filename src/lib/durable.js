@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import { withUser, workerDb } from "@/lib/postgres";
+import { DAY_MS } from "@/lib/constants";
 
 const EMPTY = {
   profile: null,
@@ -98,6 +99,16 @@ async function readState(sql, userId) {
 
 export async function readUserState(userId) {
   return withUser(userId, (sql) => readState(sql, userId));
+}
+
+// Steps are scheduled from explicit approval, never from generation time, so a
+// cadence approved days later does not release its whole sequence at once.
+export function stepDueAt(cadence, step) {
+  if (cadence?.approvalStatus !== "approved" || !cadence.approvedAt) return null;
+  const approvedAt = new Date(cadence.approvedAt).getTime();
+  const day = Number(step?.day);
+  if (!Number.isFinite(approvedAt) || !Number.isFinite(day)) return null;
+  return new Date(approvedAt + day * DAY_MS);
 }
 
 export async function claimCadenceStep(userId, cadenceId, stepIndex) {
@@ -237,9 +248,7 @@ export async function mutateUserState(userId, fn, options = {}) {
       const rescheduled = !before || before.schedule !== JSON.stringify([approvalStatus, item.approvedAt]);
       for (const [index, step] of (steps || []).entries()) {
         if (!rescheduled && before?.steps[index] === JSON.stringify(step)) continue;
-        const dueAt = item.createdAt && Number.isFinite(Number(step.day))
-          ? new Date(new Date(item.createdAt).getTime() + Number(step.day) * 86400000)
-          : null;
+        const dueAt = stepDueAt(item, step);
         await sql`
           insert into app.cadence_steps (cadence_id, user_id, step_index, status, due_at, data)
           values (${item.id}, ${userId}, ${index}, ${step.status || "pending"}, ${dueAt}, ${sql.json(step)})
