@@ -12,6 +12,7 @@ import { getJobPool } from "@/lib/db";
 import { kvGet, kvSet } from "@/lib/db";
 import { identifierFromUrl } from "@/lib/unipile";
 import { kvKeys } from "@/lib/constants";
+import { saveScoutLeadRecord, listScoutLeadEmails } from "@/lib/durable";
 
 const PARALLEL_KEY = process.env.PARALLEL_API_KEY;
 const PARALLEL_BASE = "https://api.parallel.ai/v1";
@@ -367,6 +368,9 @@ export async function inferProfile(linkedinUrl, { refresh = false } = {}) {
 // Fallback profile when the real read isn't available or didn't find the person:
 // a Claude estimate from the URL, else the demo profile.
 export async function inferProfileFallback(linkedinUrl) {
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("A verified LinkedIn profile is required for this report");
+  }
   const handle = handleFromUrl(linkedinUrl) || "this candidate";
   if (hasAI()) {
     try {
@@ -421,6 +425,7 @@ async function gatherJobs(profile) {
   }
 
   if (jobs.length === 0) {
+    if (process.env.NODE_ENV === "production") return [];
     const { SEED_JOBS } = await import("@/lib/seed");
     return SEED_JOBS;
   }
@@ -499,8 +504,6 @@ export async function scout(linkedinUrl, opts = {}) {
 }
 
 // ---- Lead capture ------------------------------------------------------------
-const LEADS_INDEX = kvKeys.scoutLeads;
-
 export async function saveScoutLead({ email, linkedinUrl, profile, matches }) {
   const clean = String(email).toLowerCase().trim();
   const lead = {
@@ -512,16 +515,10 @@ export async function saveScoutLead({ email, linkedinUrl, profile, matches }) {
     matchCount: matches?.length || 0,
     at: new Date().toISOString(),
   };
-  await kvSet(kvKeys.scoutLead(clean), lead);
-  const index = (await kvGet(LEADS_INDEX)) || [];
-  if (!index.includes(clean)) {
-    index.push(clean);
-    await kvSet(LEADS_INDEX, index);
-  }
+  await saveScoutLeadRecord(lead);
   return lead;
 }
 
 export async function getScoutLeads() {
-  const index = (await kvGet(LEADS_INDEX)) || [];
-  return index;
+  return listScoutLeadEmails();
 }

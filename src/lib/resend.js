@@ -1,4 +1,6 @@
-// Resend. Transactional account email only (password reset, future confirmations).
+// Resend is not the Auth magic-link issuer. Supabase Auth uses Resend through
+// its configured production SMTP connection. This API client is only for
+// operational/test messages; outreach always goes through connected Gmail.
 // Outreach always goes through the user's connected Gmail — never Resend.
 // from: a verified-domain address in your Resend account, OR the test address
 // "onboarding@resend.dev" (which can only deliver to your own account email).

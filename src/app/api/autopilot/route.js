@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getUserState, getJobPool } from "@/lib/db";
+import { getUserState, getJobPool, rateLimit } from "@/lib/db";
 import { getUserId } from "@/lib/auth";
 import { rankJobs, videoEligibility } from "@/lib/match";
 import { generateApplyKit } from "@/lib/ai";
@@ -22,8 +22,10 @@ const MAX_LITE = 4;
 // apply note). Kits are idempotent per matchId; hunts stay gated on statusById.
 export async function POST(req) {
   try {
-    const userId = getUserId(req);
+    const userId = await getUserId(req);
     if (!userId) return NextResponse.json({ error: "Not signed in" }, { status: 401 });
+    const { allowed } = await rateLimit("autopilot", userId, 2, 3600);
+    if (!allowed) return NextResponse.json({ error: "Too many runs. Try again later." }, { status: 429 });
 
     let liteOnly = false;
     try {
@@ -36,7 +38,7 @@ export async function POST(req) {
 
     const ranked = rankJobs(state.profile, pool.jobs);
     const fullTargets = liteOnly ? [] : ranked
-      .filter((m) => !state.statusById[m.job.sourceId] && m.score >= FULL_BAND && videoEligibility(state.profile, m.job).eligible)
+      .filter((m) => state.statusById[m.job.sourceId] !== "outreach_ready" && m.score >= FULL_BAND && videoEligibility(state.profile, m.job).eligible)
       .slice(0, MAX_FULL);
     // A hunted 62 still gets a kit. Hunt status does not block it.
     const liteTargets = ranked

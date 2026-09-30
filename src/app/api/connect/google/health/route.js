@@ -15,7 +15,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET(req) {
-  const userId = getUserId(req);
+  const userId = await getUserId(req);
   if (!userId) return NextResponse.json({ error: "Not signed in" }, { status: 401 });
   if (!gmailEnabled()) return NextResponse.json({ error: "Gmail isn't configured" }, { status: 501 });
 

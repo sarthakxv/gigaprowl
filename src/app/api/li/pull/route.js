@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { verifySessionToken } from "@/lib/auth";
+import { verifyExtensionToken } from "@/lib/extension-auth";
 import { getUserState, updateUserState } from "@/lib/db";
 
 export const runtime = "nodejs";
@@ -13,14 +13,10 @@ const CORS = {
 };
 export async function OPTIONS() { return new NextResponse(null, { status: 204, headers: CORS }); }
 
-function tokenUser(req) {
-  return verifySessionToken(req.headers.get("x-prowl-token"));
-}
-
 // GET → pending LinkedIn actions for this user, plus a per-day cap so the
 // extension paces itself. Marks the extension as connected (lastSeen).
 export async function GET(req) {
-  const userId = tokenUser(req);
+  const userId = await verifyExtensionToken(req.headers.get("x-prowl-token"));
   if (!userId) return NextResponse.json({ error: "Bad token" }, { status: 401, headers: CORS });
 
   const state = await getUserState(userId);

@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 // Email mode always comes from the user's stored outreach setting.
 export async function POST(req) {
   try {
-    const userId = getUserId(req);
+    const userId = await getUserId(req);
     if (!userId) return NextResponse.json({ error: "Not signed in" }, { status: 401 });
     const { cadenceId, stepIndex } = await req.json();
 

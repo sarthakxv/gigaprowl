@@ -1,7 +1,7 @@
 // Core hunt engine, shared by /api/outreach (one hunt) and /api/autopilot
 // (tiered batch). A full hunt is contacts + pitch page + cadence, plus video
 // when enabled, and costs 1 credit.
-import { updateUserState, savePitch, uid } from "@/lib/db";
+import { updateUserState, uid } from "@/lib/db";
 import { findContacts } from "@/lib/apollo";
 import { generateCadence, generatePitch } from "@/lib/ai";
 import { videoEnabled } from "@/lib/video";
@@ -52,7 +52,7 @@ export async function runFullHunt({ userId, state, job, base }) {
   const eligibility = videoEligibility(state.profile, job);
   const willRenderVideo = videoEnabled() && !!state.media.talkingPhotoId && eligibility.eligible;
   const videoStatus = willRenderVideo ? "pending" : "script_ready";
-  await savePitch(slug, {
+  const pitchRecord = {
     id: uid("pitch"), slug, userId, url: pitchUrl,
     job: {
       title: job.title,
@@ -68,9 +68,10 @@ export async function runFullHunt({ userId, state, job, base }) {
     videoStatus,
     videoId: null, videoUrl: null,
     createdAt: new Date().toISOString(),
-  });
+  };
 
   return updateUserState(userId, (s) => {
+    if (s.statusById[matchId] === "outreach_ready") throw new Error("This job has already been hunted");
     s.contacts.push(...contacts.filter((c) => !s.contacts.some((x) => x.id === c.id)).map((c) => ({ ...c, matchId })));
     s.pitchRefs.push({
       slug, url: pitchUrl, matchId,
@@ -98,11 +99,9 @@ export async function runFullHunt({ userId, state, job, base }) {
       s.credits.used += 1;
     }
     return { pitchUrl, contacts: contacts.length, cadenceSteps: cadence.steps.length, creditsLeft: s.credits.balance, unlimitedCredits };
-  });
+  }, { pitch: pitchRecord, hunt: { id: uid("hunt"), matchId } });
 }
 
 export function requestBase(req) {
-  const host = req.headers.get("x-forwarded-host") || req.headers.get("host");
-  const proto = req.headers.get("x-forwarded-proto") || "http";
-  return host ? `${proto}://${host}` : appUrl();
+  return appUrl();
 }

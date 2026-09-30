@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 // POST { matchId }  → generates the LinkedIn post + X thread for that pitch.
 export async function POST(req) {
   try {
-    const userId = getUserId(req);
+    const userId = await getUserId(req);
     if (!userId) return NextResponse.json({ error: "Not signed in" }, { status: 401 });
 
     const { matchId } = await req.json();

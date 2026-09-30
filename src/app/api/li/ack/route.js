@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { verifySessionToken } from "@/lib/auth";
+import { verifyExtensionToken } from "@/lib/extension-auth";
 import { updateUserState } from "@/lib/db";
 
 export const runtime = "nodejs";
@@ -15,11 +15,13 @@ export async function OPTIONS() { return new NextResponse(null, { status: 204, h
 // POST { results: [{ id, ok, error }] }. The extension reports what it executed.
 // We finalize the queue item, mark the matching cadence step sent, and log it.
 export async function POST(req) {
-  const userId = verifySessionToken(req.headers.get("x-prowl-token"));
+  const userId = await verifyExtensionToken(req.headers.get("x-prowl-token"));
   if (!userId) return NextResponse.json({ error: "Bad token" }, { status: 401, headers: CORS });
 
   const { results } = await req.json().catch(() => ({ results: [] }));
-  if (!Array.isArray(results)) return NextResponse.json({ error: "results[] required" }, { status: 400, headers: CORS });
+  if (!Array.isArray(results) || results.length > 100 || results.some((item) => typeof item?.id !== "string" || item.id.length > 100)) {
+    return NextResponse.json({ error: "Invalid results[]" }, { status: 400, headers: CORS });
+  }
 
   const anyCheckpoint = results.some((r) => !r.ok && /checkpoint/i.test(r.error || ""));
 

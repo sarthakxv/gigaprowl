@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 // POST { to, subject, body }. Send a test email via Resend.
 export async function POST(req) {
   try {
-    const userId = getUserId(req);
+    const userId = await getUserId(req);
     if (!userId) return NextResponse.json({ error: "Not signed in" }, { status: 401 });
     if (!resendEnabled()) return NextResponse.json({ error: "Resend not configured (RESEND_API_KEY)" }, { status: 501 });
 

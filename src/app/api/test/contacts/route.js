@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 // POST { company, title, domain? }. Apollo contact probe. No demo fallback.
 export async function POST(req) {
   try {
-    const userId = getUserId(req);
+    const userId = await getUserId(req);
     if (!userId) return NextResponse.json({ error: "Not signed in" }, { status: 401 });
 
     const { company, title, domain } = await req.json();

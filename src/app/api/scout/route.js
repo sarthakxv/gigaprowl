@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { inferProfile, buildReport, saveScoutLead, isLinkedInUrl } from "@/lib/scout";
+import { rateLimit } from "@/lib/db";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -16,11 +17,17 @@ export async function POST(req) {
   }
 
   const { linkedinUrl, email } = body || {};
-  if (!linkedinUrl || !isLinkedInUrl(linkedinUrl)) {
+  if (typeof linkedinUrl !== "string" || linkedinUrl.length > 300 || !isLinkedInUrl(linkedinUrl)) {
     return NextResponse.json({ error: "Please paste a valid LinkedIn profile URL (linkedin.com/in/...)." }, { status: 400 });
+  }
+  if (email && (typeof email !== "string" || email.length > 254)) {
+    return NextResponse.json({ error: "Invalid email" }, { status: 400 });
   }
 
   try {
+    const ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim() || "unknown";
+    const { allowed } = await rateLimit("scout", ip, 5, 3600);
+    if (!allowed) return NextResponse.json({ error: "Too many scans. Try again later." }, { status: 429 });
     const profile = await inferProfile(linkedinUrl, { refresh: !!body.refresh });
     const result = await buildReport(linkedinUrl, profile, { windowHours: 48, limit: 3 });
 

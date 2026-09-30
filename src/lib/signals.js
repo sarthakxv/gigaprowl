@@ -126,6 +126,7 @@ export async function getHiringSignal(company) {
     const real = await fetchParallelSignal(company);
     if (real) return { ...real, source: "parallel" };
   }
+  if (process.env.NODE_ENV === "production") return null;
   return mockSignal(company);
 }
 

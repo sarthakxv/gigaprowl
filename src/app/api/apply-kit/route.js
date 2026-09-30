@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getUserState, getJobPool, getPitch } from "@/lib/db";
+import { getUserState, getJobPool, getPitch, rateLimit } from "@/lib/db";
 import { getUserId } from "@/lib/auth";
 import { generateApplyKit } from "@/lib/ai";
 import { scoreJob } from "@/lib/match";
@@ -13,11 +13,13 @@ export const dynamic = "force-dynamic";
 // Runs after a hunt, and from Matches for jobs scored 50-74.
 export async function POST(req) {
   try {
-    const userId = getUserId(req);
+    const userId = await getUserId(req);
     if (!userId) return NextResponse.json({ error: "Not signed in" }, { status: 401 });
 
     const { matchId } = await req.json();
-    if (!matchId) return NextResponse.json({ error: "matchId required" }, { status: 400 });
+    if (typeof matchId !== "string" || matchId.length > 200) return NextResponse.json({ error: "Invalid matchId" }, { status: 400 });
+    const { allowed } = await rateLimit("apply-kit", userId, 10, 3600);
+    if (!allowed) return NextResponse.json({ error: "Too many kits. Try again later." }, { status: 429 });
 
     const [state, pool] = await Promise.all([getUserState(userId), getJobPool()]);
     if (!state.profile) return NextResponse.json({ error: "Upload a resume first" }, { status: 400 });

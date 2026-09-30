@@ -268,6 +268,23 @@ export default function Dashboard() {
     if (r.ok) refresh();
   }
 
+  async function approveCadence(cad) {
+    const contact = (state.contacts || []).find((item) => item.id === cad.contactId);
+    const channels = cad.steps.map((step) => step.channel.replace("_", " ")).join(", ");
+    const recipient = [contact?.name || cad.contactName, contact?.email, contact?.linkedinUrl].filter(Boolean).join(" · ");
+    if (!window.confirm(`Approve this cadence for ${recipient}?\n\nChannels: ${channels}\n\nReview every step below first. Approved steps may run automatically when due if automated mode is enabled.`)) return;
+    const response = await fetch("/api/cadence/approve", {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ cadenceId: cad.id }),
+    });
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      toast.error(data.error || "Approval failed");
+      return;
+    }
+    toast.success("Cadence approved");
+    refresh();
+  }
+
   async function setMode(outreachMode) {
     const r = await fetch("/api/settings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ outreachMode }) });
     if (r.ok) { toast.success(outreachMode === "manual" ? "Manual: emails saved as Gmail drafts to review" : "Automated: Gigaprowl sends emails for you"); refresh(); }
@@ -646,10 +663,15 @@ export default function Dashboard() {
                 <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
                   <p className="font-semibold">{c.jobTitle} @ {c.company} <span className="text-fog font-normal text-sm">→ {c.contactName} ({c.contactTitle})</span></p>
                   <div className="flex items-center gap-2">
+                    {c.approvalStatus !== "approved" && (
+                      <button onClick={() => approveCadence(c)} className="text-xs border border-mint text-mint rounded-full px-3 py-1 hover:bg-mint hover:text-ink transition">
+                        Approve cadence
+                      </button>
+                    )}
                     <button onClick={() => restyle(c.id, c.style === "founder_direct" ? "standard" : "founder_direct")} disabled={restyling === c.id} className="text-xs border border-edge hover:border-mint hover:text-mint text-fog rounded-full px-3 py-1 transition disabled:opacity-50">
                       {restyling === c.id ? "rewriting…" : c.style === "founder_direct" ? "↺ standard style" : "✍️ founder-direct style"}
                     </button>
-                    <span className="text-xs border border-edge rounded-full px-3 py-1 text-fog">review, then send</span>
+                    <span className="text-xs border border-edge rounded-full px-3 py-1 text-fog">{c.approvalStatus === "approved" ? "approved" : "draft · review first"}</span>
                   </div>
                 </div>
                 <div className="space-y-3">
@@ -671,7 +693,7 @@ export default function Dashboard() {
                           ) : (
                             <button
                               onClick={() => ready ? sendStep(c, i) : (li ? connectLinkedIn() : connectGmail())}
-                              disabled={sending === `${c.id}:${i}`}
+                              disabled={sending === `${c.id}:${i}` || c.approvalStatus !== "approved"}
                               className="text-xs font-bold shrink-0 rounded-full px-4 py-1.5 bg-mint text-ink hover:bg-mintdim transition disabled:opacity-50"
                             >
                               {sending === `${c.id}:${i}` ? "working…" : ready ? action : connectLabel}

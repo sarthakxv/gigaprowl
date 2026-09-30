@@ -8,10 +8,6 @@ export const VIDEO_GENERATION_ENABLED = false;
 export const PRODUCTION_APP_URL = "https://gigaprowl.vercel.app";
 export const LOCAL_APP_URL = "http://localhost:3000";
 
-export const SESSION_COOKIE = "prowl_session";
-export const SESSION_MAX_AGE_SEC = 60 * 60 * 24 * 30;
-export const DEV_SESSION_SECRET = "prowl-dev-secret";
-
 export const DAY_MS = 86_400_000;
 export const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -36,31 +32,14 @@ export const SCHEDULER_EMAIL_CAP = 40;
 export const SCHEDULER_TIME_BUDGET_MS = 50_000;
 export const SCHEDULER_FAILURE_CAP = 50;
 
-export const TOKEN_TTL_SEC = {
-  verify: 60 * 60 * 24 * 3,
-  reset: 60 * 60,
-};
-
 export const RESEND_TEST_FROM = "Gigaprowl <onboarding@resend.dev>";
 
 export const kvKeys = {
   oauthGoogle: (token) => `prowl:oauth:google:${token}`,
-  token: (token) => `prowl:tok:${token}`,
-  suppress: (email) => `prowl:suppress:${email}`,
   rate: (kind, userId, day) => `prowl:rate:${kind}:${userId}:${day}`,
   rateLimit: (bucket, id, win) => `prowl:rl:${bucket}:${id}:${win}`,
-  user: (email) => `prowl:user:${email}`,
-  uidToEmail: (userId) => `prowl:uid2email:${userId}`,
-  users: "prowl:users",
-  userState: (userId) => `prowl:u:${userId}`,
-  jobs: "prowl:jobs",
-  linkedInOwner: (accountId) => `prowl:liowner:${accountId}`,
-  pitch: (slug) => `prowl:pitch:${slug}`,
   lockOutreach: (userId, cadenceId, stepIndex) => `prowl:lock:outreach:${userId}:${cadenceId}:${stepIndex}`,
-  mailEvent: (emailId) => `prowl:mailevt:${emailId}`,
   scoutProfile: (id) => `prowl:scout:uprofile:v2:${id}`,
-  scoutLeads: "prowl:scout:leads",
-  scoutLead: (email) => `prowl:scout:lead:${email}`,
 };
 
 export function isProductionRuntime() {

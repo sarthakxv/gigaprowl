@@ -2,7 +2,7 @@
 // scheduler cron (automatic release). Executes ONE cadence step:
 //   • linkedin → Unipile (server-side invite/DM) if connected, else browser-ext queue
 //   • email    → Gmail only (draft in manual mode, send in automated)
-import { getUserState, updateUserState, uid, bumpDailyCounter, isSuppressed, acquireLock, releaseLock } from "@/lib/db";
+import { getUserState, updateUserState, uid, bumpDailyCounter, isSuppressed } from "@/lib/db";
 import {
   sendGmail,
   createDraft,
@@ -14,21 +14,30 @@ import {
   assertValidRecipient,
 } from "@/lib/gmail";
 import { unipileEnabled, resolveProfile, sendInvitation, sendMessage, identifierFromUrl } from "@/lib/unipile";
-import { capLinkedInPerDay, capEmailPerDay, OUTREACH_LOCK_TTL_SEC, kvKeys } from "@/lib/constants";
+import { capLinkedInPerDay, capEmailPerDay } from "@/lib/constants";
+import { claimCadenceStep, finishDispatchAttempt } from "@/lib/durable";
 
 export const isLinkedIn = (ch) => /linkedin|connect|invite|dm/i.test(ch || "");
 const isInvite = (ch) => /invite|connect|request/i.test(ch || "");
 const ACTIONED = new Set(["sent", "drafted", "queued", "dispatching", "uncertain"]);
 
 export async function dispatchStep(userId, cadenceId, stepIndex) {
-  const lockKey = kvKeys.lockOutreach(userId, cadenceId, stepIndex);
-  const lockOwner = await acquireLock(lockKey, OUTREACH_LOCK_TTL_SEC);
-  if (!lockOwner) throw new GmailError("in_progress", "This step is already being sent");
-
+  let attemptId;
   try {
-    return await runStep(userId, cadenceId, stepIndex);
-  } finally {
-    await releaseLock(lockKey, lockOwner).catch(() => {});
+    attemptId = await claimCadenceStep(userId, cadenceId, stepIndex);
+    if (!attemptId) return { skipped: true, status: "not_approved_or_already_actioned" };
+    const result = await runStep(userId, cadenceId, stepIndex);
+    await finishDispatchAttempt(userId, attemptId, result.sent ? "sent" : result.drafted ? "drafted" : result.queued ? "queued" : "uncertain");
+    return result;
+  } catch (error) {
+    // A provider may have accepted a request before a worker died or the DB
+    // failed. Leave any unresolved claim for manual reconciliation.
+    await updateUserState(userId, (state) => {
+      const step = state.cadences.find((cadence) => cadence.id === cadenceId)?.steps?.[stepIndex];
+      if (step?.status === "dispatching") step.status = "uncertain";
+    }).catch(() => {});
+    if (attemptId) await finishDispatchAttempt(userId, attemptId, error.code === "delivery_uncertain" ? "uncertain" : "failed", error.code || "error").catch(() => {});
+    throw error;
   }
 }
 
@@ -38,7 +47,7 @@ async function runStep(userId, cadenceId, stepIndex) {
   if (!cadence) throw new Error("Cadence not found");
   const step = cadence.steps[stepIndex];
   if (!step) throw new Error("Step not found");
-  if (ACTIONED.has(step.status)) return { skipped: true, status: step.status };
+  if (step.status !== "dispatching") return { skipped: true, status: step.status };
 
   const contact = state.contacts.find((c) => c.id === cadence.contactId) || {};
   const mode = state.settings?.outreachMode === "automated" ? "automated" : "manual";

@@ -89,7 +89,7 @@ function normalizeProfile(profile) {
 
 export async function POST(req) {
   try {
-    const userId = getUserId(req);
+    const userId = await getUserId(req);
     if (!userId) return NextResponse.json({ error: "Not signed in" }, { status: 401 });
 
     const form = await req.formData();

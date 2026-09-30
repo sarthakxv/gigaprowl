@@ -35,7 +35,7 @@ async function api(path, { method = "GET", body } = {}) {
 
 // Create the hosted connect link the user visits to link their LinkedIn.
 // `name` is echoed back to notify_url so we can tie the new account to our user.
-export async function hostedAuthLink({ base, name }) {
+export async function hostedAuthLink({ base, name, proof }) {
   const expiresOn = new Date(Date.now() + 60 * 60 * 1000).toISOString();
   return api("/api/v1/hosted/accounts/link", {
     method: "POST",
@@ -44,10 +44,10 @@ export async function hostedAuthLink({ base, name }) {
       providers: ["LINKEDIN"],
       api_url: dsn(),
       expiresOn,
-      name, // our userId
+      name, // one-time opaque correlation; never a user ID
       success_redirect_url: `${base}/dashboard?connect=linkedin_ok`,
       failure_redirect_url: `${base}/dashboard?connect=linkedin_failed`,
-      notify_url: `${base}/api/connect/linkedin/callback`,
+      notify_url: `${base}/api/connect/linkedin/callback?proof=${encodeURIComponent(proof)}`,
     },
   });
 }

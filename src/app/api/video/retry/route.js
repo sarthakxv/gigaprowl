@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 // POST { slug }. Re-kick a failed/missing render. Owner only. Free (no credit charge).
 export async function POST(req) {
   try {
-    const userId = getUserId(req);
+    const userId = await getUserId(req);
     if (!userId) return NextResponse.json({ error: "Not signed in" }, { status: 401 });
 
     const { slug } = await req.json();

@@ -341,6 +341,8 @@ export async function findContacts(job) {
   const { contacts, debug } = await probeContacts(job);
   if (contacts.length) return contacts;
 
+  if (process.env.NODE_ENV === "production") return [];
+
   if (!debug.pass1.ok && debug.pass1.status) {
     console.error(`Apollo ${debug.pass1.status}, falling back to demo contacts`);
     return enrichEmails(demoContacts(job, titles, debug.errorNote), job);
