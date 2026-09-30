@@ -16,11 +16,9 @@ export default function LoginForm() {
     setError("");
     setMessage("");
     try {
-      const base = process.env.NEXT_PUBLIC_BASE_URL;
-      if (!base) throw new Error("Sign-in redirect is not configured");
       const { error: authError } = await browserAuth().auth.signInWithOtp({
         email,
-        options: { emailRedirectTo: `${base.replace(/\/$/, "")}/auth/callback` },
+        options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
       });
       if (authError) throw authError;
       setMessage("Check your inbox for your sign-in link.");
@@ -35,11 +33,9 @@ export default function LoginForm() {
     setBusy(true);
     setError("");
     try {
-      const base = process.env.NEXT_PUBLIC_BASE_URL;
-      if (!base) throw new Error("Sign-in redirect is not configured");
       const { error: authError } = await browserAuth().auth.signInWithOAuth({
         provider: "google",
-        options: { redirectTo: `${base.replace(/\/$/, "")}/auth/callback` },
+        options: { redirectTo: `${window.location.origin}/auth/callback` },
       });
       if (authError) throw authError;
     } catch (e) {
