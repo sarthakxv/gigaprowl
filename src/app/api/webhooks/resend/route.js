@@ -10,7 +10,8 @@ function validSignature(secret, headers, payload) {
   const id = headers.get("svix-id");
   const timestamp = headers.get("svix-timestamp");
   const signature = headers.get("svix-signature");
-  if (!id || !timestamp || !signature || Math.abs(Date.now() / 1000 - Number(timestamp)) > 300) return false;
+  const sentAt = Number(timestamp);
+  if (!id || !signature || !Number.isFinite(sentAt) || Math.abs(Date.now() / 1000 - sentAt) > 300) return false;
   try {
     const key = Buffer.from(secret.replace(/^whsec_/, ""), "base64");
     const expected = crypto.createHmac("sha256", key).update(`${id}.${timestamp}.${payload}`).digest();

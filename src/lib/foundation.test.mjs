@@ -88,6 +88,13 @@ describe("public v1 fail-closed paths", { concurrency: false }, () => {
         method: "POST", headers: { "svix-id": "msg_test", "svix-timestamp": String(timestamp), "svix-signature": `v1,${resendSignature}` }, body: resendBody,
       }));
       assert.equal(resendResponse.status, 503);
+
+      // A validly signed but non-numeric timestamp must not skip the freshness window.
+      const staleSignature = crypto.createHmac("sha256", key).update(`msg_test.later.${resendBody}`).digest("base64");
+      const staleResponse = await resendWebhook(new Request("https://example.com/api/webhooks/resend", {
+        method: "POST", headers: { "svix-id": "msg_test", "svix-timestamp": "later", "svix-signature": `v1,${staleSignature}` }, body: resendBody,
+      }));
+      assert.equal(staleResponse.status, 401);
     } finally {
       if (previous.stripe == null) delete process.env.STRIPE_WEBHOOK_SECRET; else process.env.STRIPE_WEBHOOK_SECRET = previous.stripe;
       if (previous.resend == null) delete process.env.RESEND_WEBHOOK_SECRET; else process.env.RESEND_WEBHOOK_SECRET = previous.resend;
