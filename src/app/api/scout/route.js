@@ -40,7 +40,7 @@ export async function POST(req) {
         console.error("lead save failed (non-fatal):", e.message);
       }
     }
-    return NextResponse.json({ status: "done", locked: false, ...result });
+    return NextResponse.json({ status: "done", ...result });
   } catch (e) {
     console.error("scout route failed:", e);
     return NextResponse.json({ error: "Scan failed. Try again in a moment." }, { status: 500 });
