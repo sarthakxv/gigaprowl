@@ -284,7 +284,9 @@ async function inferProfileFallback(linkedinUrl) {
         `From this LinkedIn profile URL, infer the most likely professional profile. The slug often hints at their name. Return JSON with keys: name, title, seniority (junior|mid|senior|staff|lead|executive), discipline, orientation (product|services|hybrid), skills (max 16 lowercase), topSkills (max 6 lowercase), roles (max 5 titles), domains, summary (1 first-person sentence starting with "I").
 
 LinkedIn URL: ${linkedinUrl}
-Handle: ${handle}`
+Handle: ${handle}`,
+        2000,
+        { task: "scoutInfer" }
       );
       return normalizeProfile(p, { handle, source: "ai" });
     } catch (e) {

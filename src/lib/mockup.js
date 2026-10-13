@@ -10,8 +10,8 @@ import path from "path";
 import Anthropic from "@anthropic-ai/sdk";
 import { Resvg } from "@resvg/resvg-js";
 import { hasAI } from "./ai.js";
+import { aiTaskParams, logAiUsage } from "./models_config.js";
 
-const MODEL = "claude-sonnet-4-5";
 export const mockupEnabled = () => hasAI();
 
 // Vendored Inter TTFs (src/lib/fonts), bundled with the function so text renders
@@ -47,8 +47,9 @@ export async function generateMockupImage({ brief, idea, discipline = "product",
   const ideaLine = idea?.title ? `${idea.title}: ${idea.detail || ""}`.trim() : (brief || `a high-impact improvement for ${company}`);
   try {
     const client = new Anthropic();
+    const params = aiTaskParams("mockup");
     const msg = await client.messages.create({
-      model: MODEL,
+      ...params,
       max_tokens: 4000,
       system: "You output pixel-clean SVG mockups. Output ONLY a single self-contained <svg> element. No prose, no code fences.",
       messages: [{
@@ -70,7 +71,8 @@ Hard requirements:
 Return only the SVG.`,
       }],
     });
-    const svg = extractSvg(msg.content?.[0]?.text);
+    logAiUsage("mockup", params.model, msg.usage);
+    const svg = extractSvg((msg.content || []).find((b) => b.type === "text")?.text);
     if (!svg) return null;
     const r = new Resvg(svg, {
       fitTo: { mode: "width", value: 1280 },

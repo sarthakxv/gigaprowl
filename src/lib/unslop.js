@@ -93,7 +93,8 @@ ${force}
 ${resume}
 JSON:
 ${JSON.stringify(stripped)}`,
-      maxTokens
+      maxTokens,
+      { task: "unslop" }
     );
     if (!out || typeof out !== "object") return stripped;
     let merged = stripSlopDeep(takeStrings(stripped, out));
@@ -102,7 +103,8 @@ ${JSON.stringify(stripped)}`,
       const retry = await claudeJSON(
         "Rewrite this JSON from the resume into specific candidate copy. Same keys. No filler.",
         `The copy below is generic fallback. Replace every string with specific resume-backed copy.\n${UNSLOP_RULES}\n\nRESUME:\n${resumeExcerpt}\n\nJSON:\n${JSON.stringify(merged)}`,
-        maxTokens
+        maxTokens,
+        { task: "unslopRetry" }
       );
       if (retry && typeof retry === "object") merged = stripSlopDeep(takeStrings(merged, retry));
     }
