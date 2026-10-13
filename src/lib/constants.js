@@ -24,9 +24,6 @@ export const GMAIL_API_BASE = "https://gmail.googleapis.com/gmail/v1/users/me";
 
 export const CAP_LINKEDIN_PER_DAY_DEFAULT = 20;
 export const CAP_EMAIL_PER_DAY_DEFAULT = 50;
-// API routes are capped at 60 seconds. Keep the lease longer than the route so
-// an in-flight worker cannot overlap a second dispatch after its lock expires.
-export const OUTREACH_LOCK_TTL_SEC = 120;
 export const SCHEDULER_PER_USER_CAP = 30;
 export const SCHEDULER_EMAIL_CAP = 40;
 export const SCHEDULER_TIME_BUDGET_MS = 50_000;
@@ -38,7 +35,6 @@ export const kvKeys = {
   oauthGoogle: (token) => `prowl:oauth:google:${token}`,
   rate: (kind, userId, day) => `prowl:rate:${kind}:${userId}:${day}`,
   rateLimit: (bucket, id, win) => `prowl:rl:${bucket}:${id}:${win}`,
-  lockOutreach: (userId, cadenceId, stepIndex) => `prowl:lock:outreach:${userId}:${cadenceId}:${stepIndex}`,
   scoutProfile: (id) => `prowl:scout:uprofile:v2:${id}`,
 };
 

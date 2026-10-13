@@ -1,7 +1,6 @@
 // Resend is not the Auth magic-link issuer. Supabase Auth uses Resend through
 // its configured production SMTP connection. This API client is only for
 // operational/test messages; outreach always goes through connected Gmail.
-// Outreach always goes through the user's connected Gmail — never Resend.
 // from: a verified-domain address in your Resend account, OR the test address
 // "onboarding@resend.dev" (which can only deliver to your own account email).
 import { isSuppressed } from "@/lib/db";
@@ -15,22 +14,14 @@ export function resendFrom() {
   return process.env.RESEND_FROM || RESEND_TEST_FROM;
 }
 
-// Dedicated system sender for account emails (verify / reset). Falls back to
-// RESEND_FROM, then the test address. Set RESEND_SYSTEM_FROM once you verify a
-// domain, e.g. "Gigaprowl <hello@gigaprowl.com>".
-export function systemFrom() {
-  return process.env.RESEND_SYSTEM_FROM || resendFrom();
-}
-
-// Returns the Resend message id. Throws on failure.
-// opts.system=true  -> account email (verify/reset): uses systemFrom, bypasses suppression.
-// opts.system=false -> outreach: checks the suppression list first (hard bounces / complaints).
-export async function sendResend({ to, subject, text, html, replyTo, fromName, system = false }) {
+// Returns the Resend message id. Throws on failure. Checks the suppression list
+// first, so a hard bounce or complaint is never emailed again.
+export async function sendResend({ to, subject, text, html, replyTo, fromName }) {
   const primary = Array.isArray(to) ? to[0] : to;
-  if (!system && (await isSuppressed(primary))) {
+  if (await isSuppressed(primary)) {
     throw new Error(`Recipient suppressed (prior bounce/complaint): ${primary}`);
   }
-  const base = system ? systemFrom() : resendFrom();
+  const base = resendFrom();
   const from = fromName ? base.replace(/^[^<]*/, `${fromName} `) : base;
   const body = {
     from,
@@ -47,9 +38,4 @@ export async function sendResend({ to, subject, text, html, replyTo, fromName, s
   const d = await r.json().catch(() => ({}));
   if (!r.ok || !d.id) throw new Error(`Resend ${r.status}: ${JSON.stringify(d).slice(0, 200)}`);
   return d.id;
-}
-
-// Convenience for account emails (verify / reset).
-export async function sendSystemEmail({ to, subject, html, text }) {
-  return sendResend({ to, subject, html, text, system: true });
 }

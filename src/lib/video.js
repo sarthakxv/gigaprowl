@@ -1,4 +1,4 @@
-// Personalized avatar video pipeline: HeyGen (talking photo) + ElevenLabs (voice clone).
+// Personalized avatar video pipeline: HeyGen (talking photo, voice clone) + ElevenLabs TTS (legacy voices).
 // All functions throw on failure. Callers degrade to script-only pitches.
 import { guessCompanyDomain } from "@/lib/domain";
 import { VIDEO_GENERATION_ENABLED } from "@/lib/constants";
@@ -53,26 +53,6 @@ export async function cloneVoiceHeyGen(buffer, mime = "audio/mpeg", name = "giga
   const id = d?.data?.voice_clone_id;
   if (!r.ok || !id) throw new Error(`HeyGen voice clone failed: ${r.status} ${JSON.stringify(d).slice(0, 200)}`);
   return id;
-}
-
-// ---- ElevenLabs: instant voice clone from the user's voice sample (legacy) ----
-export async function cloneVoice(buffer, filename, name, mime = "audio/mpeg") {
-  const form = new FormData();
-  form.append("name", name);
-  // The Blob MUST carry an audio content-type or ElevenLabs rejects the upload.
-  form.append("files", new Blob([buffer], { type: mime }), filename);
-  const r = await fetch("https://api.elevenlabs.io/v1/voices/add", {
-    method: "POST",
-    headers: { "xi-api-key": ELEVEN },
-    body: form,
-  });
-  const d = await r.json().catch(() => ({}));
-  if (!r.ok || !d.voice_id) {
-    if (r.status === 401 && /permission|create_instant_voice_clone|missing_permis/i.test(JSON.stringify(d)))
-      throw new Error("Your ElevenLabs API key can't create voice clones yet. In ElevenLabs → API Keys, enable the 'Voices' write permission (create_instant_voice_clone) on this key, and make sure your plan includes Instant Voice Cloning (the free tier doesn't). Then re-upload your voice sample.");
-    throw new Error(`ElevenLabs clone failed: ${r.status} ${JSON.stringify(d).slice(0, 200)}`);
-  }
-  return d.voice_id;
 }
 
 // ---- ElevenLabs: TTS the pitch script in the user's cloned voice ----

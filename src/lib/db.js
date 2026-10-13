@@ -1,12 +1,10 @@
 // Expiring KV only; durable product state is in Postgres.
 import fs from "fs";
 import path from "path";
-import crypto from "crypto";
-import { kvKeys, OUTREACH_LOCK_TTL_SEC } from "@/lib/constants";
+import { kvKeys } from "@/lib/constants";
 import {
-  getAccount, allAccountIds, readUserState, mutateUserState, readJobPool,
-  writeJobPool, readPitch, writePitch, readLinkedInOwner,
-  claimLinkedInOwner, releaseLinkedInOwner, suppressed, suppress,
+  getAccount, readUserState, mutateUserState, readJobPool,
+  writeJobPool, readPitch, writePitch, releaseLinkedInOwner, suppressed,
 } from "@/lib/durable";
 
 export const DATA_DIR = process.env.VERCEL
@@ -102,20 +100,13 @@ export async function kvCmd(args) {
   return null;
 }
 
-// Set a JSON value with a TTL (seconds). Used for single-use email + OAuth tokens.
+// Set a JSON value with a TTL (seconds). Used for single-use OAuth state.
 export async function kvSetEx(key, value, ttlSeconds) {
   if (REDIS_URL && REDIS_TOKEN) {
     await kvCmd(["SET", key, JSON.stringify(value), "EX", String(ttlSeconds)]);
     return;
   }
   await kvSet(key, value);
-}
-
-export async function kvGetRaw(key) {
-  if (REDIS_URL && REDIS_TOKEN) {
-    return decodeKvResult(await kvCmd(["GET", key]));
-  }
-  return kvGet(key);
 }
 
 // Atomically read and remove a single-use value. Redis GETDEL and the local
@@ -140,21 +131,12 @@ export async function kvTake(key) {
   }
 }
 
-export async function kvDel(key) {
-  await kvCmd(["DEL", key]);
-}
-
 // ---------- email suppression list (bounces / complaints / unsubscribes) ----------
 // A hard bounce or spam complaint means we must never email that address again.
 export async function isSuppressed(email) {
   if (!email) return false;
   return suppressed(String(email));
 }
-export async function addSuppression(email, reason) {
-  if (!email) return;
-  await suppress(String(email), reason || "bounce");
-}
-
 // ---------- per-user daily send caps (abuse + deliverability protection) ----------
 // Returns { count, allowed } after incrementing. Keyed per UTC day, auto-expires.
 export async function bumpDailyCounter(userId, kind, limit) {
@@ -164,64 +146,6 @@ export async function bumpDailyCounter(userId, kind, limit) {
   if (count === 1) await kvCmd(["EXPIRE", key, "172800"]); // keep ~2 days
   return { count, allowed: count <= limit };
 }
-export async function peekDailyCounter(userId, kind) {
-  const day = new Date().toISOString().slice(0, 10);
-  return Number(await kvGet(kvKeys.rate(kind, userId, day))) || 0;
-}
-
-// SET NX EX lock. The returned owner token must be supplied on release so an
-// expired worker can never delete a newer worker's lease.
-export async function acquireLock(key, ttlSeconds = OUTREACH_LOCK_TTL_SEC) {
-  const owner = crypto.randomUUID();
-  if (REDIS_URL && REDIS_TOKEN) {
-    const r = await kvCmd(["SET", key, owner, "NX", "EX", String(ttlSeconds)]);
-    return r === "OK" ? owner : null;
-  }
-  if (!fileKvAllowed) throw new Error("KV is not configured");
-  fs.mkdirSync(DATA_DIR, { recursive: true });
-  const file = fileForKey(key);
-  try {
-    if (fs.existsSync(file)) {
-      try {
-        const rec = JSON.parse(fs.readFileSync(file, "utf8"));
-        if (rec.exp && rec.exp < Date.now()) {
-          try { fs.unlinkSync(file); } catch {}
-        }
-        else return null;
-      } catch {
-        return null;
-      }
-    }
-    const fd = fs.openSync(file, "wx");
-    try {
-      fs.writeFileSync(fd, JSON.stringify({ owner, at: Date.now(), exp: Date.now() + ttlSeconds * 1000 }));
-    } finally {
-      fs.closeSync(fd);
-    }
-    return owner;
-  } catch (e) {
-    if (e.code === "EEXIST") return null;
-    throw e;
-  }
-}
-
-export async function releaseLock(key, owner) {
-  if (!owner) return false;
-  if (REDIS_URL && REDIS_TOKEN) {
-    const script = 'if redis.call("GET", KEYS[1]) == ARGV[1] then return redis.call("DEL", KEYS[1]) else return 0 end';
-    return Number(await kvCmd(["EVAL", script, "1", key, owner])) === 1;
-  }
-  const file = fileForKey(key);
-  try {
-    const rec = JSON.parse(fs.readFileSync(file, "utf8"));
-    if (rec.owner !== owner) return false;
-    fs.unlinkSync(file);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
 // ---------- sliding-window rate limiter (per IP, per action) ----------
 // Fixed-window counter: INCR a key that expires after windowSec. Cheap + good
 // enough to stop credential-stuffing / signup spam at the edge.
@@ -236,10 +160,6 @@ export async function rateLimit(bucket, id, limit, windowSec) {
 // ---------- durable state facade ----------
 export async function getUserById(userId) {
   return getAccount(userId);
-}
-
-export async function getAllUserIds() {
-  return allAccountIds();
 }
 
 export async function getUserState(userId) {
@@ -260,14 +180,9 @@ export async function setJobPool(pool) {
 }
 
 // ---------- LinkedIn account ownership (multi-tenant safety) ----------
-// One Unipile API key hosts every user's connected LinkedIn account, so we must
-// bind each account_id to exactly one Gigaprowl user and never reassign it.
-export async function getLinkedInOwner(accountId) {
-  return readLinkedInOwner(accountId);
-}
-export async function claimLinkedInAccount(accountId, userId) {
-  return claimLinkedInOwner(accountId, userId);
-}
+// One Unipile API key hosts every user's connected LinkedIn account, so each
+// account_id is bound to exactly one Gigaprowl user and never reassigned.
+// Lookup and claim live in durable.js; only release goes through this facade.
 export async function releaseLinkedInAccount(accountId, userId) {
   return releaseLinkedInOwner(accountId, userId);
 }

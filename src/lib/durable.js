@@ -48,11 +48,6 @@ export async function getAccount(userId) {
   });
 }
 
-export async function allAccountIds() {
-  const rows = await workerDb()`select id from app.accounts`;
-  return rows.map((row) => row.id);
-}
-
 export async function dueCadenceSteps(limit = 500) {
   return workerDb()`
     select step.user_id, step.cadence_id, step.step_index
@@ -349,23 +344,6 @@ export async function writePitch(slug, pitch) {
   `);
 }
 
-export async function readLinkedInOwner(accountId) {
-  const [row] = await workerDb()`select user_id from app.unipile_accounts where account_id = ${accountId}`;
-  return row?.user_id || null;
-}
-
-export async function claimLinkedInOwner(accountId, userId) {
-  return withUser(userId, async (sql) => {
-    const rows = await sql`
-      insert into app.unipile_accounts (account_id, user_id) values (${accountId}, ${userId})
-      on conflict (account_id) do update set user_id = excluded.user_id
-      where app.unipile_accounts.user_id = excluded.user_id
-      returning account_id
-    `;
-    return rows.length > 0;
-  });
-}
-
 export async function releaseLinkedInOwner(accountId, userId) {
   const rows = await withUser(userId, (sql) => sql`
     delete from app.unipile_accounts where account_id = ${accountId} and user_id = ${userId} returning account_id
@@ -408,11 +386,6 @@ export async function claimCorrelatedUnipileAccount(nonce, accountId) {
 export async function suppressed(email) {
   const [row] = await workerDb()`select 1 from app.suppressions where email = ${email.toLowerCase().trim()}`;
   return !!row;
-}
-
-export async function suppress(email, reason) {
-  const clean = email.toLowerCase().trim();
-  await workerDb()`insert into app.suppressions (email, reason) values (${clean}, ${reason}) on conflict (email) do update set reason = excluded.reason`;
 }
 
 export async function grantStripeEvent(event, plan) {
@@ -468,9 +441,4 @@ export async function saveScoutLeadRecord(lead) {
     insert into app.scout_leads (email, data) values (${email}, ${workerDb().json(lead)})
     on conflict (email) do update set data = excluded.data
   `;
-}
-
-export async function listScoutLeadEmails() {
-  const rows = await workerDb()`select email from app.scout_leads order by created_at desc`;
-  return rows.map((row) => row.email);
 }

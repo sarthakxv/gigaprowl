@@ -84,11 +84,6 @@ export async function sendMessage({ accountId, providerId, text }) {
   return d;
 }
 
-// Fetch the connected account's own info (sanity check the connection).
-export async function getMe(accountId) {
-  return api(`/api/v1/accounts/${accountId}`);
-}
-
 // List every account connected under our Unipile API key. Used to reconcile a
 // just-finished hosted-auth session when the notify_url webhook doesn't fire.
 export async function listAccounts() {

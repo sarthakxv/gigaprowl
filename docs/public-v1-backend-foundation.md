@@ -15,7 +15,7 @@ Status: implementation guide for the unreleased public v1. The older
 - Supabase Postgres is the sole source of truth for durable product data. There
   is no legacy-account backfill or KV dual-write because the app has not launched.
   Do not delete old KV data as part of the cutover.
-- Upstash may hold expiring caches, rate counters, locks, and short-lived OAuth
+- Upstash may hold expiring caches, rate counters, and short-lived OAuth
   state. It must not be the only record of a user, credit, job, suppression,
   pitch, dispatch attempt, or extension action.
 - Keep video generation parked. Do not adopt the draft's auto-apply, Smartlead,

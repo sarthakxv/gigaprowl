@@ -112,30 +112,6 @@ function resumeBlock(profile) {
     : "";
 }
 
-// ---------- Fact-check pass ----------
-// One Claude call that audits generated content against the resume text and
-// returns a rewrite with unsupported claims removed/softened. Fails open.
-export async function factCheck(content, resumeExcerpt) {
-  if (!hasAI() || !resumeExcerpt) return { ok: true, unsupported: [], rewritten: content };
-  try {
-    const out = await claudeJSON(
-      "You are a strict fact-checker for job-search content. The RESUME is the only source of truth.",
-      `List any claims in CONTENT not supported by RESUME. Return JSON {"ok":boolean,"unsupported":string[],"rewritten":string} where rewritten is the content with unsupported claims removed or softened to resume-supported language. Keep tone, structure, and any {{pitch_url}} placeholders intact.
-
-RESUME:
-${resumeExcerpt}
-
-CONTENT:
-${content}`,
-      2000
-    );
-    if (typeof out.ok !== "boolean" || typeof out.rewritten !== "string") return { ok: true, unsupported: [], rewritten: content };
-    return out;
-  } catch {
-    return { ok: true, unsupported: [], rewritten: content };
-  }
-}
-
 // ---------- Cadence generation ----------
 // `signal` is an optional hiring signal (see lib/signals.js) used as a specific,
 // timely personalization hook so outreach never opens with a generic line.
