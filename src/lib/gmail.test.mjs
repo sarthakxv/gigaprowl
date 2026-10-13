@@ -15,7 +15,7 @@ before(() => {
 
 const {
   gmailEnabled, googleAuthUrl, redirectUri, oauthAppBase, encryptRefreshToken,
-  decryptRefreshToken, parseEncryptionKey, isLegacyGmailConnection,
+  decryptRefreshToken, parseEncryptionKey, refreshTokenFromConnection,
   publicGmailConnection, gmailUsable, hasGmailComposeScope, buildRaw,
   encodeHeaderValue, assertValidRecipient, exchangeCode, GmailError,
   createGoogleOAuthState, consumeGoogleOAuthState, classifyGoogleError,
@@ -48,7 +48,11 @@ describe("Gmail provider boundary", { concurrency: false }, () => {
     assert.equal(publicGmailConnection(connection).email, "me@gmail.com");
     assert.equal("encryptedRefreshToken" in publicGmailConnection(connection), false);
     assert.equal(gmailUsable(connection), true);
-    assert.equal(isLegacyGmailConnection({ email: "me@gmail.com", refreshToken: "plain" }), true);
+    // A record holding only a plaintext token (no encrypted blob) is never usable.
+    const plaintextOnly = { email: "me@gmail.com", refreshToken: "plain" };
+    assert.equal(publicGmailConnection(plaintextOnly).reconnectRequired, true);
+    assert.equal(gmailUsable(plaintextOnly), false);
+    assert.throws(() => refreshTokenFromConnection(plaintextOnly), GmailError);
     assert.throws(() => decryptRefreshToken({ version: 1 }), GmailError);
     assert.throws(() => parseEncryptionKey("short"), GmailError);
   });

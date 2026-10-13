@@ -127,20 +127,15 @@ export function decryptRefreshToken(blob, key = parseEncryptionKey()) {
   }
 }
 
-export function isLegacyGmailConnection(gmail) {
-  return !!(gmail && gmail.refreshToken && !gmail.encryptedRefreshToken);
-}
-
 export function publicGmailConnection(gmail) {
   if (!gmail) return null;
-  const legacy = isLegacyGmailConnection(gmail);
-  const status = legacy ? "reauth_required" : (gmail.status || "connected");
+  const status = gmail.status || "connected";
   return {
     email: gmail.email || null,
     status,
     connectedAt: gmail.connectedAt || null,
     lastValidatedAt: gmail.lastValidatedAt || null,
-    reconnectRequired: legacy || status === "reauth_required" || !gmail.encryptedRefreshToken,
+    reconnectRequired: status === "reauth_required" || !gmail.encryptedRefreshToken,
   };
 }
 
@@ -149,11 +144,11 @@ export function gmailUsable(gmail) {
   return !!(pub && !pub.reconnectRequired && gmail?.encryptedRefreshToken);
 }
 
-export function refreshTokenFromConnection(gmail, { ignoreStatus = false } = {}) {
-  if (!gmail || isLegacyGmailConnection(gmail) || !gmail.encryptedRefreshToken) {
+export function refreshTokenFromConnection(gmail) {
+  if (!gmail || !gmail.encryptedRefreshToken) {
     throw new GmailError("reauth_required", "Reconnect Gmail", { reauth: true });
   }
-  if (!ignoreStatus && gmail.status === "reauth_required") {
+  if (gmail.status === "reauth_required") {
     throw new GmailError("reauth_required", "Reconnect Gmail", { reauth: true });
   }
   return decryptRefreshToken(gmail.encryptedRefreshToken);
@@ -325,48 +320,14 @@ export async function markGmailStatus(userId, status, lastErrorCode = null) {
   });
 }
 
-export async function markGmailError(userId, lastErrorCode) {
-  await updateUserState(userId, (s) => {
-    if (!s.connections?.gmail) return;
-    s.connections.gmail.lastErrorCode = lastErrorCode;
-  });
-}
-
-export async function touchGmailValidated(userId) {
-  await updateUserState(userId, (s) => {
-    if (!s.connections?.gmail) return;
-    s.connections.gmail.status = "connected";
-    s.connections.gmail.lastValidatedAt = new Date().toISOString();
-    s.connections.gmail.lastErrorCode = null;
-  });
-}
-
-export async function plaintextRefreshTokenFor(gmail) {
-  if (!gmail) return null;
-  if (gmail.encryptedRefreshToken) {
-    try { return decryptRefreshToken(gmail.encryptedRefreshToken); } catch { return null; }
-  }
-  if (isLegacyGmailConnection(gmail)) return gmail.refreshToken;
-  return null;
-}
-
-export async function validateGmailConnection(gmail) {
-  const refreshToken = refreshTokenFromConnection(gmail, { ignoreStatus: true });
-  const accessToken = await freshAccessToken(refreshToken);
-  const r = await fetchGoogle(`${GMAIL_API_BASE}/profile`, {
-    headers: { Authorization: `Bearer ${accessToken}` },
-  }, { retries: 1 });
-  if (!r.ok) {
-    const d = await r.json().catch(() => ({}));
-    throw classifyGoogleError(r.status, d, "Gmail health check failed");
-  }
-  return true;
-}
-
 export async function disconnectGmail(userId) {
   const state = await getUserState(userId);
   const gmail = state.connections?.gmail;
-  const token = await plaintextRefreshTokenFor(gmail);
+  let token = null;
+  if (gmail?.encryptedRefreshToken) {
+    // An unreadable grant skips the revoke; disconnect still clears it locally.
+    try { token = decryptRefreshToken(gmail.encryptedRefreshToken); } catch { /* ignore */ }
+  }
   await revokeGoogleToken(token);
   await clearGmailConnection(userId);
 }
