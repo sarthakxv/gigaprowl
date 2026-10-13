@@ -9,9 +9,8 @@
 
 import { hasAI, claudeJSON, classifyDiscipline } from "./ai.js";
 import { unslopJSON, stripSlopDeep } from "./unslop.js";
+import { parallelEnabled, runParallelTask } from "@/lib/parallel";
 
-const PARALLEL_KEY = process.env.PARALLEL_API_KEY;
-const PARALLEL_BASE = "https://api.parallel.ai/v1";
 const PROCESSOR = process.env.PARALLEL_RESEARCH_PROCESSOR || "core";
 const TIMEOUT_MS = Number(process.env.PARALLEL_RESEARCH_TIMEOUT_MS || 28000);
 
@@ -35,53 +34,31 @@ function lensFor(discipline) {
   }
 }
 
-async function runParallelResearch(input) {
-  const createRes = await fetch(`${PARALLEL_BASE}/tasks/runs`, {
-    method: "POST",
-    headers: { "x-api-key": PARALLEL_KEY, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      input,
-      processor: PROCESSOR,
-      task_spec: {
-        output_schema: {
-          type: "json",
-          json_schema: {
-            type: "object",
-            properties: {
-              angle: { type: "string", description: "One punchy sentence spoken BY the candidate directly TO the company, first person. Use 'I' and 'your/you'. e.g. \"I'd tighten your onboarding to lift activation.\" NEVER third person, NEVER advice about the candidate." },
-              ideas: {
-                type: "array",
-                description: "2-3 specific, researched things the candidate WOULD DO for this company, written as the candidate's own words to the hiring manager.",
-                items: {
-                  type: "object",
-                  properties: {
-                    title: { type: "string", description: "First-person action label, max 6 words. e.g. \"Redesign your onboarding\"." },
-                    detail: { type: "string", description: "1-2 sentences in FIRST PERSON: what I would do for YOUR product/team, specific to this company. Use 'I' and 'your'. Never 'the candidate should' or 'you should pitch'." },
-                  },
-                  required: ["title", "detail"],
-                },
-              },
-              mockup_brief: { type: "string", description: "A vivid prompt for an image model to render a single on-brand visual of the improvement the candidate would ship (e.g. the redesigned screen, the campaign concept, the architecture). No real logos or copyrighted assets." },
-            },
-            required: ["angle", "ideas", "mockup_brief"],
-            additionalProperties: false,
-          },
+const RESEARCH_OUTPUT_SCHEMA = {
+  type: "object",
+  properties: {
+    angle: { type: "string", description: "One punchy sentence spoken BY the candidate directly TO the company, first person. Use 'I' and 'your/you'. e.g. \"I'd tighten your onboarding to lift activation.\" NEVER third person, NEVER advice about the candidate." },
+    ideas: {
+      type: "array",
+      description: "2-3 specific, researched things the candidate WOULD DO for this company, written as the candidate's own words to the hiring manager.",
+      items: {
+        type: "object",
+        properties: {
+          title: { type: "string", description: "First-person action label, max 6 words. e.g. \"Redesign your onboarding\"." },
+          detail: { type: "string", description: "1-2 sentences in FIRST PERSON: what I would do for YOUR product/team, specific to this company. Use 'I' and 'your'. Never 'the candidate should' or 'you should pitch'." },
         },
+        required: ["title", "detail"],
       },
-    }),
-    signal: AbortSignal.timeout(15000),
-  });
-  if (!createRes.ok) throw new Error(`research create ${createRes.status}`);
-  const { run_id } = await createRes.json();
-  if (!run_id) throw new Error("no run_id");
-  const resultRes = await fetch(`${PARALLEL_BASE}/tasks/runs/${run_id}/result`, {
-    headers: { "x-api-key": PARALLEL_KEY },
-    signal: AbortSignal.timeout(TIMEOUT_MS),
-  });
-  if (!resultRes.ok) throw new Error(`research result ${resultRes.status}`);
-  const data = await resultRes.json();
-  const c = data?.output?.content;
-  if (!c || !Array.isArray(c.ideas)) throw new Error("bad research payload");
+    },
+    mockup_brief: { type: "string", description: "A vivid prompt for an image model to render a single on-brand visual of the improvement the candidate would ship (e.g. the redesigned screen, the campaign concept, the architecture). No real logos or copyrighted assets." },
+  },
+  required: ["angle", "ideas", "mockup_brief"],
+  additionalProperties: false,
+};
+
+async function runParallelResearch(input) {
+  const c = await runParallelTask({ input, outputSchema: RESEARCH_OUTPUT_SCHEMA, processor: PROCESSOR, timeoutMs: TIMEOUT_MS });
+  if (!Array.isArray(c.ideas)) throw new Error("bad research payload");
   return {
     angle: c.angle || "",
     ideas: c.ideas.slice(0, 3),
@@ -119,7 +96,7 @@ COMPANY I'M PITCHING: ${JSON.stringify({ title: job.title, company: job.company,
 export async function getRoleResearch(profile, job) {
   const discipline = profile.discipline || classifyDiscipline((job.description || "").toLowerCase(), profile.skills);
   let raw = null;
-  if (PARALLEL_KEY) {
+  if (parallelEnabled()) {
     try {
       const input = {
         company: job.company,
