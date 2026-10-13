@@ -7,7 +7,6 @@
   ],
   "scripts": {
     "dev": "next dev",
-    "prototype": "next dev",
     "build": "next build",
     "start": "next start",
     "test": "node --import ./test/register.mjs --test src/lib/gmail.test.mjs src/lib/match.test.mjs src/lib/db.test.mjs src/lib/constants.test.mjs src/lib/foundation.test.mjs src/lib/migration.test.mjs src/lib/parallel.test.mjs"
