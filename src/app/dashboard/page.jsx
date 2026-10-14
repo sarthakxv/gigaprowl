@@ -526,7 +526,7 @@ export default function Dashboard() {
 
         {tab === "Matches" && (
           <div className="space-y-3">
-            {matches.length === 0 && <p className="text-fog">No matches yet. Hit Refresh jobs.</p>}
+            {matches.length === 0 && <p className="text-fog">No matches yet. Jobs refresh daily.</p>}
             {matches.map((m) => (
               <div key={m.id} className="bg-panel border border-edge rounded-2xl p-5 flex flex-wrap items-center gap-4">
                 <div className={cn("font-display font-bold text-lg size-14 rounded-xl flex items-center justify-center shrink-0 tabular-nums", m.score >= 70 ? "bg-mint text-ink" : "bg-edge text-mint")}>{m.score}</div>

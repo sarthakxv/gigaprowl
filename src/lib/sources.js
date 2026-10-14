@@ -176,7 +176,6 @@ const SMARTRECRUITERS_BOARDS = ["Visa", "Bosch", "Ubisoft", "Square", "McDonalds
 
 const DEFAULT_QUERIES = ["software engineer", "product manager", "designer", "data scientist", "marketing", "security engineer"];
 
-// Daily worldwide scan: sweep all sources in parallel, dedupe by sourceId.
 // Sources arrive grouped, and one of them can return thousands of jobs. Take
 // them round-robin so a capped feed still carries every source.
 export function balanceBySource(jobs, cap) {
@@ -196,6 +195,7 @@ export function balanceBySource(jobs, cap) {
   return feed;
 }
 
+// Daily worldwide scan: sweep all sources in parallel, dedupe by sourceId.
 export async function syncAllSources(queries = DEFAULT_QUERIES) {
   const tasks = [
     ...queries.map((q) => fetchRemotive(q)),
