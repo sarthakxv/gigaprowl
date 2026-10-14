@@ -27,3 +27,21 @@ export async function revokeExtensionTokens(userId) {
     where user_id = ${userId} and revoked_at is null
   `);
 }
+
+// Sign-out path: revoke the credentials and stop reporting the extension as
+// paired in one transaction, without loading the whole user state.
+export async function unpairExtension(userId) {
+  await withUser(userId, async (sql) => {
+    await sql`
+      update app.extension_credentials set revoked_at = now()
+      where user_id = ${userId} and revoked_at is null
+    `;
+    await sql`
+      delete from app.integrations
+      where user_id = ${userId} and (
+        provider = 'linkedinExt'
+        or (provider = 'linkedin' and data->>'method' = 'extension' and coalesce(data->>'accountId', '') = '')
+      )
+    `;
+  });
+}

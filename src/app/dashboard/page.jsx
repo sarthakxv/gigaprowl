@@ -52,7 +52,13 @@ export default function Dashboard() {
   const [mediaHidden, setMediaHidden] = useState(false);
   const [mediaError, setMediaError] = useState(null);
 
+  // Set before the logout request so background loops stop queuing work that
+  // would compete with it for the database.
+  const signingOutRef = useRef(false);
+  const [signingOut, setSigningOut] = useState(false);
+
   const refresh = useCallback(async () => {
+    if (signingOutRef.current) return;
     const r = await fetch("/api/state", { cache: "no-store" });
     if (r.status === 401) { window.location.href = "/login?mode=login"; return; }
     const data = await r.json().catch(() => null);
@@ -61,8 +67,21 @@ export default function Dashboard() {
   }, []);
 
   async function logout() {
-    await fetch("/api/auth/logout", { method: "POST" });
-    window.location.href = "/";
+    if (signingOutRef.current) return;
+    signingOutRef.current = true;
+    setSigningOut(true);
+    const r = await fetch("/api/auth/logout", { method: "POST" }).catch(() => null);
+    const d = await r?.json().catch(() => ({})) || {};
+    if (!d.signedOut) {
+      signingOutRef.current = false;
+      setSigningOut(false);
+      return toast.error(d.error || "Could not sign out. Try again.");
+    }
+    if (!r.ok) {
+      toast.error(d.error);
+      return setTimeout(() => { window.location.replace("/login?mode=login"); }, 4000);
+    }
+    window.location.replace("/login?mode=login");
   }
 
   useEffect(() => { refresh(); }, [refresh]);
@@ -71,7 +90,7 @@ export default function Dashboard() {
   // pitch that doesn't have its posts yet, fire /api/social one at a time, then refresh.
   const [socialRunning, setSocialRunning] = useState(false);
   useEffect(() => {
-    if (!state || socialRunning) return;
+    if (!state || socialRunning || signingOutRef.current) return;
     const posts = state.socialPosts || [];
     const pending = (state.pitches || []).filter(
       (p) => p.matchId && p.socialStatus !== "failed" && !posts.some((x) => x.matchId === p.matchId)
@@ -80,6 +99,7 @@ export default function Dashboard() {
     setSocialRunning(true);
     (async () => {
       for (const p of pending.slice(0, 5)) {
+        if (signingOutRef.current) break;
         try {
           await fetch("/api/social", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ matchId: p.matchId }) });
         } catch {}
@@ -94,7 +114,7 @@ export default function Dashboard() {
   const [kitRunning, setKitRunning] = useState(false);
   const kitAttemptedRef = useRef(new Set());
   useEffect(() => {
-    if (!state || kitRunning) return;
+    if (!state || kitRunning || signingOutRef.current) return;
     const kits = state.applyKits || [];
     const pending = (state.pitches || []).filter(
       (p) => p.matchId && !kits.some((x) => x.matchId === p.matchId) && !kitAttemptedRef.current.has(p.matchId)
@@ -105,6 +125,7 @@ export default function Dashboard() {
     setKitRunning(true);
     (async () => {
       for (const p of batch) {
+        if (signingOutRef.current) break;
         try {
           await fetch("/api/apply-kit", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ matchId: p.matchId }) });
         } catch {}
@@ -349,7 +370,9 @@ export default function Dashboard() {
             <button onClick={runSync} disabled={syncing} title="Jobs auto-refresh daily; this scans on demand" className="bg-mint text-ink font-semibold px-4 py-2 rounded-full hover:bg-mintdim transition disabled:opacity-50">
               {syncing ? "Scanning…" : "Refresh jobs"}
             </button>
-            <button onClick={logout} className="text-fog hover:text-white text-sm">Log out</button>
+            <button onClick={logout} disabled={signingOut} className="text-fog hover:text-white text-sm disabled:opacity-60 disabled:hover:text-fog">
+              {signingOut ? "Signing out…" : "Log out"}
+            </button>
           </div>
         </div>
       </nav>
