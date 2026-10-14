@@ -1,5 +1,5 @@
-// Core hunt engine, shared by /api/outreach (one hunt) and /api/autopilot
-// (tiered batch). A full hunt is contacts + pitch page + cadence, plus video
+// Core hunt engine behind /api/outreach. Hunts always run one job at a time.
+// A full hunt is contacts + pitch page + cadence, plus video
 // when enabled, and costs 1 credit.
 import { updateUserState, uid } from "@/lib/db";
 import { findContacts } from "@/lib/apollo";
