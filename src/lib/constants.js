@@ -28,6 +28,8 @@ export const SCHEDULER_PER_USER_CAP = 30;
 export const SCHEDULER_EMAIL_CAP = 40;
 export const SCHEDULER_TIME_BUDGET_MS = 50_000;
 export const SCHEDULER_FAILURE_CAP = 50;
+// Recent jobs every user is ranked against; refreshed only by the cron scan.
+export const JOB_POOL_CAP = 1000;
 
 export const RESEND_TEST_FROM = "Gigaprowl <onboarding@resend.dev>";
 
@@ -43,7 +45,7 @@ export function isProductionRuntime() {
 }
 
 export function appUrl() {
-  const env = (process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_BASE_URL || "").replace(/\/$/, "");
+  const env = (process.env.APP_URL || "").replace(/\/$/, "");
   if (env) return env;
   return isProductionRuntime() ? PRODUCTION_APP_URL : LOCAL_APP_URL;
 }

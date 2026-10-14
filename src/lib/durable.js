@@ -1,6 +1,6 @@
 import crypto from "crypto";
 import { withUser, workerDb } from "@/lib/postgres";
-import { DAY_MS } from "@/lib/constants";
+import { DAY_MS, JOB_POOL_CAP } from "@/lib/constants";
 
 const EMPTY = {
   profile: null,
@@ -314,19 +314,26 @@ export async function mutateUserState(userId, fn, options = {}) {
 
 export async function readJobPool() {
   const db = workerDb();
-  const jobs = rowsData(await db`select data from app.jobs order by synced_at desc limit 1000`);
+  const jobs = rowsData(await db`select data from app.jobs order by synced_at desc limit ${JOB_POOL_CAP}`);
   const [sync] = await db`select synced_at, sources from app.job_syncs order by id desc limit 1`;
   return { jobs, lastSync: sync?.synced_at || null, sources: sync?.sources || {} };
 }
 
+// One statement for the whole feed: a round trip per job pushed a full scan
+// past the cron's time limit. Returns how many jobs were new to the table.
 export async function writeJobPool(pool) {
-  await workerDb().begin(async (sql) => {
-    for (const job of pool.jobs || []) await sql`
+  const jobs = pool.jobs || [];
+  return workerDb().begin(async (sql) => {
+    const rows = jobs.length ? await sql`
       insert into app.jobs (source_id, source, external_id, data, synced_at)
-      values (${job.sourceId}, ${job.source || "unknown"}, ${job.externalId || job.sourceId}, ${sql.json(job)}, now())
+      select job->>'sourceId', coalesce(nullif(job->>'source', ''), 'unknown'),
+        coalesce(nullif(job->>'externalId', ''), job->>'sourceId'), job, now()
+      from jsonb_array_elements(${sql.json(jobs)}) as job
       on conflict (source_id) do update set data = excluded.data, synced_at = now()
-    `;
+      returning (xmax = 0) as inserted
+    ` : [];
     await sql`insert into app.job_syncs (sources) values (${sql.json(pool.sources || {})})`;
+    return rows.filter((row) => row.inserted).length;
   });
 }
 

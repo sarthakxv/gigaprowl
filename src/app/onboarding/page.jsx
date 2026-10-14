@@ -57,10 +57,9 @@ export default function Onboarding() {
     router.replace("/login?mode=login");
   }
 
-  async function finish() {
+  // Matches rank against the shared, cron-refreshed job pool; nothing to start.
+  function finish() {
     setBusy(true);
-    // Kick off the first scan so the dashboard has matches waiting.
-    fetch("/api/jobs/sync", { method: "POST" }).catch(() => {});
     setTimeout(() => router.replace("/dashboard"), 800);
   }
 

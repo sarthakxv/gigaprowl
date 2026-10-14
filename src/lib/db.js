@@ -176,7 +176,7 @@ export async function getJobPool() {
 }
 
 export async function setJobPool(pool) {
-  await writeJobPool(pool);
+  return writeJobPool(pool);
 }
 
 // ---------- LinkedIn account ownership (multi-tenant safety) ----------

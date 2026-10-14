@@ -41,11 +41,17 @@ function stepDate(cadence, step) {
   return d;
 }
 function fmtDay(d) { return d.toLocaleDateString(undefined, { month: "short", day: "numeric" }); }
+function timeAgo(iso) {
+  const mins = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60_000));
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.round(mins / 60);
+  return hours < 48 ? `${hours}h ago` : `${Math.round(hours / 24)}d ago`;
+}
 
 export default function Dashboard() {
   const [state, setState] = useState(null);
   const [tab, setTab] = useState("Matches");
-  const [syncing, setSyncing] = useState(false);
   const [hunting, setHunting] = useState(null); // matchId in flight
   const [kitBatch, setKitBatch] = useState(null); // "running" | "done"
   const [uploadingMedia, setUploadingMedia] = useState(null); // "face" | "voice"
@@ -162,16 +168,6 @@ export default function Dashboard() {
     if (r.ok) toast.success("Apply kit ready. Copy the bullets and note from Apply kits.");
     else toast.error(d.error || "Apply kit failed");
     if (r.ok) { kitAttemptedRef.current.add(matchId); setTab("Apply kits"); }
-    refresh();
-  }
-
-  async function runSync() {
-    setSyncing(true);
-    const r = await fetch("/api/jobs/sync", { method: "POST" });
-    const d = await r.json();
-    setSyncing(false);
-    if (r.ok) toast.success(`Scan complete: ${d.added} new · ${d.stored} in pool (${d.kb}KB)`);
-    else toast.error(d.error || "Scan failed");
     refresh();
   }
 
@@ -367,9 +363,9 @@ export default function Dashboard() {
           <Link href="/" className="font-display text-xl font-bold">gigaprowl<span className="text-mint">.</span></Link>
           <div className="flex items-center gap-4 text-sm">
             <span className="text-fog tabular-nums">{credits.unlimited ? "Unlimited credits · Dev" : `${credits.balance} credits`}</span>
-            <button onClick={runSync} disabled={syncing} title="Jobs auto-refresh daily; this scans on demand" className="bg-mint text-ink font-semibold px-4 py-2 rounded-full hover:bg-mintdim transition disabled:opacity-50">
-              {syncing ? "Scanning…" : "Refresh jobs"}
-            </button>
+            <span className="text-fog tabular-nums" title="Jobs refresh daily for everyone">
+              {state.lastSync ? `Jobs updated ${timeAgo(state.lastSync)}` : "Jobs not scanned yet"}
+            </span>
             <button onClick={logout} disabled={signingOut} className="text-fog hover:text-white text-sm disabled:opacity-60 disabled:hover:text-fog">
               {signingOut ? "Signing out…" : "Log out"}
             </button>
@@ -391,7 +387,7 @@ export default function Dashboard() {
             {uploadingMedia === "resume" ? "Updating resume…" : "Update resume"}
           </label>
           <p className="text-fog/60 text-xs ml-auto tabular-nums">
-            {state.jobCount} jobs indexed · last scan {state.lastSync ? new Date(state.lastSync).toLocaleString() : "never"}
+            {state.jobCount} jobs indexed
             {!integrations.ai && " · demo AI (add ANTHROPIC_API_KEY)"}
             {!integrations.apollo && " · demo contacts (add APOLLO_API_KEY)"}
           </p>
