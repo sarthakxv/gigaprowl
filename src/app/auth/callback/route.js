@@ -21,6 +21,9 @@ export async function GET(req) {
   const code = new URL(req.url).searchParams.get("code");
   if (!code) return NextResponse.redirect(new URL("/login?error=invalid_link", origin));
   const { error } = await serverAuth().auth.exchangeCodeForSession(code);
-  if (error) return NextResponse.redirect(new URL("/login?error=invalid_link", origin));
+  if (error) {
+    console.error("auth callback failed:", error.code || error.name, error.status || "", error.message);
+    return NextResponse.redirect(new URL("/login?error=invalid_link", origin));
+  }
   return NextResponse.redirect(new URL("/dashboard", origin));
 }

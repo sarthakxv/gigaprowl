@@ -23,4 +23,6 @@ export async function middleware(request) {
 
 // /api/slide is the public OG image: it needs no session refresh, and no-store
 // would keep social crawlers from ever getting a cacheable response.
-export const config = { matcher: ["/api/((?!slide).*)", "/dashboard/:path*", "/onboarding/:path*"] };
+// /login runs here so a dead session cookie is cleared; its Server Component
+// cannot write cookies and would otherwise retry the refresh on every visit.
+export const config = { matcher: ["/api/((?!slide).*)", "/dashboard/:path*", "/onboarding/:path*", "/login"] };
