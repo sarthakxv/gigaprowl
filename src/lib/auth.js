@@ -27,11 +27,22 @@ export function serverAuth() {
   });
 }
 
+// Accounts are provisioned at sign-in (auth/callback). Sessions that predate
+// that, or a failed provisioning there, are caught by requireUser once per
+// server process; later requests skip the write. Nothing deletes accounts, so
+// a remembered ID cannot go stale. Clear it here if that ever changes.
+const provisioned = new Set();
+
+export async function provisionAccount(user) {
+  await ensureAccount(user);
+  provisioned.add(user.id);
+}
+
 export async function requireUser() {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY) return null;
   const { data, error } = await serverAuth().auth.getUser();
   if (error || !data.user?.email_confirmed_at) return null;
-  await ensureAccount(data.user);
+  if (!provisioned.has(data.user.id)) await provisionAccount(data.user);
   return data.user;
 }
 

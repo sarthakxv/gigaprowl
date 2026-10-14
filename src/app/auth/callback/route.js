@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { serverAuth } from "@/lib/auth";
+import { provisionAccount, serverAuth } from "@/lib/auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -20,10 +20,19 @@ export async function GET(req) {
   const origin = requestOrigin(req);
   const code = new URL(req.url).searchParams.get("code");
   if (!code) return NextResponse.redirect(new URL("/login?error=invalid_link", origin));
-  const { error } = await serverAuth().auth.exchangeCodeForSession(code);
+  const { data, error } = await serverAuth().auth.exchangeCodeForSession(code);
   if (error) {
     console.error("auth callback failed:", error.code || error.name, error.status || "", error.message);
     return NextResponse.redirect(new URL("/login?error=invalid_link", origin));
+  }
+  // Provision at sign-in so ordinary requests skip the account write. A
+  // failure here does not block sign-in; requireUser retries it.
+  if (data.user?.email_confirmed_at) {
+    try {
+      await provisionAccount(data.user);
+    } catch (e) {
+      console.error("account provisioning failed:", e.message);
+    }
   }
   return NextResponse.redirect(new URL("/dashboard", origin));
 }
