@@ -12,16 +12,10 @@ import { getJobPool } from "@/lib/db";
 import { kvGet, kvSet } from "@/lib/db";
 import { identifierFromUrl } from "@/lib/unipile";
 import { kvKeys } from "@/lib/constants";
-
-const PARALLEL_KEY = process.env.PARALLEL_API_KEY;
-const PARALLEL_BASE = "https://api.parallel.ai/v1";
-// Async pattern: we start a run, return immediately, and the page polls until it
-// completes, so Parallel can take as long as it needs (no 60s function limit)
-// and we can use a thorough processor for an accurate read.
-const PARALLEL_PROFILE_PROCESSOR = process.env.PARALLEL_PROFILE_PROCESSOR || "base";
+import { saveScoutLeadRecord } from "@/lib/durable";
 
 // ---- LinkedIn URL → handle ---------------------------------------------------
-export function handleFromUrl(url = "") {
+function handleFromUrl(url = "") {
   const m = String(url).match(/linkedin\.com\/in\/([^/?#]+)/i);
   return m ? decodeURIComponent(m[1]).replace(/-+/g, " ").trim() : null;
 }
@@ -32,8 +26,8 @@ export function isLinkedInUrl(url = "") {
 
 // ---- Profile reading ---------------------------------------------------------
 // Three tiers, best first:
-//   1) REAL read of the public LinkedIn profile via the Parallel web-research API
-//      (source: "linkedin"). This actually looks the person up on the web.
+//   1) REAL read of the LinkedIn profile through a connected Unipile account
+//      (source: "linkedin"). This actually looks the person up.
 //   2) Claude inference from the URL/handle (source: "ai"), an estimate.
 //   3) A sensible demo profile (source: "demo") so the app never hard-fails.
 // The matcher only needs: skills[], topSkills[], roles[], seniority, orientation.
@@ -49,94 +43,6 @@ const DEMO_PROFILE = {
   domains: ["technology"],
   summary: "I'm a senior full-stack engineer who ships product end-to-end across the modern web and cloud stack.",
 };
-
-const PROFILE_SCHEMA = {
-  type: "object",
-  properties: {
-    name: { type: "string", description: "The person's full name as shown on their LinkedIn." },
-    title: { type: "string", description: "Their CURRENT job title / headline." },
-    company: { type: "string", description: "Their current employer, or empty string if unknown." },
-    seniority: { type: "string", description: "One of: junior, mid, senior, staff, lead, executive." },
-    discipline: { type: "string", description: "Primary craft: design, marketing, engineering, security, data, product, sales, or other." },
-    orientation: { type: "string", description: "product, services, or hybrid, based on the kind of companies they've worked at." },
-    skills: { type: "array", items: { type: "string" }, description: "Up to 16 lowercase skills/technologies from their profile (skills section, experience, headline)." },
-    topSkills: { type: "array", items: { type: "string" }, description: "Their 5-6 strongest lowercase skills." },
-    roles: { type: "array", items: { type: "string" }, description: "Up to 5 job titles they would be a strong match for." },
-    domains: { type: "array", items: { type: "string" }, description: "Industries/domains they've worked in." },
-    summary: { type: "string", description: "One first-person sentence starting with 'I' summarizing who they are professionally." },
-    found: { type: "boolean", description: "true if you actually located and read this person's real LinkedIn/professional profile; false if you could not find them and had to guess." },
-  },
-  required: ["name", "title", "seniority", "discipline", "orientation", "skills", "topSkills", "roles", "summary", "found"],
-  additionalProperties: false,
-};
-
-// Kick off a Parallel run that reads the public LinkedIn profile. Returns the
-// run_id immediately (the run keeps executing on Parallel's side). Returns null
-// on any failure so the caller can fall back to a synchronous estimate.
-export async function startParallelRun(linkedinUrl) {
-  if (!PARALLEL_KEY) return null;
-  const handle = handleFromUrl(linkedinUrl) || "";
-  try {
-    const res = await fetch(`${PARALLEL_BASE}/tasks/runs`, {
-      method: "POST",
-      headers: { "x-api-key": PARALLEL_KEY, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        input: `Read this specific person's public LinkedIn profile at the exact URL below and extract an accurate structured summary for a job-matching engine. Base everything on THIS person's real profile and public web presence (their LinkedIn page, personal site, GitHub, company bio, talks). Do not confuse them with someone of a similar name. Capture their current role, employer, seniority, and real skills. LinkedIn URL: ${linkedinUrl}${handle ? ` (handle: ${handle})` : ""}. If you cannot confidently find THIS person, set "found" to false rather than guessing.`,
-        processor: PARALLEL_PROFILE_PROCESSOR,
-        task_spec: { output_schema: { type: "json", json_schema: PROFILE_SCHEMA } },
-      }),
-      signal: AbortSignal.timeout(12000),
-    });
-    if (!res.ok) {
-      console.error("scout: parallel create failed", res.status, (await res.text()).slice(0, 200));
-      return null;
-    }
-    const d = await res.json();
-    return d.run_id || d.id || null;
-  } catch (e) {
-    console.error("scout: parallel create threw:", e.message);
-    return null;
-  }
-}
-
-// Check a Parallel run. Returns { status:"running" } while in flight,
-// { status:"failed" } if the run hard-failed, { status:"completed_empty" } if it
-// finished but couldn't find the person, or { status:"completed", profile } once
-// the real read is done. Relies on the /result endpoint (whose shape is known)
-// rather than guessing status strings; only uses /status to catch hard failures.
-export async function readParallelRun(runId, linkedinUrl) {
-  const handle = handleFromUrl(linkedinUrl) || "this candidate";
-
-  // Short-circuit on a hard failure so we don't poll forever.
-  try {
-    const statusRes = await fetch(`${PARALLEL_BASE}/tasks/runs/${runId}`, {
-      headers: { "x-api-key": PARALLEL_KEY },
-      signal: AbortSignal.timeout(10000),
-    });
-    if (statusRes.ok) {
-      const s = ((await statusRes.json())?.status || "").toLowerCase();
-      if (["failed", "cancelled", "canceled", "error"].includes(s)) return { status: "failed" };
-    }
-  } catch { /* ignore, fall through to result */ }
-
-  // The result endpoint returns 202 while not ready, 200 with output.content when done.
-  try {
-    const resultRes = await fetch(`${PARALLEL_BASE}/tasks/runs/${runId}/result`, {
-      headers: { "x-api-key": PARALLEL_KEY },
-      signal: AbortSignal.timeout(12000),
-    });
-    if (resultRes.status === 202 || resultRes.status === 404) return { status: "running" };
-    if (!resultRes.ok) return { status: "running" };
-    const data = await resultRes.json();
-    const c = data?.output?.content;
-    if (!c) return { status: "running" };
-    if (!c.name || c.found === false) return { status: "completed_empty" };
-    return { status: "completed", profile: normalizeProfile(c, { handle, source: "linkedin" }) };
-  } catch {
-    // Timeout / transient. Tell the client to keep polling.
-    return { status: "running" };
-  }
-}
 
 const DISCIPLINE_SKILLS = {
   design: ["figma", "ui", "ux", "design systems", "prototyping", "user research"],
@@ -366,7 +272,10 @@ export async function inferProfile(linkedinUrl, { refresh = false } = {}) {
 
 // Fallback profile when the real read isn't available or didn't find the person:
 // a Claude estimate from the URL, else the demo profile.
-export async function inferProfileFallback(linkedinUrl) {
+async function inferProfileFallback(linkedinUrl) {
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("A verified LinkedIn profile is required for this report");
+  }
   const handle = handleFromUrl(linkedinUrl) || "this candidate";
   if (hasAI()) {
     try {
@@ -375,7 +284,9 @@ export async function inferProfileFallback(linkedinUrl) {
         `From this LinkedIn profile URL, infer the most likely professional profile. The slug often hints at their name. Return JSON with keys: name, title, seniority (junior|mid|senior|staff|lead|executive), discipline, orientation (product|services|hybrid), skills (max 16 lowercase), topSkills (max 6 lowercase), roles (max 5 titles), domains, summary (1 first-person sentence starting with "I").
 
 LinkedIn URL: ${linkedinUrl}
-Handle: ${handle}`
+Handle: ${handle}`,
+        2000,
+        { task: "scoutInfer" }
       );
       return normalizeProfile(p, { handle, source: "ai" });
     } catch (e) {
@@ -421,6 +332,7 @@ async function gatherJobs(profile) {
   }
 
   if (jobs.length === 0) {
+    if (process.env.NODE_ENV === "production") return [];
     const { SEED_JOBS } = await import("@/lib/seed");
     return SEED_JOBS;
   }
@@ -491,16 +403,7 @@ export async function buildReport(linkedinUrl, profile, { windowHours = 48, limi
   };
 }
 
-// Synchronous path (used when Parallel isn't available): estimate the profile
-// then build the report in one call.
-export async function scout(linkedinUrl, opts = {}) {
-  const profile = await inferProfileFallback(linkedinUrl);
-  return buildReport(linkedinUrl, profile, opts);
-}
-
 // ---- Lead capture ------------------------------------------------------------
-const LEADS_INDEX = kvKeys.scoutLeads;
-
 export async function saveScoutLead({ email, linkedinUrl, profile, matches }) {
   const clean = String(email).toLowerCase().trim();
   const lead = {
@@ -512,16 +415,6 @@ export async function saveScoutLead({ email, linkedinUrl, profile, matches }) {
     matchCount: matches?.length || 0,
     at: new Date().toISOString(),
   };
-  await kvSet(kvKeys.scoutLead(clean), lead);
-  const index = (await kvGet(LEADS_INDEX)) || [];
-  if (!index.includes(clean)) {
-    index.push(clean);
-    await kvSet(LEADS_INDEX, index);
-  }
+  await saveScoutLeadRecord(lead);
   return lead;
-}
-
-export async function getScoutLeads() {
-  const index = (await kvGet(LEADS_INDEX)) || [];
-  return index;
 }

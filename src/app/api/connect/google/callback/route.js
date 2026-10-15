@@ -32,9 +32,10 @@ export async function GET(req) {
   if (err === "access_denied") return back("gmail_denied");
   if (err) return back("gmail_error");
 
-  const cookieUser = getUserId(req);
-  const sessionBinding = getSessionBinding(req);
-  if (!cookieUser || !sessionBinding || !code) return back("gmail_bad_state");
+  const cookieUser = await getUserId(req);
+  if (!cookieUser || !code) return back("gmail_bad_state");
+  const sessionBinding = await getSessionBinding(cookieUser);
+  if (!sessionBinding) return back("gmail_bad_state");
 
   const rec = await consumeGoogleOAuthState(state, sessionBinding);
   if (!rec?.userId) return back("gmail_bad_state");

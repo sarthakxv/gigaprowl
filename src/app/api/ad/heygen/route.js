@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 // isn't publicly callable. action=avatars|voices|status (GET) or generate (POST).
 function authed(req) {
   const t = req.headers.get("x-ugc-token");
-  return t && [process.env.SESSION_SECRET, process.env.CRON_SECRET, process.env.UGC_ADMIN_TOKEN].filter(Boolean).includes(t);
+  return t && process.env.UGC_ADMIN_TOKEN && t === process.env.UGC_ADMIN_TOKEN;
 }
 
 export async function GET(req) {

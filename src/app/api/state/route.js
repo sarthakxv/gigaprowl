@@ -12,7 +12,7 @@ export const revalidate = 0;
 const noStore = { headers: { "Cache-Control": "no-store, must-revalidate" } };
 
 export async function GET(req) {
-  const userId = getUserId(req);
+  const userId = await getUserId(req);
   if (!userId) return NextResponse.json({ error: "Not signed in" }, { status: 401, ...noStore });
 
   const [state, pool, user] = await Promise.all([getUserState(userId), getJobPool(), getUserById(userId)]);

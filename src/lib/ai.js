@@ -1,23 +1,28 @@
 // Claude wrapper with graceful heuristic fallbacks when no key present.
 import Anthropic from "@anthropic-ai/sdk";
 import { unslopJSON, stripSlopDeep } from "./unslop.js";
+import { aiTaskParams, logAiUsage } from "./models_config.js";
 import { VIDEO_GENERATION_ENABLED } from "@/lib/constants";
-
-const MODEL = "claude-sonnet-4-5";
 
 export function hasAI() {
   return !!process.env.ANTHROPIC_API_KEY;
 }
 
-export async function claudeJSON(system, user, maxTokens = 2000) {
+// `task` picks the model tier (see models_config.js) and labels the usage log.
+export async function claudeJSON(system, user, maxTokens = 2000, { task = "default" } = {}) {
   const client = new Anthropic();
+  const params = aiTaskParams(task);
   const msg = await client.messages.create({
-    model: MODEL,
+    ...params,
     max_tokens: maxTokens,
     system: system + "\nRespond with ONLY valid JSON. No markdown fences.",
     messages: [{ role: "user", content: user }],
   });
-  const text = msg.content[0].text.trim().replace(/^```json?\n?|```$/g, "");
+  logAiUsage(task, params.model, msg.usage);
+  if (msg.stop_reason === "refusal") throw new Error(`Claude declined the ${task} request`);
+  const block = (msg.content || []).find((b) => b.type === "text");
+  if (!block) throw new Error(`Claude returned no text for ${task} (stop_reason=${msg.stop_reason})`);
+  const text = block.text.trim().replace(/^```json?\n?|```$/g, "");
   return JSON.parse(text);
 }
 
@@ -69,7 +74,9 @@ export async function parseResume(text) {
 }
 
 RESUME:
-${text.slice(0, 12000)}`
+${text.slice(0, 12000)}`,
+        2000,
+        { task: "parseResume" }
       );
     } catch (e) {
       console.error("AI parse failed, falling back:", e.message);
@@ -110,30 +117,6 @@ function resumeBlock(profile) {
   return profile && profile.resumeExcerpt
     ? `\nSOURCE OF TRUTH (the user's actual resume):\n${profile.resumeExcerpt}\n`
     : "";
-}
-
-// ---------- Fact-check pass ----------
-// One Claude call that audits generated content against the resume text and
-// returns a rewrite with unsupported claims removed/softened. Fails open.
-export async function factCheck(content, resumeExcerpt) {
-  if (!hasAI() || !resumeExcerpt) return { ok: true, unsupported: [], rewritten: content };
-  try {
-    const out = await claudeJSON(
-      "You are a strict fact-checker for job-search content. The RESUME is the only source of truth.",
-      `List any claims in CONTENT not supported by RESUME. Return JSON {"ok":boolean,"unsupported":string[],"rewritten":string} where rewritten is the content with unsupported claims removed or softened to resume-supported language. Keep tone, structure, and any {{pitch_url}} placeholders intact.
-
-RESUME:
-${resumeExcerpt}
-
-CONTENT:
-${content}`,
-      2000
-    );
-    if (typeof out.ok !== "boolean" || typeof out.rewritten !== "string") return { ok: true, unsupported: [], rewritten: content };
-    return out;
-  } catch {
-    return { ok: true, unsupported: [], rewritten: content };
-  }
 }
 
 // ---------- Cadence generation ----------
@@ -197,7 +180,7 @@ ${resumeBlock(profile)}
 HIRING_SIGNAL: ${signal ? JSON.stringify({ hiring: signal.hiring, openRoles: signal.openRoles, event: signal.event, summary: signal.summary }) : "none"}`;
 
   try {
-    const out = await claudeJSON(system, user);
+    const out = await claudeJSON(system, user, 2000, { task: "cadence" });
     const shaped = out && Array.isArray(out.steps) && out.steps.length ? out : fallback;
     const refined = await unslopJSON(shaped, { resumeExcerpt: profile.resumeExcerpt, maxTokens: 2500 });
     if (Array.isArray(refined.steps)) {
@@ -230,7 +213,8 @@ export async function generateApplyKit(profile, job) {
 CANDIDATE: ${JSON.stringify({ name: profile.name, title: profile.title, yearsExperience: profile.yearsExperience, topSkills: profile.topSkills, skills: profile.skills, summary: profile.summary, strengths: profile.strengths })}
 JOB: ${JSON.stringify({ title: job.title, company: job.company, description: (job.description || "").slice(0, 1500) })}
 ${resumeBlock(profile)}`,
-      1200
+      1200,
+      { task: "applyKit" }
     );
     return await unslopJSON(out && Array.isArray(out.bullets) ? out : fallback, {
       resumeExcerpt: profile.resumeExcerpt,
@@ -271,7 +255,8 @@ CANDIDATE: ${JSON.stringify({ name: profile.name, title: profile.title, yearsExp
 JOB: ${JSON.stringify({ title: job.title, company: job.company, description: (job.description || "").slice(0, 1500) })}
 PITCH_ANGLE: ${JSON.stringify(pitch ? { headline: pitch.headline, companyAngle: pitch.companyAngle } : null)}
 ${resumeBlock(profile)}`,
-      1600
+      1600,
+      { task: "socialPosts" }
     );
     if (!out.linkedinPost || !Array.isArray(out.twitterThread) || !out.twitterThread.length) return stripSlopDeep(fallback);
     const refined = await unslopJSON({
@@ -315,7 +300,9 @@ Every deck line and videoScript is spoken BY the candidate in first person, addr
 CANDIDATE: ${JSON.stringify({ name: profile.name, title: profile.title, yearsExperience: profile.yearsExperience, topSkills: profile.topSkills, summary: profile.summary, strengths: profile.strengths, orientation: profile.orientation })}
 JOB: ${JSON.stringify({ title: job.title, company: job.company, description: (job.description || "").slice(0, 2000) })}
 HIRING_SIGNAL: ${signal ? JSON.stringify({ hiring: signal.hiring, openRoles: signal.openRoles, event: signal.event, summary: signal.summary }) : "none"}
-${resumeBlock(profile)}`
+${resumeBlock(profile)}`,
+      2000,
+      { task: "pitch" }
     );
     return await unslopJSON(out && out.headline ? out : fallback, {
       resumeExcerpt: profile.resumeExcerpt,

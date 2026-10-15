@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getUserId } from "@/lib/auth";
+import { appUrl } from "@/lib/constants";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -13,7 +14,7 @@ export const PLANS = {
 // POST { plan } → Stripe Checkout Session URL (subscription, inline price).
 export async function POST(req) {
   try {
-    const userId = getUserId(req);
+    const userId = await getUserId(req);
     if (!userId) return NextResponse.json({ error: "Not signed in" }, { status: 401 });
     const key = process.env.STRIPE_SECRET_KEY;
     if (!key) return NextResponse.json({ error: "Payments not configured yet (STRIPE_SECRET_KEY missing)" }, { status: 501 });
@@ -22,8 +23,7 @@ export async function POST(req) {
     const p = PLANS[plan];
     if (!p) return NextResponse.json({ error: "Unknown plan" }, { status: 400 });
 
-    const host = req.headers.get("x-forwarded-host") || req.headers.get("host");
-    const base = `${req.headers.get("x-forwarded-proto") || "https"}://${host}`;
+    const base = appUrl();
 
     const body = new URLSearchParams({
       mode: "subscription",

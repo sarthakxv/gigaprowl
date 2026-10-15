@@ -13,7 +13,7 @@ export const dynamic = "force-dynamic";
 // These power the personalized pitch videos the user reviews before sending.
 export async function POST(req) {
   try {
-    const userId = getUserId(req);
+    const userId = await getUserId(req);
     if (!userId) return NextResponse.json({ error: "Not signed in" }, { status: 401 });
     if (!VIDEO_GENERATION_ENABLED)
       return NextResponse.json({ error: "Video generation is turned off" }, { status: 501 });

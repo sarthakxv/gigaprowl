@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 // burn credits. We generate one-per-request (not a batch loop) so each render
 // stays inside the 60s function limit; the caller loops over concepts.
 function authed(req) {
-  const token = process.env.UGC_ADMIN_TOKEN || process.env.CRON_SECRET || process.env.SESSION_SECRET;
+  const token = process.env.UGC_ADMIN_TOKEN;
   return token && req.headers.get("x-ugc-token") === token;
 }
 

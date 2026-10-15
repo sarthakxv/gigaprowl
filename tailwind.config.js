@@ -22,9 +22,6 @@ module.exports = {
         branddark: "#154D85",
         brandon: "#FFFFFF",
         success: "#187A55",
-        warning: "#946000",
-        danger: "#B43A3A",
-        info: "#6552B8",
         preview: {
           canvas: "#07111B",
           surface: "#132433",

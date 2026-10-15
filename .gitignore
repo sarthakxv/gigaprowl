@@ -21,7 +21,8 @@ next-env.d.ts
 # local data / uploads / scratch
 /data
 /design/
-/docs/
+/docs/*
+!/docs/public-v1-backend-foundation.md
 /tmp
 /output
 .firecrawl/
@@ -35,6 +36,7 @@ PHASE-BOUNDARIES.md
 skills.lock
 skills-lock.json
 .agents/
+.conductor/
 
 # os / editor
 .DS_Store

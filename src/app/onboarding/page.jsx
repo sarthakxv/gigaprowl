@@ -4,6 +4,7 @@ import { cn } from "@/lib/cn";
 import { VIDEO_GENERATION_ENABLED } from "@/lib/constants";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const RESUME_ACCEPT = ".pdf,.doc,.docx,.rtf,.txt,.md";
 
@@ -14,6 +15,7 @@ export default function Onboarding() {
   const [step, setStep] = useState(0);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
+  const [signingOut, setSigningOut] = useState(false);
   const [profile, setProfile] = useState(null);
   const [pastedText, setPastedText] = useState("");
   const [profileUrl, setProfileUrl] = useState("");
@@ -39,10 +41,25 @@ export default function Onboarding() {
     setProfile(data.profile);
   }
 
-  async function finish() {
+  async function signOut() {
+    if (signingOut) return;
+    setSigningOut(true);
+    const r = await fetch("/api/auth/logout", { method: "POST" }).catch(() => null);
+    const d = await r?.json().catch(() => ({})) || {};
+    if (!d.signedOut) {
+      setSigningOut(false);
+      return toast.error(d.error || "Could not sign out. Try again.");
+    }
+    if (!r.ok) {
+      toast.error(d.error);
+      return setTimeout(() => router.replace("/login?mode=login"), 4000);
+    }
+    router.replace("/login?mode=login");
+  }
+
+  // Matches rank against the shared, cron-refreshed job pool; nothing to start.
+  function finish() {
     setBusy(true);
-    // Kick off the first scan so the dashboard has matches waiting.
-    fetch("/api/jobs/sync", { method: "POST" }).catch(() => {});
     setTimeout(() => router.replace("/dashboard"), 800);
   }
 
@@ -52,10 +69,11 @@ export default function Onboarding() {
         <div className="flex items-center justify-between">
           <Link href="/" className="font-display text-2xl font-bold">gigaprowl<span className="text-mint">.</span></Link>
           <button
-            onClick={async () => { await fetch("/api/auth/logout", { method: "POST" }); router.replace("/login?mode=login"); }}
-            className="text-fog hover:text-white text-sm"
+            onClick={signOut}
+            disabled={signingOut}
+            className="text-fog hover:text-white text-sm disabled:opacity-60 disabled:hover:text-fog"
           >
-            Sign out
+            {signingOut ? "Signing out…" : "Sign out"}
           </button>
         </div>
         <div className="flex gap-2 my-8">

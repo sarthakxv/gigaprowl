@@ -2,7 +2,7 @@
 // scheduler cron (automatic release). Executes ONE cadence step:
 //   • linkedin → Unipile (server-side invite/DM) if connected, else browser-ext queue
 //   • email    → Gmail only (draft in manual mode, send in automated)
-import { getUserState, updateUserState, uid, bumpDailyCounter, isSuppressed, acquireLock, releaseLock } from "@/lib/db";
+import { getUserState, updateUserState, uid, bumpDailyCounter, isSuppressed } from "@/lib/db";
 import {
   sendGmail,
   createDraft,
@@ -14,43 +14,68 @@ import {
   assertValidRecipient,
 } from "@/lib/gmail";
 import { unipileEnabled, resolveProfile, sendInvitation, sendMessage, identifierFromUrl } from "@/lib/unipile";
-import { capLinkedInPerDay, capEmailPerDay, OUTREACH_LOCK_TTL_SEC, kvKeys } from "@/lib/constants";
+import { capLinkedInPerDay, capEmailPerDay } from "@/lib/constants";
+import { claimCadenceStep, finishDispatchAttempt } from "@/lib/durable";
 
 export const isLinkedIn = (ch) => /linkedin|connect|invite|dm/i.test(ch || "");
 const isInvite = (ch) => /invite|connect|request/i.test(ch || "");
 const ACTIONED = new Set(["sent", "drafted", "queued", "dispatching", "uncertain"]);
 
-export async function dispatchStep(userId, cadenceId, stepIndex) {
-  const lockKey = kvKeys.lockOutreach(userId, cadenceId, stepIndex);
-  const lockOwner = await acquireLock(lockKey, OUTREACH_LOCK_TTL_SEC);
-  if (!lockOwner) throw new GmailError("in_progress", "This step is already being sent");
+// A claimed step that failed before any mutating provider call is safe to
+// release for a later run. Once a provider call has started, its outcome is
+// unknown and the step is left for manual reconciliation.
+export function claimOutcome(error, providerCalled) {
+  return providerCalled || error?.code === "delivery_uncertain" ? "uncertain" : "pending";
+}
 
+export async function dispatchStep(userId, cadenceId, stepIndex) {
+  let attemptId;
+  const progress = { providerCalled: false };
   try {
-    return await runStep(userId, cadenceId, stepIndex);
-  } finally {
-    await releaseLock(lockKey, lockOwner).catch(() => {});
+    attemptId = await claimCadenceStep(userId, cadenceId, stepIndex);
+    if (!attemptId) return { skipped: true, status: "not_approved_or_already_actioned" };
+    const result = await runStep(userId, cadenceId, stepIndex, progress);
+    await finishDispatchAttempt(userId, attemptId, result.sent ? "sent" : result.drafted ? "drafted" : result.queued ? "queued" : "uncertain");
+    return result;
+  } catch (error) {
+    if (!attemptId) throw error;
+    let outcome = claimOutcome(error, progress.providerCalled);
+    // Only resolve a claim still marked dispatching; markAttempt may already
+    // have recorded a definite outcome such as a suppression or Gmail error.
+    await updateUserState(userId, (state) => {
+      const step = state.cadences.find((cadence) => cadence.id === cadenceId)?.steps?.[stepIndex];
+      if (step?.status !== "dispatching") {
+        outcome = step?.status || outcome;
+        return;
+      }
+      step.status = outcome;
+      step.lastAttemptAt = new Date().toISOString();
+      step.lastErrorCode = error.code || "error";
+    }).catch(() => {});
+    await finishDispatchAttempt(userId, attemptId, outcome === "uncertain" ? "uncertain" : "failed", error.code || "error").catch(() => {});
+    throw error;
   }
 }
 
-async function runStep(userId, cadenceId, stepIndex) {
+async function runStep(userId, cadenceId, stepIndex, progress) {
   const state = await getUserState(userId);
   const cadence = state.cadences.find((c) => c.id === cadenceId);
   if (!cadence) throw new Error("Cadence not found");
   const step = cadence.steps[stepIndex];
   if (!step) throw new Error("Step not found");
-  if (ACTIONED.has(step.status)) return { skipped: true, status: step.status };
+  if (step.status !== "dispatching") return { skipped: true, status: step.status };
 
   const contact = state.contacts.find((c) => c.id === cadence.contactId) || {};
   const mode = state.settings?.outreachMode === "automated" ? "automated" : "manual";
 
   if (isLinkedIn(step.channel)) {
-    return dispatchLinkedIn({ userId, cadenceId, stepIndex, cadence, step, contact, state });
+    return dispatchLinkedIn({ userId, cadenceId, stepIndex, cadence, step, contact, state, progress });
   }
 
-  return dispatchEmail({ userId, cadenceId, stepIndex, cadence, step, contact, state, mode });
+  return dispatchEmail({ userId, cadenceId, stepIndex, cadence, step, contact, state, mode, progress });
 }
 
-async function dispatchLinkedIn({ userId, cadenceId, stepIndex, cadence, step, contact, state }) {
+async function dispatchLinkedIn({ userId, cadenceId, stepIndex, cadence, step, contact, state, progress }) {
   const identifier = identifierFromUrl(contact.linkedinUrl);
   if (!identifier) throw new Error("No LinkedIn profile URL for this contact");
   const li = state.connections?.linkedin;
@@ -60,6 +85,7 @@ async function dispatchLinkedIn({ userId, cadenceId, stepIndex, cadence, step, c
     if (!allowed) throw new Error(`Daily LinkedIn limit reached (${capLinkedInPerDay()}/day). Resumes tomorrow`);
     const providerId = await resolveProfile({ accountId: li.accountId, identifier });
     if (!providerId) throw new Error("Couldn't resolve that LinkedIn profile via Unipile");
+    progress.providerCalled = true;
     const result = isInvite(step.channel)
       ? await sendInvitation({ accountId: li.accountId, providerId, message: (step.body || "").slice(0, 290) })
       : await sendMessage({ accountId: li.accountId, providerId, text: step.body || "" });
@@ -80,7 +106,7 @@ async function dispatchLinkedIn({ userId, cadenceId, stepIndex, cadence, step, c
   return { channel: step.channel, queued: true, via: "extension" };
 }
 
-async function dispatchEmail({ userId, cadenceId, stepIndex, cadence, step, contact, state, mode }) {
+async function dispatchEmail({ userId, cadenceId, stepIndex, cadence, step, contact, state, mode, progress }) {
   if (!contact.email) throw new Error("No email for this contact (try enriching via LeadMagic)");
   if (await isSuppressed(contact.email)) {
     await markAttempt(userId, cadenceId, stepIndex, "suppressed", false);
@@ -125,6 +151,7 @@ async function dispatchEmail({ userId, cadenceId, stepIndex, cadence, step, cont
   await markDispatching(userId, cadenceId, stepIndex);
 
   let result;
+  progress.providerCalled = true;
   try {
     result = mode === "automated"
       ? { messageId: await sendGmail(payload), sent: true }

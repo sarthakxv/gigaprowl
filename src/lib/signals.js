@@ -9,64 +9,44 @@
 // Until keys + endpoint are wired, we fall back to a deterministic mock so the
 // whole pipeline is testable without spending credits and never breaks.
 
-const PARALLEL_KEY = process.env.PARALLEL_API_KEY;
-const PARALLEL_BASE = "https://api.parallel.ai/v1";
+import { parallelEnabled, runParallelTask } from "@/lib/parallel";
+
 // "base" is the cheapest/fastest processor. Plenty for a hiring-signal lookup.
 const PARALLEL_PROCESSOR = process.env.PARALLEL_PROCESSOR || "base";
 // Hard time budget so a slow research run can't blow the outreach route's
 // maxDuration. On timeout we quietly fall back to the mock signal.
 const PARALLEL_TIMEOUT_MS = Number(process.env.PARALLEL_TIMEOUT_MS || 20000);
 
-export const signalsEnabled = () => !!PARALLEL_KEY;
+const SIGNAL_INPUT_SCHEMA = {
+  type: "object",
+  properties: { company_name: { type: "string", description: "Company to research hiring signals for" } },
+  required: ["company_name"],
+};
+
+const SIGNAL_OUTPUT_SCHEMA = {
+  type: "object",
+  properties: {
+    is_hiring: { type: "string", enum: ["yes", "no"], description: "Whether the company is actively hiring / scaling its engineering or product teams right now." },
+    open_roles: { type: "string", description: "Approximate number of currently open engineering/product roles, as a number in string form (e.g. '7'). Use '0' if unknown." },
+    recent_event: { type: "string", description: "A recent hiring-relevant event in the last ~6 months (e.g. 'raised a $50M Series B', 'hired a new VP of Engineering', 'expanding the platform team'), or 'none'." },
+    summary: { type: "string", description: "One or two sentences on the company's current hiring momentum." },
+  },
+  required: ["is_hiring", "open_roles", "recent_event", "summary"],
+  additionalProperties: false,
+};
 
 // ---- Parallel Task API: research this company's current hiring momentum ----
-// create a task run → block on its result → normalize into our signal shape.
+// run a task → normalize its structured result into our signal shape.
 async function fetchParallelSignal(company) {
   try {
-    const createRes = await fetch(`${PARALLEL_BASE}/tasks/runs`, {
-      method: "POST",
-      headers: { "x-api-key": PARALLEL_KEY, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        input: { company_name: company },
-        processor: PARALLEL_PROCESSOR,
-        task_spec: {
-          input_schema: {
-            type: "json",
-            json_schema: {
-              type: "object",
-              properties: { company_name: { type: "string", description: "Company to research hiring signals for" } },
-              required: ["company_name"],
-            },
-          },
-          output_schema: {
-            type: "json",
-            json_schema: {
-              type: "object",
-              properties: {
-                is_hiring: { type: "string", enum: ["yes", "no"], description: "Whether the company is actively hiring / scaling its engineering or product teams right now." },
-                open_roles: { type: "string", description: "Approximate number of currently open engineering/product roles, as a number in string form (e.g. '7'). Use '0' if unknown." },
-                recent_event: { type: "string", description: "A recent hiring-relevant event in the last ~6 months (e.g. 'raised a $50M Series B', 'hired a new VP of Engineering', 'expanding the platform team'), or 'none'." },
-                summary: { type: "string", description: "One or two sentences on the company's current hiring momentum." },
-              },
-              required: ["is_hiring", "open_roles", "recent_event", "summary"],
-              additionalProperties: false,
-            },
-          },
-        },
-      }),
-      signal: AbortSignal.timeout(15000),
+    const content = await runParallelTask({
+      input: { company_name: company },
+      inputSchema: SIGNAL_INPUT_SCHEMA,
+      outputSchema: SIGNAL_OUTPUT_SCHEMA,
+      processor: PARALLEL_PROCESSOR,
+      timeoutMs: PARALLEL_TIMEOUT_MS,
     });
-    if (!createRes.ok) throw new Error(`create ${createRes.status} ${(await createRes.text()).slice(0, 160)}`);
-    const { run_id } = await createRes.json();
-    if (!run_id) throw new Error("no run_id in create response");
-
-    // The result endpoint blocks server-side until the run completes.
-    const resultRes = await fetch(`${PARALLEL_BASE}/tasks/runs/${run_id}/result`, {
-      headers: { "x-api-key": PARALLEL_KEY },
-      signal: AbortSignal.timeout(PARALLEL_TIMEOUT_MS),
-    });
-    if (!resultRes.ok) throw new Error(`result ${resultRes.status}`);
-    return normalizeParallel(await resultRes.json(), company);
+    return normalizeParallel(content, company);
   } catch (e) {
     console.error("Parallel signal fetch failed, using mock:", e.message);
     return null; // → caller falls back to the mock signal
@@ -74,9 +54,7 @@ async function fetchParallelSignal(company) {
 }
 
 // Shape Parallel's Task Run Result into our signal object.
-function normalizeParallel(data, company) {
-  const content = data?.output?.content;
-  if (!content || typeof content !== "object") return null;
+function normalizeParallel(content, company) {
   const parsedRoles = parseInt(content.open_roles, 10);
   const openRoles = Number.isFinite(parsedRoles) ? parsedRoles : 0;
   const eventRaw = (content.recent_event || "").trim();
@@ -122,10 +100,11 @@ function mockSignal(company) {
 
 export async function getHiringSignal(company) {
   if (!company) return null;
-  if (PARALLEL_KEY) {
+  if (parallelEnabled()) {
     const real = await fetchParallelSignal(company);
     if (real) return { ...real, source: "parallel" };
   }
+  if (process.env.NODE_ENV === "production") return null;
   return mockSignal(company);
 }
 
@@ -133,11 +112,4 @@ export async function getHiringSignal(company) {
 export function signalScoreBoost(signal) {
   if (!signal || !signal.hiring) return 0;
   return Math.round(signal.intensity * 12 + (signal.event ? 3 : 0));
-}
-
-// One-line, first-person personalization hook for outreach (email / LinkedIn).
-export function signalHook(signal) {
-  if (!signal || !signal.hiring) return null;
-  if (signal.event) return `I noticed ${signal.company} is scaling (${signal.event})`;
-  return `I noticed ${signal.company} has several open roles right now`;
 }

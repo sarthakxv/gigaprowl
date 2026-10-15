@@ -6,7 +6,9 @@ Gigaprowl is a Next.js 14 App Router application for job matching, personalized
 outreach, and a companion LinkedIn extension. Treat running code and
 configuration as truth: `package.json` for commands and dependencies,
 `.env.example` for supported configuration, and `vercel.json` for scheduled
-routes. `docs/architecture-v2.md` is a future-state draft. Consult
+routes. For Auth, Postgres, and release gates read
+`docs/public-v1-backend-foundation.md`; `docs/architecture-v2.md` is historical
+input, not a binding spec. Consult
 `docs/OBSOLETE.md` before reviving a removed integration or flow. Issues live
 in GitHub (`sarthakxv/gigaprowl`).
 
@@ -27,14 +29,16 @@ in GitHub (`sarthakxv/gigaprowl`).
 
 ## Application invariants
 
-- Multi-tenant. Session routes derive the user with `getUserId(req)` from
-  `src/lib/auth.js`. Extension pull/ack authenticates with header `x-prowl-token`
-  (a signed session token from `/api/li/pair`). Cron and admin routes keep
-  their existing secret checks (`src/lib/cron-auth.js` for the scheduler).
-  Stripe and Resend webhooks verify provider signatures.
-- Read and mutate per-user state through `src/lib/db.js`, using
-  `updateUserState` for writes. Production uses Upstash/Vercel KV; local
-  dev writes ignored JSON under `data/`. Keep uploads and secrets out of
+- Multi-tenant. Protected routes await `getUserId(req)` from `src/lib/auth.js`;
+  it verifies a confirmed Supabase Auth user and provisions the app account.
+  Extension pull/ack uses a separate hashed, expiring, revocable credential in
+  `x-prowl-token`. Cron and admin routes require their configured secrets;
+  Stripe and Resend webhooks require provider signatures.
+- Durable records live in the private Postgres `app` schema. `src/lib/db.js`
+  preserves the existing state interface; `src/lib/durable.js` owns SQL
+  transitions. User SQL runs with a verified tenant ID in a transaction-local
+  setting. KV is only for expiring cache, counters, and OAuth state. Local
+  JSON is never a fallback for durable data. Keep uploads and secrets out of
   the repository.
 - Node runtime is the default for APIs (`fs`, crypto, PDF/DOCX, rasterization).
   Keep Edge only where the dependency boundary already supports it
@@ -42,8 +46,9 @@ in GitHub (`sarthakxv/gigaprowl`).
 - Outreach stays manual-by-default (`settings.outreachMode`). Email goes
   through Gmail only: drafts in manual mode, send in automated. LinkedIn
   prefers a connected Unipile account, otherwise the browser-extension queue.
-  Preserve daily caps, outreach locks, suppression, and idempotent step status
-  when extending dispatch. Full hunts cost one credit; lite apply kits do not.
+  Generated cadences remain drafts until explicit approval. Preserve daily
+  caps, database step claims, suppression, and idempotent attempt status when
+  extending dispatch. Full hunts cost one credit; lite apply kits do not.
   Credits are unlimited in development.
 
 ## Code and verification
@@ -60,6 +65,8 @@ There is no lint script. For `src/lib/` modules that have a sibling
 changed UI or API path, including authorization, invalid input, and
 keyless/fallback behavior. Add new environment variables to `.env.example`
 without putting credentials in documentation, logs, or commits.
+Local migration tests use PGlite; live Auth, pooled-role, and provider flows
+still require an empty staging Supabase project before release.
 
 When driving a browser for UI verification, use Playwright Chromium from
 `.playwright/cli.config.json`, not system Google Chrome. Prefer

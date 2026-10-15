@@ -41,18 +41,30 @@ function stepDate(cadence, step) {
   return d;
 }
 function fmtDay(d) { return d.toLocaleDateString(undefined, { month: "short", day: "numeric" }); }
+function timeAgo(iso) {
+  const mins = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60_000));
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.round(mins / 60);
+  return hours < 48 ? `${hours}h ago` : `${Math.round(hours / 24)}d ago`;
+}
 
 export default function Dashboard() {
   const [state, setState] = useState(null);
   const [tab, setTab] = useState("Matches");
-  const [syncing, setSyncing] = useState(false);
   const [hunting, setHunting] = useState(null); // matchId in flight
-  const [autopilot, setAutopilot] = useState(null); // "running" | "done"
+  const [kitBatch, setKitBatch] = useState(null); // "running" | "done"
   const [uploadingMedia, setUploadingMedia] = useState(null); // "face" | "voice"
   const [mediaHidden, setMediaHidden] = useState(false);
   const [mediaError, setMediaError] = useState(null);
 
+  // Set before the logout request so background loops stop queuing work that
+  // would compete with it for the database.
+  const signingOutRef = useRef(false);
+  const [signingOut, setSigningOut] = useState(false);
+
   const refresh = useCallback(async () => {
+    if (signingOutRef.current) return;
     const r = await fetch("/api/state", { cache: "no-store" });
     if (r.status === 401) { window.location.href = "/login?mode=login"; return; }
     const data = await r.json().catch(() => null);
@@ -61,8 +73,21 @@ export default function Dashboard() {
   }, []);
 
   async function logout() {
-    await fetch("/api/auth/logout", { method: "POST" });
-    window.location.href = "/";
+    if (signingOutRef.current) return;
+    signingOutRef.current = true;
+    setSigningOut(true);
+    const r = await fetch("/api/auth/logout", { method: "POST" }).catch(() => null);
+    const d = await r?.json().catch(() => ({})) || {};
+    if (!d.signedOut) {
+      signingOutRef.current = false;
+      setSigningOut(false);
+      return toast.error(d.error || "Could not sign out. Try again.");
+    }
+    if (!r.ok) {
+      toast.error(d.error);
+      return setTimeout(() => { window.location.replace("/login?mode=login"); }, 4000);
+    }
+    window.location.replace("/login?mode=login");
   }
 
   useEffect(() => { refresh(); }, [refresh]);
@@ -71,7 +96,7 @@ export default function Dashboard() {
   // pitch that doesn't have its posts yet, fire /api/social one at a time, then refresh.
   const [socialRunning, setSocialRunning] = useState(false);
   useEffect(() => {
-    if (!state || socialRunning) return;
+    if (!state || socialRunning || signingOutRef.current) return;
     const posts = state.socialPosts || [];
     const pending = (state.pitches || []).filter(
       (p) => p.matchId && p.socialStatus !== "failed" && !posts.some((x) => x.matchId === p.matchId)
@@ -80,6 +105,7 @@ export default function Dashboard() {
     setSocialRunning(true);
     (async () => {
       for (const p of pending.slice(0, 5)) {
+        if (signingOutRef.current) break;
         try {
           await fetch("/api/social", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ matchId: p.matchId }) });
         } catch {}
@@ -94,7 +120,7 @@ export default function Dashboard() {
   const [kitRunning, setKitRunning] = useState(false);
   const kitAttemptedRef = useRef(new Set());
   useEffect(() => {
-    if (!state || kitRunning) return;
+    if (!state || kitRunning || signingOutRef.current) return;
     const kits = state.applyKits || [];
     const pending = (state.pitches || []).filter(
       (p) => p.matchId && !kits.some((x) => x.matchId === p.matchId) && !kitAttemptedRef.current.has(p.matchId)
@@ -105,6 +131,7 @@ export default function Dashboard() {
     setKitRunning(true);
     (async () => {
       for (const p of batch) {
+        if (signingOutRef.current) break;
         try {
           await fetch("/api/apply-kit", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ matchId: p.matchId }) });
         } catch {}
@@ -116,17 +143,20 @@ export default function Dashboard() {
 
   // Outreach generation is always explicit. "Automated" controls delivery of
   // already-generated cadence steps; it never starts creating outreach.
-  async function runAutopilot(opts = {}) {
-    if (!state || autopilot === "running") return;
-    setAutopilot("running");
+  // Batch generation is limited to free apply kits; hunts are always per job.
+  async function runKitBatch() {
+    if (!state || kitBatch === "running") return;
+    setKitBatch("running");
+    let r = null;
     try {
-      await fetch("/api/autopilot", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ liteOnly: !!opts.liteOnly }),
-      });
+      r = await fetch("/api/autopilot", { method: "POST" });
     } catch {}
-    setAutopilot("done");
+    const d = await r?.json().catch(() => ({})) || {};
+    if (r?.ok) setKitBatch("done");
+    else {
+      setKitBatch(null);
+      toast.error(d.error || "Could not generate apply kits. Try again.");
+    }
     refresh();
   }
 
@@ -138,16 +168,6 @@ export default function Dashboard() {
     if (r.ok) toast.success("Apply kit ready. Copy the bullets and note from Apply kits.");
     else toast.error(d.error || "Apply kit failed");
     if (r.ok) { kitAttemptedRef.current.add(matchId); setTab("Apply kits"); }
-    refresh();
-  }
-
-  async function runSync() {
-    setSyncing(true);
-    const r = await fetch("/api/jobs/sync", { method: "POST" });
-    const d = await r.json();
-    setSyncing(false);
-    if (r.ok) toast.success(`Scan complete: ${d.added} new · ${d.stored} in pool (${d.kb}KB)`);
-    else toast.error(d.error || "Scan failed");
     refresh();
   }
 
@@ -268,6 +288,23 @@ export default function Dashboard() {
     if (r.ok) refresh();
   }
 
+  async function approveCadence(cad) {
+    const contact = (state.contacts || []).find((item) => item.id === cad.contactId);
+    const channels = cad.steps.map((step) => step.channel.replace("_", " ")).join(", ");
+    const recipient = [contact?.name || cad.contactName, contact?.email, contact?.linkedinUrl].filter(Boolean).join(" · ");
+    if (!window.confirm(`Approve this cadence for ${recipient}?\n\nChannels: ${channels}\n\nReview every step below first. Approved steps may run automatically when due if automated mode is enabled.`)) return;
+    const response = await fetch("/api/cadence/approve", {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ cadenceId: cad.id }),
+    });
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      toast.error(data.error || "Approval failed");
+      return;
+    }
+    toast.success("Cadence approved");
+    refresh();
+  }
+
   async function setMode(outreachMode) {
     const r = await fetch("/api/settings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ outreachMode }) });
     if (r.ok) { toast.success(outreachMode === "manual" ? "Manual: emails saved as Gmail drafts to review" : "Automated: Gigaprowl sends emails for you"); refresh(); }
@@ -326,10 +363,12 @@ export default function Dashboard() {
           <Link href="/" className="font-display text-xl font-bold">gigaprowl<span className="text-mint">.</span></Link>
           <div className="flex items-center gap-4 text-sm">
             <span className="text-fog tabular-nums">{credits.unlimited ? "Unlimited credits · Dev" : `${credits.balance} credits`}</span>
-            <button onClick={runSync} disabled={syncing} title="Jobs auto-refresh daily; this scans on demand" className="bg-mint text-ink font-semibold px-4 py-2 rounded-full hover:bg-mintdim transition disabled:opacity-50">
-              {syncing ? "Scanning…" : "Refresh jobs"}
+            <span className="text-fog tabular-nums" title="Jobs refresh daily for everyone">
+              {state.lastSync ? `Jobs updated ${timeAgo(state.lastSync)}` : "Jobs not scanned yet"}
+            </span>
+            <button onClick={logout} disabled={signingOut} className="text-fog hover:text-white text-sm disabled:opacity-60 disabled:hover:text-fog">
+              {signingOut ? "Signing out…" : "Log out"}
             </button>
-            <button onClick={logout} className="text-fog hover:text-white text-sm">Log out</button>
           </div>
         </div>
       </nav>
@@ -348,7 +387,7 @@ export default function Dashboard() {
             {uploadingMedia === "resume" ? "Updating resume…" : "Update resume"}
           </label>
           <p className="text-fog/60 text-xs ml-auto tabular-nums">
-            {state.jobCount} jobs indexed · last scan {state.lastSync ? new Date(state.lastSync).toLocaleString() : "never"}
+            {state.jobCount} jobs indexed
             {!integrations.ai && " · demo AI (add ANTHROPIC_API_KEY)"}
             {!integrations.apollo && " · demo contacts (add APOLLO_API_KEY)"}
           </p>
@@ -456,34 +495,25 @@ export default function Dashboard() {
           </div>
         )}
 
-        {!pitches.length && !applyKits.length && autopilot !== "running" && (
-          <div className="bg-panel border border-edge rounded-2xl p-5 mb-6 flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <p className="font-semibold">Ready to generate outreach?</p>
-              <p className="text-pretty text-fog text-sm">Review your matches first. This creates pitch pages and cadence drafts; it does not send them.</p>
-            </div>
-            <button onClick={() => runAutopilot()} className="bg-mint text-ink font-bold px-5 py-2.5 rounded-full hover:bg-mintdim transition">Generate for top matches</button>
-          </div>
-        )}
-        {!!pitches.length && !!liteWithoutKit.length && !hasLiteBandKits && autopilot !== "running" && (
+        {!!liteWithoutKit.length && !hasLiteBandKits && kitBatch !== "running" && (
           <div className="bg-panel border border-edge rounded-2xl p-5 mb-6 flex flex-wrap items-center justify-between gap-4">
             <div>
               <p className="font-semibold">Kits for matches scored 50-74</p>
               <p className="text-pretty text-fog text-sm">{liteWithoutKit.length} still need a kit. Resume bullets and an apply note, no credits.</p>
             </div>
-            <button onClick={() => runAutopilot({ liteOnly: true })} className="bg-mint text-ink font-bold px-5 py-2.5 rounded-full hover:bg-mintdim transition">Generate apply kits</button>
+            <button onClick={runKitBatch} className="bg-mint text-ink font-bold px-5 py-2.5 rounded-full hover:bg-mintdim transition">Generate apply kits</button>
           </div>
         )}
-        {autopilot === "running" && (
+        {kitBatch === "running" && (
           <div className="bg-panel border border-mint rounded-2xl p-5 mb-6">
-            <p className="text-mint font-semibold animate-pulse">🎯 Generating outreach drafts…</p>
-            <p className="text-pretty text-fog text-sm mt-1">75+ gets a pitch page, contacts, and outreach. 50-74 gets a kit. About a minute.</p>
+            <p className="text-mint font-semibold animate-pulse">Writing apply kits…</p>
+            <p className="text-pretty text-fog text-sm mt-1">Matches scored 50-74 get resume bullets and an apply note. About 30 seconds.</p>
           </div>
         )}
-        {autopilot === "done" && (
+        {kitBatch === "done" && (
           <div className="bg-panel border border-mint rounded-2xl p-5 mb-6">
-            <p className="text-mint font-semibold">✓ Autopilot done. First hunts are ready.</p>
-            <p className="text-pretty text-fog text-sm mt-1">Pitch pages and Cadences for hunts. Apply kits for the rest.{VIDEO_GENERATION_ENABLED ? " Videos take a couple of minutes." : ""}</p>
+            <p className="text-mint font-semibold">✓ Apply kits ready.</p>
+            <p className="text-pretty text-fog text-sm mt-1">Find them in the Apply kits tab.</p>
           </div>
         )}
         <div className="flex gap-2 mb-6">
@@ -496,7 +526,7 @@ export default function Dashboard() {
 
         {tab === "Matches" && (
           <div className="space-y-3">
-            {matches.length === 0 && <p className="text-fog">No matches yet. Hit Refresh jobs.</p>}
+            {matches.length === 0 && <p className="text-fog">No matches yet. Jobs refresh daily.</p>}
             {matches.map((m) => (
               <div key={m.id} className="bg-panel border border-edge rounded-2xl p-5 flex flex-wrap items-center gap-4">
                 <div className={cn("font-display font-bold text-lg size-14 rounded-xl flex items-center justify-center shrink-0 tabular-nums", m.score >= 70 ? "bg-mint text-ink" : "bg-edge text-mint")}>{m.score}</div>
@@ -566,13 +596,13 @@ export default function Dashboard() {
           <div className="space-y-4">
             {applyKits.length === 0 && (
               <div className="bg-panel border border-edge rounded-2xl p-5">
-                {kitRunning || autopilot === "running" ? (
+                {kitRunning || kitBatch === "running" ? (
                   <p className="text-mint font-semibold animate-pulse">Writing apply kits…</p>
                 ) : (
                   <>
                     <p className="text-pretty text-fog">Nothing here yet. Hunt a job and a kit shows up after outreach lands. Or generate kits for matches scored 50-74.</p>
                     {!!liteWithoutKit.length && (
-                      <button onClick={() => runAutopilot({ liteOnly: true })} className="mt-4 bg-mint text-ink font-bold px-5 py-2.5 rounded-full hover:bg-mintdim transition">
+                      <button onClick={runKitBatch} className="mt-4 bg-mint text-ink font-bold px-5 py-2.5 rounded-full hover:bg-mintdim transition">
                         Generate apply kits ({liteWithoutKit.length})
                       </button>
                     )}
@@ -646,10 +676,15 @@ export default function Dashboard() {
                 <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
                   <p className="font-semibold">{c.jobTitle} @ {c.company} <span className="text-fog font-normal text-sm">→ {c.contactName} ({c.contactTitle})</span></p>
                   <div className="flex items-center gap-2">
+                    {c.approvalStatus !== "approved" && (
+                      <button onClick={() => approveCadence(c)} className="text-xs border border-mint text-mint rounded-full px-3 py-1 hover:bg-mint hover:text-ink transition">
+                        Approve cadence
+                      </button>
+                    )}
                     <button onClick={() => restyle(c.id, c.style === "founder_direct" ? "standard" : "founder_direct")} disabled={restyling === c.id} className="text-xs border border-edge hover:border-mint hover:text-mint text-fog rounded-full px-3 py-1 transition disabled:opacity-50">
                       {restyling === c.id ? "rewriting…" : c.style === "founder_direct" ? "↺ standard style" : "✍️ founder-direct style"}
                     </button>
-                    <span className="text-xs border border-edge rounded-full px-3 py-1 text-fog">review, then send</span>
+                    <span className="text-xs border border-edge rounded-full px-3 py-1 text-fog">{c.approvalStatus === "approved" ? "approved" : "draft · review first"}</span>
                   </div>
                 </div>
                 <div className="space-y-3">
@@ -671,7 +706,7 @@ export default function Dashboard() {
                           ) : (
                             <button
                               onClick={() => ready ? sendStep(c, i) : (li ? connectLinkedIn() : connectGmail())}
-                              disabled={sending === `${c.id}:${i}`}
+                              disabled={sending === `${c.id}:${i}` || c.approvalStatus !== "approved"}
                               className="text-xs font-bold shrink-0 rounded-full px-4 py-1.5 bg-mint text-ink hover:bg-mintdim transition disabled:opacity-50"
                             >
                               {sending === `${c.id}:${i}` ? "working…" : ready ? action : connectLabel}

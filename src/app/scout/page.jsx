@@ -34,14 +34,12 @@ function ScoreRing({ score }) {
 export default function Scout() {
   const [url, setUrl] = useState("");
   const [email, setEmail] = useState("");
-  const [phase, setPhase] = useState("idle"); // idle | scanning | teaser | unlocked
+  const [phase, setPhase] = useState("idle"); // idle | scanning | done
   const [scanLine, setScanLine] = useState(0);
-  const [teaser, setTeaser] = useState(null);
   const [report, setReport] = useState(null);
   const [err, setErr] = useState("");
-  const [unlocking, setUnlocking] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [emailSaved, setEmailSaved] = useState(false);
-  const [runId, setRunId] = useState(null);
 
   async function postScout(payload) {
     const r = await fetch("/api/scout", {
@@ -65,20 +63,10 @@ export default function Scout() {
     setScanLine(0);
     const timer = setInterval(() => setScanLine((i) => Math.min(i + 1, SCANNING_LINES.length - 1)), 2600);
     try {
-      // Start the run, then poll until the real read completes (up to ~2.5 min).
-      let data = await postScout({ linkedinUrl: url });
-      let rid = data.runId || null;
-      setRunId(rid);
-      let tries = 0;
-      while (data.status === "running" && tries < 50) {
-        await new Promise((res) => setTimeout(res, 3000));
-        tries++;
-        data = await postScout({ linkedinUrl: url, runId: rid });
-        if (data.runId) { rid = data.runId; setRunId(rid); }
-      }
-      if (data.status !== "done") throw new Error("This is taking longer than expected. Please try again.");
+      const data = await postScout({ linkedinUrl: url });
+      if (data.status !== "done") throw new Error("Scan failed. Please try again.");
       setReport(data);
-      setPhase("unlocked");
+      setPhase("done");
     } catch (e2) {
       setErr(e2.message);
       setPhase("idle");
@@ -87,29 +75,28 @@ export default function Scout() {
     }
   }
 
-  async function unlock(e) {
+  async function saveEmail(e) {
     e?.preventDefault();
     setErr("");
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-      setErr("Enter a valid email to unlock your report.");
+      setErr("Enter a valid email address.");
       return;
     }
-    setUnlocking(true);
+    setSaving(true);
     try {
-      const data = await postScout({ linkedinUrl: url, runId, email });
+      const data = await postScout({ linkedinUrl: url, email });
       if (data.status !== "done") throw new Error("Couldn't save. Please try again.");
       setReport(data);
       setEmailSaved(true);
     } catch (e2) {
       setErr(e2.message);
     } finally {
-      setUnlocking(false);
+      setSaving(false);
     }
   }
 
   function reset() {
     setPhase("idle");
-    setTeaser(null);
     setReport(null);
     setEmail("");
     setEmailSaved(false);
@@ -164,67 +151,8 @@ export default function Scout() {
           </div>
         )}
 
-        {/* ---------------- TEASER (locked) ---------------- */}
-        {phase === "teaser" && teaser && (
-          <div className="pt-6">
-            <ProfileCard p={teaser.profile} />
-
-            <div className="flex items-baseline justify-between mt-8 mb-4">
-              <h2 className="font-display text-2xl font-bold text-balance tabular-nums">
-                {teaser.matchCount} match{teaser.matchCount === 1 ? "" : "es"} found
-              </h2>
-              <span className="text-fog text-sm tabular-nums">
-                {teaser.relaxed ? "freshest openings" : `posted in the last ${teaser.windowHours}h`} · {teaser.totalScanned} scanned
-              </span>
-            </div>
-
-            <div className="space-y-3">
-              {teaser.matches.map((m, i) => (
-                <div key={i} className="relative bg-panel border border-edge rounded-2xl p-5 overflow-hidden">
-                  <div className="flex items-center gap-4">
-                    <div className="shrink-0 size-[68px] rounded-full border-2 border-edge flex items-center justify-center">
-                      <span className="text-mint/40 text-2xl">🔒</span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-display font-bold text-lg truncate">{m.title}</p>
-                      <p className="text-fog select-none blur-sm">{m.companyMasked}</p>
-                      <p className="text-fog/70 text-sm mt-1 tabular-nums">
-                        {m.remote ? "🌍 remote" : m.location || "—"} · posted {m.ageHours <= 1 ? "just now" : `${m.ageHours}h ago`}
-                      </p>
-                    </div>
-                    <span className="shrink-0 text-xs font-bold tabular-nums bg-mint/10 text-mint border border-mint/30 rounded-full px-3 py-1">{m.scoreBand} fit</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* email gate */}
-            <div className="mt-8 bg-panel border border-mint rounded-3xl p-8 text-center shadow-lg">
-              <p className="text-2xl mb-2">🔓</p>
-              <h3 className="font-display text-2xl font-bold text-balance mb-2">unlock your full match report</h3>
-              <p className="text-pretty text-fog mb-6 max-w-md mx-auto">
-                see the exact companies, your match score for each, why you fit, and the direct apply link. free.
-              </p>
-              <form onSubmit={unlock} className="max-w-md mx-auto flex flex-col sm:flex-row gap-3">
-                <input
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  type="email"
-                  placeholder="you@email.com"
-                  className="flex-1 bg-ink border border-edge focus:border-mint outline-none rounded-full px-6 py-4 text-white placeholder-fog/50 transition"
-                />
-                <button type="submit" disabled={unlocking} className="bg-mint text-ink font-bold px-8 py-4 rounded-full hover:bg-mintdim hover:scale-105 transition disabled:opacity-60 whitespace-nowrap">
-                  {unlocking ? "unlocking…" : "unlock →"}
-                </button>
-              </form>
-              {err && <p className="text-red-400 text-sm mt-3">{err}</p>}
-              <p className="text-pretty text-fog/50 text-xs mt-4">we'll email your report + keep you posted on fresh matches. no spam.</p>
-            </div>
-          </div>
-        )}
-
-        {/* ---------------- UNLOCKED (full) ---------------- */}
-        {phase === "unlocked" && report && (
+        {/* ---------------- REPORT ---------------- */}
+        {phase === "done" && report && (
           <div className="pt-6">
             <ProfileCard p={report.profile} />
 
@@ -273,7 +201,7 @@ export default function Scout() {
               <div className="mt-8 bg-panel border border-edge rounded-3xl p-6">
                 <p className="font-display font-bold mb-1 text-center">want these emailed to you + fresh matches as they drop?</p>
                 <p className="text-fog text-sm text-center mb-4">optional. your report's already above.</p>
-                <form onSubmit={unlock} className="max-w-md mx-auto flex flex-col sm:flex-row gap-3">
+                <form onSubmit={saveEmail} className="max-w-md mx-auto flex flex-col sm:flex-row gap-3">
                   <input
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -281,8 +209,8 @@ export default function Scout() {
                     placeholder="you@email.com"
                     className="flex-1 bg-ink border border-edge focus:border-mint outline-none rounded-full px-6 py-3 text-white placeholder-fog/50 transition"
                   />
-                  <button type="submit" disabled={unlocking} className="bg-mint text-ink font-bold px-7 py-3 rounded-full hover:bg-mintdim transition disabled:opacity-60 whitespace-nowrap">
-                    {unlocking ? "saving…" : "email me →"}
+                  <button type="submit" disabled={saving} className="bg-mint text-ink font-bold px-7 py-3 rounded-full hover:bg-mintdim transition disabled:opacity-60 whitespace-nowrap">
+                    {saving ? "saving…" : "email me →"}
                   </button>
                 </form>
                 {err && <p className="text-red-400 text-sm mt-3 text-center">{err}</p>}
